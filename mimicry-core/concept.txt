@@ -1,0 +1,74 @@
+Issues:
+--------------------
+- How to release/transfer pending locks on Clock when it is exchanged?
+
+
+
+Sessions & Messages:
+--------------------
+
+Agenda:
+	[session-id]	Unique id of a simulation session
+	[node-id]		Unique id of a node participating in the cluster. This doesn't necessarily need to be a physical one.
+	[virt-node-id]	Unique id (within a certain session) of a virtual/logical node that is simulated.
+	
+Components:
+	[SimulationController]
+	[TimelineManager]
+	[LogicalNodeManager]
+	[DeploymentManager]
+	
+
+/sessionManagement				Session setup, -teardown
+	// Session Management (class: SimulationController)
+	- SessionCreated(participants)
+		Session has been successfully created. Nodes now can create their sessions drivers.
+	- CreateSession(session-id)
+		Requesting for participants in the new session.
+	- ParticipateInSession(session-id, node-id)
+		The local node will participate in the session.
+	- DeleteSession(session-id)
+		Delete the session on all nodes participating. This will cause a hard stop.
+	- QuerySessions()
+		Query which sessions are currently there in the cluster.
+	- SessionQueryResponse(session-id, participants)
+		Response to a session query
+	
+/<session-id>					Session internals (clock, etc.)
+	// Timeline management (class: TimelineManager)
+	- InstallClock(clock)
+		Install a new clock in the session, e.g. DiscreteClock or RealtimeClock
+	- SampleClock(sample)
+		DiscreteClock control message for moving the timeline.
+	- StartClock(multiplier)
+		RealtimeClock control message for starting automatic movement of timeline.
+	- StopClock()
+		RealtimeClock control message for stopping automatic movement of timeline.
+		
+	// Virtual Node Management (class: LogicalNodeManager)
+	- CreateNode(node-id, config)
+		Create a new virtual/logical node on a certain node in the cluster. The session id can be read from the channel.
+	- DeleteNode(virt-node-id)
+		Deletes the virtual/logical node including all running application in it.
+	- QueryNodes()
+		Query which nodes exist within a session.
+	
+/<session-id>.<virt-node-id>	Node-to-Node communication
+	// Deployment (class: DeploymentManager)
+	- DeployApplication(node-id, virt-node-id, application)
+	- DisconnectApp.(virt-node-id, app-id)
+	- ConnectApp.(virt-node-id, app-id)
+	- DeleteApplication(app-id)
+	
+/<session-id>.clock
+	// Clock Management
+	- InstallClock(type)
+	- StartClock()
+	- StopClock()
+	- Sample(millis)
+	- Clock-Ack(virt-node-id)
+		Acknowledgment for Install, Start, Stop and Sample messages.
+	
+/<session-id>.<custom>			Custom traffic of event handlers (e.g. IP-Simulation, etc.)
+
+

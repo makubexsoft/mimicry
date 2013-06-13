@@ -1,0 +1,9 @@
+package com.gc.mimicry.core.events;
+
+bean SocketBindRequestEvent
+{
+	attributes
+	{
+		String name;
+	}
+}
