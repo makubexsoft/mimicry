@@ -17,7 +17,6 @@ import com.gc.mimicry.core.session.controller.SessionController;
 import com.gc.mimicry.core.session.controller.SimulationController;
 import com.gc.mimicry.core.session.engine.SimulationEngine;
 import com.gc.mimicry.net.ClusterListener;
-import com.gc.mimicry.net.ClusterNode;
 import com.gc.mimicry.net.InMemoryNetwork;
 import com.gc.mimicry.net.InMemoryNetwork.VirtualNode;
 import com.gc.mimicry.util.concurrent.ValueFuture;

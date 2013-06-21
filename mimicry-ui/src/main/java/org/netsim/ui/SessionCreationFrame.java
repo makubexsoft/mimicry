@@ -21,6 +21,7 @@ import com.gc.mimicry.util.concurrent.ValueFuture;
 
 public class SessionCreationFrame extends JInternalFrame implements FutureListener<ValueFuture<SessionController>> {
 
+	private static final long	serialVersionUID	= -6894927518137463903L;
 	private SessionControllerFuture	future;
 	private final JTextField		textField;
 

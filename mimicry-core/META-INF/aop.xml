@@ -1,0 +1,6 @@
+<aspectj>
+	<weaver options="-verbose -debug">
+		<dump within="*" beforeandafter="true" />
+	</weaver>
+</aspectj>
+			

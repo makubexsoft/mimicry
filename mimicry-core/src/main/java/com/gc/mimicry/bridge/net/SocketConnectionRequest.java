@@ -20,4 +20,11 @@ public class SocketConnectionRequest implements Event
 		return null;
 	}
 
+	@Override
+	public UUID getControlFlowId()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

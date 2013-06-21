@@ -3,7 +3,6 @@ package com.gc.mimicry.core.event;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.gc.mimicry.core.messaging.MessagingSystem;
 import com.gc.mimicry.core.runtime.Node;
 
 public class EventStack
@@ -12,7 +11,7 @@ public class EventStack
 	private final Node					node;
 	private final List<EventHandler>	handlerList;
 
-	public EventStack(Node node, MessagingSystem messaging)
+	public EventStack(Node node, EventBroker eventBroker, EventBridge eventBridge)
 	{
 		this.node = node;
 		handlerList = new CopyOnWriteArrayList<EventHandler>();

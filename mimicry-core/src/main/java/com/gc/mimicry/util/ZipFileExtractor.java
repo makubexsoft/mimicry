@@ -23,7 +23,13 @@ public class ZipFileExtractor implements Closeable
 
 	public void close()
 	{
-		IOUtils.closeSilently( new Closeable() { public void close() throws IOException { zipFile.close(); } }  );
+		IOUtils.closeSilently( new Closeable()
+		{
+			public void close() throws IOException
+			{
+				zipFile.close();
+			}
+		} );
 	}
 
 	public Set<String> extractAll( File destinationDir ) throws IOException

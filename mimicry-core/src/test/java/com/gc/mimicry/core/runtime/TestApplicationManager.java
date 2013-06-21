@@ -24,6 +24,9 @@ import com.gc.mimicry.util.concurrent.Future;
 
 public class TestApplicationManager
 {
+	private static final String			BRIDGE_PATH		= "../mimicry-bridge/target/classes";
+	private static final String			ASPECTS_PATH	= "../mimicry-aspects/target/classes";
+
 	private InMemoryNetwork				network;
 	private DefaultMessagingSystem		messaging;
 	private Node						node;
@@ -32,28 +35,19 @@ public class TestApplicationManager
 	@Before
 	public void setUp() throws MalformedURLException
 	{
-		System.setProperty( "org.aspectj.tracing.debug", "true" );
-		System.setProperty( "org.aspectj.tracing.enabled", "true" );
-		System.setProperty( "org.aspectj.tracing.messages", "true" );
-		System.setProperty( "aj.weaving.verbose", "true" );
-		// System.setProperty( "org.aspectj.weaver.showWeaveInfo", "true" );
-		// System.setProperty( "org.aspectj.weaving.messages", "true" );
-		System.setProperty( WeavingAdaptor.SHOW_WEAVE_INFO_PROPERTY, "true" );
-		System.setProperty( WeavingAdaptor.TRACE_MESSAGES_PROPERTY, "true" );
-		// System.setProperty( WeavingAdaptor.WEAVING_ADAPTOR_VERBOSE, "true" );
-		//
-		// System.setProperty( WeavingAdaptor.SHOW_WEAVE_INFO_PROPERTY, "true"
-		// );
-		// System.setProperty( WeavingAdaptor.WEAVING_ADAPTOR_VERBOSE, "true" );
-		// System.setProperty( WeavingAdaptor.TRACE_MESSAGES_PROPERTY, "true" );
-		// System.setProperty( "org.aspectj.tracing.enabled", "true" );
-		System.setProperty( "org.aspectj.tracing.factory", "default" );
+		configureAspectJ();
 
-		ClassLoadingContext ctx = new ClassLoadingContext( new URLClassLoader( new URL[0], getClass().getClassLoader() ) );
-		ctx.addAspectClassPath( new File( "../mimicry-aspects/target/classes" ).toURI().toURL() );
+		ClassLoader classLoader = getClass().getClassLoader();
 
-		ctx.addBridgeClassPath( new File( "../mimicry-aspects/target/classes" ).toURI().toURL() );
-		ctx.addBridgeClassPath( new File( "../mimicry-bridge/target/classes" ).toURI().toURL() );
+		URLClassLoader coreClassLoader;
+		coreClassLoader = new URLClassLoader( new URL[0], classLoader );
+
+		ClassLoadingContext ctx;
+		ctx = new ClassLoadingContext( coreClassLoader );
+		ctx.addAspectClassPath( new File( ASPECTS_PATH ).toURI().toURL() );
+
+		ctx.addBridgeClassPath( new File( ASPECTS_PATH ).toURI().toURL() );
+		ctx.addBridgeClassPath( new File( BRIDGE_PATH ).toURI().toURL() );
 
 		network = new InMemoryNetwork();
 		messaging = new DefaultMessagingSystem( network.createNode() );
@@ -61,13 +55,28 @@ public class TestApplicationManager
 		appRepo = new LocalApplicationRepository( new File( "src/test/resources" ) );
 	}
 
+	private void configureAspectJ()
+	{
+		System.setProperty( "org.aspectj.tracing.debug", "true" );
+		System.setProperty( "org.aspectj.tracing.enabled", "true" );
+		System.setProperty( "org.aspectj.tracing.messages", "true" );
+		System.setProperty( "aj.weaving.verbose", "true" );
+		System.setProperty( WeavingAdaptor.SHOW_WEAVE_INFO_PROPERTY, "true" );
+		System.setProperty( WeavingAdaptor.TRACE_MESSAGES_PROPERTY, "true" );
+		System.setProperty( "org.aspectj.tracing.factory", "default" );
+
+		System.setProperty( "org.aspectj.weaver.loadtime.configuration",
+				"/data/projects/Mimicry/mimicry/mimicry-core/META-INF/aop.xml" );
+	}
+
 	@Test
 	public void testLaunchApplication() throws IOException, InterruptedException
 	{
-		ApplicationDescriptor appDesc = appRepo.getApplicationDescriptor( "sample-app" );
-		Application application = node.getApplicationManager().launchApplication( appDesc );
+		ApplicationDescriptor appDesc;
+		Application application;
+		appDesc = appRepo.getApplicationDescriptor( "sample-app" );
+		application = node.getApplicationManager().launchApplication( appDesc );
 
-		//
 		application.start();
 
 		Thread.sleep( 2000 );
@@ -83,11 +92,14 @@ public class TestApplicationManager
 	@Test
 	public void testLaunch2ApplicationInstances() throws IOException, InterruptedException
 	{
-		ApplicationDescriptor appDesc = appRepo.getApplicationDescriptor( "sample-app" );
-		Application app1 = node.getApplicationManager().launchApplication( appDesc );
-		Application app2 = node.getApplicationManager().launchApplication( appDesc );
+		ApplicationDescriptor appDesc;
+		appDesc = appRepo.getApplicationDescriptor( "sample-app" );
 
-		//
+		Application app1;
+		Application app2;
+		app1 = node.getApplicationManager().launchApplication( appDesc );
+		app2 = node.getApplicationManager().launchApplication( appDesc );
+
 		app1.start();
 		app2.start();
 
@@ -100,38 +112,33 @@ public class TestApplicationManager
 		stopAndAssertTermination( app2 );
 	}
 
-	private void stopAndAssertTermination( Application app1 ) throws InterruptedException
-	{
-		app1.stop();
-		Future<?> future1 = app1.getTerminationFuture();
-		future1.await( 5000 );
-		assertTrue( future1.isSuccess() );
-	}
-
 	@Test
 	public void testPingPong() throws IOException, InterruptedException
 	{
-		ApplicationDescriptorBuilder clientBuilder = ApplicationDescriptorBuilder.newDescriptor( "client" );
+		ApplicationDescriptorBuilder clientBuilder;
+		clientBuilder = ApplicationDescriptorBuilder.newDescriptor( "client" );
 		clientBuilder.withMainClass( "examples.PingPongClient" );
 		clientBuilder.withCommandLine( "127.0.0.1 8000" );
 		clientBuilder.withRunnableJar( "sample-app.jar" );
 		clientBuilder.withClassPath( "sample-app.jar" );
 		ApplicationDescriptor clientDesc = clientBuilder.build();
 
-		ApplicationDescriptorBuilder serverBuilder = ApplicationDescriptorBuilder.newDescriptor( "server" );
+		ApplicationDescriptorBuilder serverBuilder;
+		serverBuilder = ApplicationDescriptorBuilder.newDescriptor( "server" );
 		serverBuilder.withMainClass( "examples.PingPongServer" );
 		serverBuilder.withCommandLine( "8000" );
 		serverBuilder.withRunnableJar( "sample-app.jar" );
 		serverBuilder.withClassPath( "sample-app.jar" );
 		ApplicationDescriptor serverDesc = serverBuilder.build();
 
-		Application client = node.getApplicationManager().launchApplication( clientDesc );
-		Application server = node.getApplicationManager().launchApplication( serverDesc );
+		Application client;
+		Application server;
+		client = node.getApplicationManager().launchApplication( clientDesc );
+		server = node.getApplicationManager().launchApplication( serverDesc );
 
 		((RealtimeClock) server.getClock()).start( 1.0 );
 		((RealtimeClock) client.getClock()).start( 0.5 );
 
-		//
 		server.start();
 		client.start();
 
@@ -139,5 +146,13 @@ public class TestApplicationManager
 
 		stopAndAssertTermination( client );
 		stopAndAssertTermination( server );
+	}
+
+	private void stopAndAssertTermination( Application app1 ) throws InterruptedException
+	{
+		app1.stop();
+		Future<?> future1 = app1.getTerminationFuture();
+		future1.await( 5000 );
+		assertTrue( future1.isSuccess() );
 	}
 }

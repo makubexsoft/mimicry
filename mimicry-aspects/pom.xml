@@ -1,35 +1,37 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>aspects</artifactId>
-  <dependencies>
-  	<dependency>
-  		<groupId>com.gc.mimicry</groupId>
-  		<artifactId>bridge</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
-  	</dependency>
-  	
-  	<dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>aspects</artifactId>
+	
+	<parent>
+		<groupId>com.gc.mimicry</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.gc.mimicry</groupId>
+			<artifactId>bridge</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjtools</artifactId>
-			<version>1.7.0</version>
+			<version>${aspectj.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
-			<version>1.6.11</version>
+			<version>${aspectj.version}</version>
 		</dependency>
-  </dependencies>
-  
-  <build>
+	</dependencies>
+
+	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -42,7 +44,11 @@
 							<goal>test-compile</goal>  <!-- use this goal to weave all your test classes -->
 						</goals>
 						<configuration>
-							<source>1.7</source>
+							<source>${java.version}</source>
+							<XnoInline>true</XnoInline>
+			                <target>${java.version}</target>
+			                <complianceLevel>${java.version}</complianceLevel>
+			                <Xlint>false</Xlint>
 						</configuration>
 					</execution>
 				</executions>
@@ -65,10 +71,5 @@
 			</plugin>
 		</plugins>
 	</build>
-  <parent>
-  	<groupId>com.gc.mimicry</groupId>
-  	<artifactId>parent</artifactId>
-  	<version>0.0.1-SNAPSHOT</version>
-  	<relativePath>../parent/pom.xml</relativePath>
-  </parent>
+	
 </project>

@@ -21,17 +21,23 @@ import com.google.common.base.Splitter;
 
 public class LocalApplicationRepository implements ApplicationRepository
 {
-
+	private static final String							DEFAULT_APP_REPOSITORY;
 	private static final Logger							logger;
 	private static final String							APPLICATION_PROPERTIES;
 	static
 	{
 		logger = LoggerFactory.getLogger( LocalApplicationRepository.class );
 		APPLICATION_PROPERTIES = "application.properties";
+		DEFAULT_APP_REPOSITORY = ".mimicry" + File.pathSeparator + "repository";
 	}
 
 	private final Map<String, ApplicationDescriptor>	loadedDescriptors;
 	private final File									repositoryPath;
+
+	public LocalApplicationRepository()
+	{
+		this( new File( System.getProperty( "user.home" ), DEFAULT_APP_REPOSITORY ) );
+	}
 
 	public LocalApplicationRepository(File repositoryPath)
 	{
@@ -101,7 +107,13 @@ public class LocalApplicationRepository implements ApplicationRepository
 		}
 		finally
 		{
-			IOUtils.closeSilently( new Closeable() { public void close() throws IOException { zipFile.close(); } } );
+			IOUtils.closeSilently( new Closeable()
+			{
+				public void close() throws IOException
+				{
+					zipFile.close();
+				}
+			} );
 		}
 	}
 

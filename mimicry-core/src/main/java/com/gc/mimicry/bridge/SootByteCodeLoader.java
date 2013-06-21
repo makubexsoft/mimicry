@@ -29,6 +29,17 @@ import soot.util.JasminOutputStream;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
+/**
+ * A byte code loader based on the soot framework for loading and weaving byte
+ * code. This class is used to pre-process the byte code of the simulated
+ * application and weaves the byte code of all detected loops in order to invoke
+ * the static method {@link LoopInterceptor#intercept()}. This is necessary to
+ * exit infinite loops when the simulator wants to shutdown the simulated
+ * application asynchronously.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public final class SootByteCodeLoader
 {
 	private static final Logger	logger;
@@ -58,6 +69,10 @@ public final class SootByteCodeLoader
 
 		interceptorClass = Scene.v().loadClassAndSupport( "com.gc.mimicry.bridge.LoopInterceptor" );
 		interceptorClass.setApplicationClass();
+		for ( SootMethod sm : interceptorClass.getMethods() )
+		{
+			sm.retrieveActiveBody();
+		}
 		interceptorMethod = interceptorClass.getMethod( "void intercept()" );
 	}
 
@@ -89,7 +104,7 @@ public final class SootByteCodeLoader
 	{
 		Scene.v().setSootClassPath( classPath );
 		Options.v().set_soot_classpath( classPath );
-		Options.v().set_verbose( false );
+		Options.v().set_verbose( true );
 		Options.v().set_keep_line_number( true );
 		Options.v().set_src_prec( Options.src_prec_only_class );
 		Options.v().set_output_format( Options.output_format_jasmin );
@@ -97,30 +112,49 @@ public final class SootByteCodeLoader
 		// Options.v().set_allow_phantom_refs( true );
 		PhaseOptions.v().setPhaseOption( "jb", "on" );
 		PhaseOptions.v().setPhaseOption( "jb", "use-original-names:true" );
-		// PhaseOptions.v().setPhaseOption( "jb.ls", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.a", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.ule", "off" );
-		// PhaseOptions.v().setPhaseOption( "jb.tr", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.ulp", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.lns", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.cp", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.dae", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.cp-ule", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.lp", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.ne", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.uce", "off" );
-		PhaseOptions.v().setPhaseOption( "jb.tt", "off" );
 
-		Options.v().set_whole_program( false );
+		// //PhaseOptions.v().setPhaseOption( "jb.ls", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.a", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.ule", "off" );
+		// // PhaseOptions.v().setPhaseOption( "jb.tr", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.ulp", "on" );
+		// PhaseOptions.v().setPhaseOption( "jb.lns", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.cp", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.dae", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.cp-ule", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.lp", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.ne", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.uce", "off" );
+		// PhaseOptions.v().setPhaseOption( "jb.tt", "off" );
+		// PhaseOptions.v().setPhaseOption( "jtp", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.cp", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.cpf", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.cbf", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.dae", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.uce1", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.ubf1", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.uce2", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.ubf2", "off" );
+		// PhaseOptions.v().setPhaseOption( "jop.ule", "off" );
+		// PhaseOptions.v().setPhaseOption( "jap", "off" );
+		// //
+		// PhaseOptions.v().setPhaseOption( "bb.lso", "off" );
+		// PhaseOptions.v().setPhaseOption( "bb.pho", "off" );
+		// PhaseOptions.v().setPhaseOption( "bb.ule", "off" );
+		// PhaseOptions.v().setPhaseOption( "bb.lp", "off" );
+
+		// Options.v().set_whole_program( false );
 	}
 
 	private byte[] getByteCodeOf( SootClass sootClass ) throws IOException
 	{
+		System.out.println( "Obtaining byte code ...." );
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		OutputStream streamOut = new JasminOutputStream( bout );
 		PrintWriter writerOut = new PrintWriter( new OutputStreamWriter( streamOut ) );
 
-		JasminClass jasminClass = new soot.jimple.JasminClass( sootClass );
+		JasminClass jasminClass = new JasminClass( sootClass );
 		jasminClass.print( writerOut );
 		writerOut.flush();
 		streamOut.close();
@@ -153,7 +187,8 @@ public final class SootByteCodeLoader
 		{
 			InvokeExpr expression = Jimple.v().newStaticInvokeExpr( interceptorMethod.makeRef() );
 			Stmt statement = Jimple.v().newInvokeStmt( expression );
-			units.insertBefore( statement, loop.getHead() );
+			units.insertAfter( statement, loop.getHead() ); // TODO: was
+															// insertBefore
 		}
 	}
 
@@ -161,7 +196,7 @@ public final class SootByteCodeLoader
 	{
 		try
 		{
-			Scene.v().forceResolve( className, SootClass.BODIES );
+			// Scene.v().forceResolve( className, SootClass.BODIES );
 			SootClass sootClass = Scene.v().loadClassAndSupport( className );
 			sootClass.setApplicationClass();
 			return sootClass;

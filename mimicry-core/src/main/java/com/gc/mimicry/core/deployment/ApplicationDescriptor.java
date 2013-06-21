@@ -7,9 +7,15 @@ import java.util.TreeSet;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Instances of this class contain all information necessary to deploy and
+ * instatiate application instances.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class ApplicationDescriptor implements Serializable
 {
-
 	private static final long	serialVersionUID	= -6006659970679551969L;
 	private transient File		bundleLocation;
 	private final String		name;
@@ -132,5 +138,13 @@ public class ApplicationDescriptor implements Serializable
 	public Set<String> getSupportedOSes()
 	{
 		return supportedOSes;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ApplicationDescriptor [name=" + name + ", commandLine=" + commandLine + ", classPath=" + classPath
+				+ ", mainClass=" + mainClass + ", runnableJarFile=" + runnableJarFile + ", supportedOSes="
+				+ supportedOSes + "]";
 	}
 }

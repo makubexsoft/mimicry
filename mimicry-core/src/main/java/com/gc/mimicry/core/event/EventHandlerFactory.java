@@ -1,7 +1,5 @@
 package com.gc.mimicry.core.event;
 
-import java.lang.reflect.Constructor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,21 +54,7 @@ public class EventHandlerFactory
 		}
 	}
 
-	private EventHandler instantiate( Constructor<EventHandler> ctor )
-	{
-		try
-		{
-			return ctor.newInstance( scheduler, clock, messaging );
-		}
-		catch ( Exception e )
-		{
-			logger.error( "Failed to instantiate event handler: " + ctor.getDeclaringClass().getName(), e );
-		}
-		return null;
-	}
-
-	@SuppressWarnings(
-	{ "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	private Class<EventHandler> loadClass( ClassLoader classLoader, String name )
 	{
 		try
@@ -87,18 +71,5 @@ public class EventHandlerFactory
 			logger.error( "Failed to load event handler class: " + name, e );
 			return null;
 		}
-	}
-
-	private Constructor<EventHandler> findConstructor( Class<EventHandler> clazz )
-	{
-		try
-		{
-			return clazz.getConstructor( Scheduler.class, Clock.class, SessionLocalMessagingService.class );
-		}
-		catch ( Exception e )
-		{
-			logger.error( "Failed to instantiate event handler: " + clazz.getName(), e );
-		}
-		return null;
 	}
 }

@@ -11,9 +11,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * {@link ClassLoader} implementation that uses the
+ * {@link LoopInterceptingByteCodeLoader} for loading and pre-processing byte
+ * code of a simulated application. After the byte code has been pre-processed
+ * it's forwarded to aspectJ in order to apply more aspects.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class WeavingClassLoader extends WeavingURLClassLoader
 {
-
 	public WeavingClassLoader(Collection<URL> classPath, Collection<URL> aspects,
 			LoopInterceptingByteCodeLoader loader, ClassLoader parent) throws MalformedURLException
 	{
@@ -24,10 +32,17 @@ public class WeavingClassLoader extends WeavingURLClassLoader
 		this.loader = loader;
 	}
 
+	/**
+	 * First queries the {@link LoopInterceptingByteCodeLoader} to load the byte
+	 * code if it doesn't find the class (because it's not part of simulated
+	 * application) the call is forwarded to the actual implementation of the
+	 * base class.
+	 */
 	@Override
 	protected byte[] getBytes( String name ) throws IOException
 	{
-		byte[] byteCode = loader.loadTransformedByteCode( name );
+		byte[] byteCode = null; // FIXME: loader.loadTransformedByteCode( name
+								// );
 		if ( byteCode == null )
 		{
 			byteCode = super.getBytes( name );
@@ -40,13 +55,14 @@ public class WeavingClassLoader extends WeavingURLClassLoader
 		{
 			logger.debug( "Soot loaded byte code: " + name + " (" + byteCode.length + " bytes)" );
 		}
+		// IOUtils.writeToFile(byteCode, new File("_dump_" + name + ".class"));
 		return byteCode;
 	}
 
-	private final LoopInterceptingByteCodeLoader	loader;
-	private static Logger							logger;
 	static
 	{
 		logger = LoggerFactory.getLogger( WeavingClassLoader.class );
 	}
+	private final LoopInterceptingByteCodeLoader	loader;
+	private static Logger							logger;
 }

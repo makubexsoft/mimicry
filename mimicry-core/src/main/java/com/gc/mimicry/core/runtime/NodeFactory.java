@@ -1,7 +1,6 @@
 package com.gc.mimicry.core.runtime;
 
 import com.gc.mimicry.core.ClassLoadingContext;
-import com.gc.mimicry.core.deployment.NodeDescriptor;
 import com.gc.mimicry.core.event.EventHandler;
 import com.gc.mimicry.core.event.EventHandlerFactory;
 import com.gc.mimicry.core.event.EventStack;
@@ -16,6 +15,7 @@ public class NodeFactory
 	private final MessagingSystem		messaging;
 	private final ClassLoadingContext	ctx;
 
+	// TODO: there should be no dep. to the msg. system
 	public NodeFactory(ClassLoadingContext ctx, EventHandlerFactory handlerFactory, MessagingSystem messaging)
 	{
 		Preconditions.checkNotNull( ctx );
@@ -27,7 +27,7 @@ public class NodeFactory
 		this.messaging = messaging;
 	}
 
-	public Node createNode( NodeDescriptor descriptor )
+	public Node createNode( NodeConfiguration descriptor )
 	{
 		Preconditions.checkNotNull( descriptor );
 
@@ -37,11 +37,17 @@ public class NodeFactory
 		node.attachResource( clockDriver );
 
 		EventStack eventStack = node.getEventStack();
-		for ( String handlerClassName : descriptor.getEventStack() )
+		for ( EventHandlerConfiguration handlerConfig : descriptor.getEventStack() )
 		{
-			EventHandler handler = handlerFactory.create( handlerClassName, ctx.getCoreClassLoader() );
+			EventHandler handler = handlerFactory.create( handlerConfig.getClassName(), ctx.getCoreClassLoader() );
 			if ( handler != null )
 			{
+				if(handler instanceof Configurable)
+				{
+					Configurable configurable = (Configurable)handler;
+					configurable.configure( handlerConfig.getConfiguration() );
+				}
+				
 				// TODO: init handler???
 				eventStack.addHandler( handler );
 			}

@@ -54,8 +54,8 @@ public class ApplicationManager extends BaseResourceManager
 	public Application launchApplication( ApplicationDescriptor appDesc ) throws IOException
 	{
 		ChildFirstURLClassLoader outerClassLoader;
-		outerClassLoader = new ChildFirstURLClassLoader( new URL[]
-		{ new File( "../mimicry-bridge/target/classes" ).toURI().toURL() }, context.getCoreClassLoader() );
+		outerClassLoader = new ChildFirstURLClassLoader( new URL[] { new File( "../mimicry-bridge/target/classes" )
+				.toURI().toURL() }, context.getCoreClassLoader() );
 
 		List<URL> aspectUrls = new ArrayList<URL>();
 		aspectUrls.addAll( context.getAspectClassPath() );

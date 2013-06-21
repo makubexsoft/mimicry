@@ -47,6 +47,8 @@ import com.gc.mimicry.net.P2PClusterNode;
 
 public class MainFrame extends JFrame
 {
+	private static final long	serialVersionUID	= 8555014593438015632L;
+
 	private final JPanel				navigationPanel	= new JPanel();
 
 	private final P2PClusterNode		localNode;
@@ -71,6 +73,8 @@ public class MainFrame extends JFrame
 		final Image logo = loadImage( "/Logo.jpg" );
 		final JDesktopPane desktopPane = new JDesktopPane()
 		{
+			private static final long	serialVersionUID	= -5358754425686107247L;
+
 			@Override
 			public void paint( Graphics g )
 			{

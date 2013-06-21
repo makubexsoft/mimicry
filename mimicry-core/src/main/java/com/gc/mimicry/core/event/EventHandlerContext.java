@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 
 public class EventHandlerContext
 {
-
 	private EventStack	stack;
 	private int			handlerIndex;
 
@@ -28,10 +27,5 @@ public class EventHandlerContext
 	public void sendUpstream( Event evt )
 	{
 		stack.sendUpstream( handlerIndex, evt );
-	}
-
-	public void sendMessage( String destinationChannel, Event evt )
-	{
-
 	}
 }

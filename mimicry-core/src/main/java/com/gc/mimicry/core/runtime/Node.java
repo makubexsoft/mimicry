@@ -16,7 +16,7 @@ import com.google.common.base.Preconditions;
 public class Node extends BaseResourceManager
 {
 	private final String				name;
-	private final EventStack			eventStack;
+	private  EventStack			eventStack;
 	private final ApplicationManager	appMgr;
 
 	Node(ClassLoadingContext context, String name, MessagingSystem messaging)
@@ -28,7 +28,7 @@ public class Node extends BaseResourceManager
 		appMgr = new ApplicationManager( context, this );
 		attachResource( appMgr );
 
-		eventStack = new EventStack( this, messaging );
+		//TODO: eventStack = new EventStack( this, messaging );
 	}
 
 	public EventStack getEventStack()

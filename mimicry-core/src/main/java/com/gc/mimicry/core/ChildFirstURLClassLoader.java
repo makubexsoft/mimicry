@@ -12,6 +12,10 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * A child-first class loader implementation that first tries to load classes
+ * from it's own class path before issuing the parent {@link ClassLoader}.
+ */
 public class ChildFirstURLClassLoader extends URLClassLoader
 {
 	private final ClassLoader	system;

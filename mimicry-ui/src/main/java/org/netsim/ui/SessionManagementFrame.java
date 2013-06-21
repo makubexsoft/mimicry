@@ -96,8 +96,8 @@ public class SessionManagementFrame extends JInternalFrame
 		JLabel lblInstalledClock = new JLabel( "Installed Clock" );
 		panel_2.add( lblInstalledClock );
 
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel( new DefaultComboBoxModel( ClockType.values() ) );
+		JComboBox<ClockType> comboBox = new JComboBox<ClockType>();
+		comboBox.setModel( new DefaultComboBoxModel<ClockType>( ClockType.values() ) );
 		panel_2.add( comboBox );
 
 		JButton btnInstall = new JButton( "install" );

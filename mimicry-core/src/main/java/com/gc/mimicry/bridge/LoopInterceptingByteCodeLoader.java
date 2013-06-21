@@ -14,6 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
 
+/**
+ * 
+ * @author Marc-Christian Schulze
+ *
+ */
 public class LoopInterceptingByteCodeLoader
 {
 	public LoopInterceptingByteCodeLoader(String[] classUrls)

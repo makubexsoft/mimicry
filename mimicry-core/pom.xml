@@ -2,6 +2,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>core</artifactId>
+	
+	<parent>
+		<groupId>com.gc.mimicry</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
 
 	<dependencies>
 		<dependency>
@@ -10,20 +17,26 @@
 			<version>14.0-rc2</version>
 		</dependency>
 		<dependency>
+			<groupId>org.jboss.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.2.6.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>2.1.3</version>
+		</dependency>
+
+		<!-- Weaving -->
+		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjtools</artifactId>
-			<version>1.7.0</version>
+			<version>${aspectj.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
-			<version>1.6.11</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.jboss.netty</groupId>
-			<artifactId>netty</artifactId>
-			<version>3.2.6.Final</version>
+			<version>${aspectj.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.mcgill.sable</groupId>
@@ -33,6 +46,7 @@
 			<systemPath>${project.basedir}/libs/soot-2.5.0.jar</systemPath>
 		</dependency>
 
+		<!-- Testing -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -46,6 +60,7 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Logging -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -72,34 +87,16 @@
 			<artifactId>osgi-over-slf4j</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-
-
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
-				<configuration>
-					<downloadSources>true</downloadSources>
-					<downloadJavadocs>true</downloadJavadocs>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	<parent>
-		<groupId>com.gc.mimicry</groupId>
-		<artifactId>parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../parent/pom.xml</relativePath>
-	</parent>
 </project>

@@ -20,8 +20,7 @@ public class TestWeavingClassLoader
 	@Before
 	public void setUp() throws MalformedURLException
 	{
-		String[] classUrls =
-		{ "./target/classes", "./target/test-classes" };
+		String[] classUrls = { "./target/classes", "./target/test-classes" };
 		LoopInterceptingByteCodeLoader byteCodeLoader = new LoopInterceptingByteCodeLoader( classUrls );
 		loader = new WeavingClassLoader( Collections.<URL> emptyList(), Collections.<URL> emptyList(), byteCodeLoader,
 				null );

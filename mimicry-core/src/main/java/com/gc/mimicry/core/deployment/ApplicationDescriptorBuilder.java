@@ -4,6 +4,13 @@ import java.io.File;
 
 import com.google.common.base.Splitter;
 
+/**
+ * A utility class implementing the builder pattern for the
+ * {@link ApplicationDescriptor}.
+ * 
+ * @author Marc-Christian Schulze
+ * @see ApplicationDescriptor
+ */
 public class ApplicationDescriptorBuilder
 {
 	public static ApplicationDescriptorBuilder newDescriptor( String name )

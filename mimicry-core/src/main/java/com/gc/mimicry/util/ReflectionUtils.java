@@ -50,8 +50,7 @@ public class ReflectionUtils
 		return false;
 	}
 
-	@SuppressWarnings(
-	{ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> Constructor<T> getPossibleConstructor( Class<T> clazz, Class[] parameterTypes )
 	{
 		Constructor[] ctors = clazz.getConstructors();
@@ -82,9 +81,9 @@ public class ReflectionUtils
 		return null;
 	}
 
-	public static Class[] getValueTypes( Object[] params )
+	public static Class<?>[] getValueTypes( Object[] params )
 	{
-		Class[] pars = new Class[params.length];
+		Class<?>[] pars = new Class[params.length];
 		int i = 0;
 		for ( Object obj : params )
 		{
@@ -93,9 +92,9 @@ public class ReflectionUtils
 		return pars;
 	}
 
-	public static Class[] getParameterTypes( Object[] params )
+	public static Class<?>[] getParameterTypes( Object[] params )
 	{
-		Class[] pars = new Class[params.length];
+		Class<?>[] pars = new Class[params.length];
 		int i = 0;
 		for ( Object obj : params )
 		{

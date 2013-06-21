@@ -22,8 +22,8 @@ public class TestSootByteCodeLoader
 	@Test
 	public void testCanLoadByteCode() throws IOException
 	{
-		SootByteCodeLoader loader = new SootByteCodeLoader( new String[]
-		{ new File( "target/classes" ).getAbsolutePath(), new File( "target/test-classes" ).getAbsolutePath() } );
+		SootByteCodeLoader loader = new SootByteCodeLoader( new String[] {
+				new File( "target/classes" ).getAbsolutePath(), new File( "target/test-classes" ).getAbsolutePath() } );
 
 		byte[] bytes = loader.loadBytes( "stubs.ExampleClass" );
 
@@ -33,8 +33,8 @@ public class TestSootByteCodeLoader
 	@Test
 	public void testReturnsNullIfClassNotFound() throws IOException
 	{
-		SootByteCodeLoader loader = new SootByteCodeLoader( new String[]
-		{ new File( "target/classes" ).getAbsolutePath() } );
+		SootByteCodeLoader loader = new SootByteCodeLoader(
+				new String[] { new File( "target/classes" ).getAbsolutePath() } );
 
 		byte[] bytes = loader.loadBytes( "stubs.ExampleClass" );
 

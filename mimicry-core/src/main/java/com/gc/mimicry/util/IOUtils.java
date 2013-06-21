@@ -2,11 +2,11 @@ package com.gc.mimicry.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +57,19 @@ public class IOUtils
 		finally
 		{
 			closeSilently( out );
+		}
+	}
+
+	public static void writeToFile( byte[] data, File destination ) throws IOException
+	{
+		ByteArrayInputStream in = new ByteArrayInputStream( data );
+		try
+		{
+			writeToFile( in, destination );
+		}
+		finally
+		{
+			in.close();
 		}
 	}
 
