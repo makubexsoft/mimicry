@@ -7,6 +7,12 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * This scheduler executes all schedules job in a single daemon thread that is created per instance of this class.
+ * 
+ * @author Marc-Christian Schulze
+ *
+ */
 public class ClockBasedScheduler implements Scheduler, Closeable
 {
 

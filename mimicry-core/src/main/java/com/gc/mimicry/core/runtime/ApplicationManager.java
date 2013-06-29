@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 
 public class ApplicationManager extends BaseResourceManager
 {
+	
 	public ApplicationManager(ClassLoadingContext context, Node node)
 	{
 		Preconditions.checkNotNull( context );
@@ -50,7 +51,7 @@ public class ApplicationManager extends BaseResourceManager
 		return null;
 	}
 
-	// TODO: remove hard coded paths
+	// TODO: remove hard coded paths, maybe use some singleton configuration for the first draft
 	public Application launchApplication( ApplicationDescriptor appDesc ) throws IOException
 	{
 		ChildFirstURLClassLoader outerClassLoader;
@@ -75,6 +76,8 @@ public class ApplicationManager extends BaseResourceManager
 		ApplicationBridge bridge = new ApplicationBridge( loader );
 		bridge.setMainClass( appDesc.getMainClass() );
 		bridge.setCommandArgs( appDesc.getCommandLine() );
+		bridge.setEventBridge(node.getEventBridge());
+		bridge.setClock(node.getClock());
 
 		Application app = new Application( node, bridge );
 

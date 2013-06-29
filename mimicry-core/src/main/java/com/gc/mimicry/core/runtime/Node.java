@@ -2,8 +2,10 @@ package com.gc.mimicry.core.runtime;
 
 import com.gc.mimicry.core.BaseResourceManager;
 import com.gc.mimicry.core.ClassLoadingContext;
+import com.gc.mimicry.core.event.EventBridge;
+import com.gc.mimicry.core.event.EventBroker;
 import com.gc.mimicry.core.event.EventStack;
-import com.gc.mimicry.core.messaging.MessagingSystem;
+import com.gc.mimicry.core.timing.Clock;
 import com.google.common.base.Preconditions;
 
 /**
@@ -18,17 +20,33 @@ public class Node extends BaseResourceManager
 	private final String				name;
 	private  EventStack			eventStack;
 	private final ApplicationManager	appMgr;
+	private EventBridge eventBridge;
+	private Clock clock;
 
-	Node(ClassLoadingContext context, String name, MessagingSystem messaging)
+	Node(ClassLoadingContext context, String name, EventBroker eventBroker, Clock clock)
 	{
+		Preconditions.checkNotNull( context );
 		Preconditions.checkNotNull( name );
-		Preconditions.checkNotNull( messaging );
+		Preconditions.checkNotNull( eventBroker );
+		Preconditions.checkNotNull(clock);
 
 		this.name = name;
+		this.clock = clock;
+		
+		eventBridge = new EventBridge();
 		appMgr = new ApplicationManager( context, this );
+		eventStack = new EventStack( this, eventBroker, eventBridge );
+		
 		attachResource( appMgr );
-
-		//TODO: eventStack = new EventStack( this, messaging );
+	}
+	
+	public Clock getClock()
+	{
+		return clock;
+	}
+	public EventBridge getEventBridge()
+	{
+		return eventBridge;
 	}
 
 	public EventStack getEventStack()

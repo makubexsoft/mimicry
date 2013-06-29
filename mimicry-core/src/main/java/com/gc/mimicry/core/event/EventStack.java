@@ -2,18 +2,30 @@ package com.gc.mimicry.core.event;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import com.gc.mimicry.core.runtime.Node;
+import com.google.common.base.Preconditions;
 
-public class EventStack
+public class EventStack implements EventListener
 {
 
 	private final Node					node;
 	private final List<EventHandler>	handlerList;
-
+	private EventBroker eventBroker;
+	private EventBridge eventBridge;
+	
 	public EventStack(Node node, EventBroker eventBroker, EventBridge eventBridge)
 	{
+		Preconditions.checkNotNull(node);
+		Preconditions.checkNotNull(eventBroker);
+		Preconditions.checkNotNull(eventBridge);
+		
 		this.node = node;
+		this.eventBroker=eventBroker;
+		this.eventBridge=eventBridge;
+		
+		eventBridge.addEventListener(this);
 		handlerList = new CopyOnWriteArrayList<EventHandler>();
 	}
 
@@ -22,35 +34,47 @@ public class EventStack
 		return node;
 	}
 
-	void sendDownstream( int index, Event evt )
+	void sendDownstream( int index, final Event evt )
 	{
 		if ( handlerList.size() > index + 1 )
 		{
 			int nextIndex = index + 1;
-			EventHandlerContext ctx = new EventHandlerContext( this, nextIndex );
-			EventHandler handler = handlerList.get( nextIndex );
-			handler.handleDownstream( ctx, evt );
+			final EventHandlerContext ctx = new EventHandlerContext( this, nextIndex );
+			final EventHandler handler = handlerList.get( nextIndex );
+			handler.getScheduler().schedule(new Runnable() {
+				
+				@Override
+				public void run() {
+					handler.handleDownstream( ctx, evt );
+				}
+			}, 0, TimeUnit.MILLISECONDS);
 		}
 		else
 		{
 			// reached bottom
-
+			eventBroker.fireEvent(evt);
 		}
 	}
 
-	void sendUpstream( int index, Event evt )
+	void sendUpstream( int index, final Event evt )
 	{
 		if ( index > 0 )
 		{
 			int nextIndex = index - 1;
-			EventHandlerContext ctx = new EventHandlerContext( this, nextIndex );
-			EventHandler handler = handlerList.get( nextIndex );
-			handler.handleUpstream( ctx, evt );
+			final EventHandlerContext ctx = new EventHandlerContext( this, nextIndex );
+			final EventHandler handler = handlerList.get( nextIndex );
+			handler.getScheduler().schedule(new Runnable() {
+				
+				@Override
+				public void run() {
+					handler.handleUpstream( ctx, evt );
+				}
+			}, 0, TimeUnit.MILLISECONDS);
 		}
 		else
 		{
 			// reached top
-
+			eventBridge.eventReceived(evt);
 		}
 	}
 
@@ -85,5 +109,10 @@ public class EventStack
 			handlerList.remove( h );
 		}
 		return h;
+	}
+
+	@Override
+	public void eventOccurred(Event evt) {
+		sendDownstream(-1, evt);
 	}
 }

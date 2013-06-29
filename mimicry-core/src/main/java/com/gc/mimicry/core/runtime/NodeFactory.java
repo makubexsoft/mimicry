@@ -1,40 +1,49 @@
 package com.gc.mimicry.core.runtime;
 
 import com.gc.mimicry.core.ClassLoadingContext;
+import com.gc.mimicry.core.event.EventBroker;
 import com.gc.mimicry.core.event.EventHandler;
 import com.gc.mimicry.core.event.EventHandlerFactory;
 import com.gc.mimicry.core.event.EventStack;
-import com.gc.mimicry.core.messaging.MessagingSystem;
-import com.gc.mimicry.core.timing.net.ClockDriver;
+import com.gc.mimicry.core.timing.Clock;
+import com.gc.mimicry.core.timing.ClockBasedScheduler;
 import com.google.common.base.Preconditions;
 
+/**
+ * A node factory is able to create new nodes that run their applications in the local JVM.
+ * 
+ * @author Marc-Christian Schulze
+ *
+ */
 public class NodeFactory
 {
-
 	private final EventHandlerFactory	handlerFactory;
-	private final MessagingSystem		messaging;
+	private final EventBroker eventBroker;
 	private final ClassLoadingContext	ctx;
+	private Clock clock;
 
-	// TODO: there should be no dep. to the msg. system
-	public NodeFactory(ClassLoadingContext ctx, EventHandlerFactory handlerFactory, MessagingSystem messaging)
+	public NodeFactory(ClassLoadingContext ctx, EventHandlerFactory handlerFactory, EventBroker eventBroker, Clock clock)
 	{
 		Preconditions.checkNotNull( ctx );
 		Preconditions.checkNotNull( handlerFactory );
-		Preconditions.checkNotNull( messaging );
+		Preconditions.checkNotNull( eventBroker );
+		Preconditions.checkNotNull(clock);
 
 		this.ctx = ctx;
 		this.handlerFactory = handlerFactory;
-		this.messaging = messaging;
+		this.eventBroker = eventBroker;
+		this.clock = clock;
 	}
 
 	public Node createNode( NodeConfiguration descriptor )
 	{
 		Preconditions.checkNotNull( descriptor );
 
-		Node node = new Node( ctx, descriptor.getNodeName(), messaging );
+		Node node = new Node( ctx, descriptor.getNodeName(), eventBroker, clock );
 
-		ClockDriver clockDriver = new ClockDriver( messaging, node );
-		node.attachResource( clockDriver );
+		// TODO:
+//		ClockDriver clockDriver = new ClockDriver( messaging, node );
+//		node.attachResource( clockDriver );
 
 		EventStack eventStack = node.getEventStack();
 		for ( EventHandlerConfiguration handlerConfig : descriptor.getEventStack() )
@@ -48,7 +57,10 @@ public class NodeFactory
 					configurable.configure( handlerConfig.getConfiguration() );
 				}
 				
-				// TODO: init handler???
+				// Jobs of a single event handler are executed in a single thread.
+				// Event passing to the handler should be done through the scheduler
+				// by doing so the event handler is not forced to be concerned about multi-threading issues.
+				handler.init(new ClockBasedScheduler(clock), clock);
 				eventStack.addHandler( handler );
 			}
 		}

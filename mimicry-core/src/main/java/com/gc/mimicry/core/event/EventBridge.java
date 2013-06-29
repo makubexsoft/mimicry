@@ -31,7 +31,6 @@ public class EventBridge
 	 */
 	public Event emitAndWait( Event evt )
 	{
-		eventOccured( evt );
 
 		return null;
 	}
@@ -46,7 +45,6 @@ public class EventBridge
 	 */
 	public Event emitAndWait( Event evt, long timeoutMillis )
 	{
-		eventOccured( evt );
 
 		return null;
 	}
@@ -59,11 +57,10 @@ public class EventBridge
 	 */
 	public void emit( Event evt )
 	{
-		eventOccured( evt );
 
 	}
 
-	private void eventOccured( Event evt )
+	public void eventReceived( Event evt )
 	{
 
 	}

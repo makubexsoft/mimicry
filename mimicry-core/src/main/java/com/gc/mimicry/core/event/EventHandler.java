@@ -1,29 +1,41 @@
 package com.gc.mimicry.core.event;
 
-import com.gc.mimicry.core.session.msg.SessionLocalMessagingService;
+import com.gc.mimicry.core.runtime.Node;
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.Scheduler;
 
 /**
- * Event handlers can be attached to {@link EventStack}s of a logical node. The
- * handlers are responsible to handle events emitted by the simulated
- * application. Implementations are required to provide a constructor with the
- * signature <br/>
- * <code>ctor({@link Scheduler} scheduler, {@link Clock}
- * clock, {@link SessionLocalMessagingService} messaging)</code><br/>
- * Event handlers are not allowed to spawn threads nor are they allowed to block
- * the control flow in its handler methods. If the handler requires to delay the
- * event forwarding it can use the {@link Scheduler} passed in the constructor.
+ * An {@link EventHandler} is part of an {@link EventStack} attached to a
+ * {@link Node}. It's highly recommended not to create any threads within an
+ * {@link EventHandler}, instead use the given {@link Scheduler}. As long as the
+ * event handler is using only the given {@link Scheduler} instance for
+ * performing asynchronous tasks it has not to consider any thread
+ * synchronisation. By default all methods invoked on this event handler are
+ * performed in a dedicated thread (the "Event Handler Thread" - EHT) to this
+ * handler and therefore thread-safe. This also applies for jobs being executed
+ * by the given scheduler.
  * 
  * @author Marc-Christian Schulze
  * 
  */
-public interface EventHandler
-{
+public interface EventHandler {
+	/**
+	 * Initializes this handler instance after it has been created and before
+	 * being attached to the {@link EventStack}.
+	 * 
+	 * @param scheduler
+	 *            Use this scheduler for all asynchronous operations required by
+	 *            this handler. The scheduler will use the EHT to run the
+	 *            scheduled jobs which makes each event handler fully
+	 *            thread-safe.
+	 * @param clock
+	 *            A clock to obtain the current time of the simulation. Note
+	 *            that this clock is not necessarily synchronized with the
+	 *            real-time.
+	 */
+	public void init(Scheduler scheduler, Clock clock);
 
-	public void init( Scheduler scheduler, Clock clock, SessionLocalMessagingService messaging );
-
-	public void setClock( Clock clock );
+	public Scheduler getScheduler();
 
 	/**
 	 * Gets invoked when an event is passed down in the {@link EventStack} which
@@ -32,7 +44,8 @@ public interface EventHandler
 	 * {@link Scheduler} passed in the constructor. To pass the given event
 	 * further down or up you can use the
 	 * {@link EventHandlerContext#sendDownstream(Event)} and
-	 * {@link EventHandlerContext#sendUpstream(Event)} methods.
+	 * {@link EventHandlerContext#sendUpstream(Event)} methods. This method is
+	 * only invoked from within the EHT.
 	 * 
 	 * @param ctx
 	 *            The event context which provides access to the
@@ -40,7 +53,7 @@ public interface EventHandler
 	 * @param evt
 	 *            The event passed downstream.
 	 */
-	public void handleDownstream( EventHandlerContext ctx, Event evt );
+	public void handleDownstream(EventHandlerContext ctx, Event evt);
 
 	/**
 	 * Gets invoked when an event is passed up in the {@link EventStack} which
@@ -49,7 +62,8 @@ public interface EventHandler
 	 * {@link Scheduler} passed in the constructor. To pass the given event
 	 * further up or down you can use the
 	 * {@link EventHandlerContext#sendUpstream(Event)} and
-	 * {@link EventHandlerContext#sendDownstream(Event)} methods.
+	 * {@link EventHandlerContext#sendDownstream(Event)} methods. This method is
+	 * only invoked from within the EHT.
 	 * 
 	 * @param ctx
 	 *            The event context which provides access to the
@@ -57,5 +71,5 @@ public interface EventHandler
 	 * @param evt
 	 *            The event passed upstream.
 	 */
-	public void handleUpstream( EventHandlerContext ctx, Event evt );
+	public void handleUpstream(EventHandlerContext ctx, Event evt);
 }
