@@ -8,23 +8,23 @@ import com.gc.mimicry.core.event.Event;
 public class SocketConnectionRequest implements Event
 {
 
-	public boolean isResponseTo( Event request )
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isResponseTo(Event request)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public VectorClock<UUID> getVectorClock()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public VectorClock<UUID> getVectorClock()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public UUID getControlFlowId()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public UUID getControlFlowId()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

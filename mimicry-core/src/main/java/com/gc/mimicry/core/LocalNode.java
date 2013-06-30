@@ -4,5 +4,5 @@ import com.gc.mimicry.net.NodeInfo;
 
 public interface LocalNode
 {
-	public NodeInfo getNodeInfo();
+    public NodeInfo getNodeInfo();
 }

@@ -3,7 +3,6 @@ package com.gc.mimicry.core.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Closeable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,111 +20,111 @@ import com.google.common.base.Splitter;
 
 public class LocalApplicationRepository implements ApplicationRepository
 {
-	private static final String							DEFAULT_APP_REPOSITORY;
-	private static final Logger							logger;
-	private static final String							APPLICATION_PROPERTIES;
-	static
-	{
-		logger = LoggerFactory.getLogger( LocalApplicationRepository.class );
-		APPLICATION_PROPERTIES = "application.properties";
-		DEFAULT_APP_REPOSITORY = ".mimicry" + File.pathSeparator + "repository";
-	}
+    private static final String DEFAULT_APP_REPOSITORY;
+    private static final Logger logger;
+    private static final String APPLICATION_PROPERTIES;
+    static
+    {
+        logger = LoggerFactory.getLogger(LocalApplicationRepository.class);
+        APPLICATION_PROPERTIES = "application.properties";
+        DEFAULT_APP_REPOSITORY = ".mimicry" + File.separator + "repository";
+    }
 
-	private final Map<String, ApplicationDescriptor>	loadedDescriptors;
-	private final File									repositoryPath;
+    private final Map<String, ApplicationDescriptor> loadedDescriptors;
+    private final File repositoryPath;
 
-	public LocalApplicationRepository()
-	{
-		this( new File( System.getProperty( "user.home" ), DEFAULT_APP_REPOSITORY ) );
-	}
+    public LocalApplicationRepository() throws IOException
+    {
+        this(new File(System.getProperty("user.home"), DEFAULT_APP_REPOSITORY));
+    }
 
-	public LocalApplicationRepository(File repositoryPath)
-	{
-		Preconditions.checkNotNull( repositoryPath );
-		this.repositoryPath = repositoryPath;
-		loadedDescriptors = new HashMap<String, ApplicationDescriptor>();
-	}
+    public LocalApplicationRepository(File repositoryPath) throws IOException
+    {
+        Preconditions.checkNotNull(repositoryPath);
 
-	@Override
-	public Set<String> getApplicationNames()
-	{
-		Set<String> appNames = new HashSet<String>();
-		for ( File f : repositoryPath.listFiles() )
-		{
-			if ( f.getName().endsWith( ".zip" ) )
-			{
-				appNames.add( f.getName().substring( 0, f.getName().length() - 4 ) );
-			}
-		}
-		return appNames;
-	}
+        this.repositoryPath = repositoryPath;
+        if (!repositoryPath.exists() && !repositoryPath.mkdirs())
+        {
+            throw new IOException("Failed to create directories of repository: " + repositoryPath);
+        }
 
-	@Override
-	public ApplicationDescriptor getApplicationDescriptor( String applicationName )
-	{
-		ApplicationDescriptor descriptor = loadedDescriptors.get( applicationName );
-		if ( descriptor == null )
-		{
-			try
-			{
-				descriptor = loadDescriptor( applicationName );
-				loadedDescriptors.put( applicationName, descriptor );
-			}
-			catch ( IOException e )
-			{
-				logger.warn( "Failed to load the application descriptor of " + applicationName, e );
-			}
-		}
-		return descriptor;
-	}
+        loadedDescriptors = new HashMap<String, ApplicationDescriptor>();
+    }
 
-	private ApplicationDescriptor loadDescriptor( String appName ) throws IOException
-	{
-		File bundleFile = new File( repositoryPath, appName + ".zip" );
-		final ZipFile zipFile = new ZipFile( bundleFile );
-		try
-		{
-			ZipEntry entry = zipFile.getEntry( APPLICATION_PROPERTIES );
-			if ( entry == null )
-			{
-				throw new IOException( "Application bundle doesn't contain a " + APPLICATION_PROPERTIES );
-			}
-			Properties props = new Properties();
-			props.load( zipFile.getInputStream( entry ) );
+    @Override
+    public Set<String> getApplicationNames()
+    {
+        Set<String> appNames = new HashSet<String>();
+        for (File f : repositoryPath.listFiles())
+        {
+            if (f.getName().endsWith(".zip"))
+            {
+                appNames.add(f.getName().substring(0, f.getName().length() - 4));
+            }
+        }
+        return appNames;
+    }
 
-			ApplicationDescriptorBuilder builder = ApplicationDescriptorBuilder.newDescriptor( appName );
-			builder.withBundleLocation( bundleFile );
-			builder.withMainClass( props.getProperty( "Main-Class" ) );
-			builder.withRunnableJar( props.getProperty( "Runnable-Jar" ) );
-			builder.withCommandLine( props.getProperty( "Command-Line" ) );
-			builder.withClassPath( props.getProperty( "Class-Path" ) );
-			for ( String s : Splitter.on( "," ).split( props.getProperty( "Supported-OS" ) ) )
-			{
-				builder.withSupportedOS( s );
-			}
-			return builder.build();
-		}
-		finally
-		{
-			IOUtils.closeSilently( new Closeable()
-			{
-				public void close() throws IOException
-				{
-					zipFile.close();
-				}
-			} );
-		}
-	}
+    @Override
+    public ApplicationDescriptor getApplicationDescriptor(String applicationName)
+    {
+        ApplicationDescriptor descriptor = loadedDescriptors.get(applicationName);
+        if (descriptor == null)
+        {
+            try
+            {
+                descriptor = loadDescriptor(applicationName);
+                loadedDescriptors.put(applicationName, descriptor);
+            }
+            catch (IOException e)
+            {
+                logger.warn("Failed to load the application descriptor of " + applicationName, e);
+            }
+        }
+        return descriptor;
+    }
 
-	@Override
-	public void storeApplication( String appName, InputStream bundleStream ) throws IOException
-	{
-		File bundleFile = new File( repositoryPath, appName + ".zip" );
-		if ( bundleFile.exists() )
-		{
-			throw new IOException( "Application already present in repository at " + bundleFile );
-		}
-		bundleFile.createNewFile();
-		IOUtils.writeToFile( bundleStream, bundleFile );
-	}
+    private ApplicationDescriptor loadDescriptor(String appName) throws IOException
+    {
+        File bundleFile = new File(repositoryPath, appName + ".zip");
+        final ZipFile zipFile = new ZipFile(bundleFile);
+        try
+        {
+            ZipEntry entry = zipFile.getEntry(APPLICATION_PROPERTIES);
+            if (entry == null)
+            {
+                throw new IOException("Application bundle doesn't contain a " + APPLICATION_PROPERTIES);
+            }
+            Properties props = new Properties();
+            props.load(zipFile.getInputStream(entry));
+
+            ApplicationDescriptorBuilder builder = ApplicationDescriptorBuilder.newDescriptor(appName);
+            builder.withBundleLocation(bundleFile);
+            builder.withMainClass(props.getProperty("Main-Class"));
+            builder.withRunnableJar(props.getProperty("Runnable-Jar"));
+            builder.withCommandLine(props.getProperty("Command-Line"));
+            builder.withClassPath(props.getProperty("Class-Path"));
+            for (String s : Splitter.on(",").split(props.getProperty("Supported-OS")))
+            {
+                builder.withSupportedOS(s);
+            }
+            return builder.build();
+        }
+        finally
+        {
+            IOUtils.closeSilently(zipFile);
+        }
+    }
+
+    @Override
+    public void storeApplication(String appName, InputStream bundleStream) throws IOException
+    {
+        File bundleFile = new File(repositoryPath, appName + ".zip");
+        if (bundleFile.exists())
+        {
+            throw new IOException("Application already present in repository at " + bundleFile);
+        }
+        bundleFile.createNewFile();
+        IOUtils.writeToFile(bundleStream, bundleFile);
+    }
 }

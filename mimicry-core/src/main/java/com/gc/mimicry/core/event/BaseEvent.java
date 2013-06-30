@@ -5,20 +5,20 @@ import java.util.UUID;
 
 public class BaseEvent implements Serializable
 {
-	public BaseEvent(UUID controlFlowId)
-	{
-		this.controlFlowId = controlFlowId;
-	}
+    public BaseEvent(UUID controlFlowId)
+    {
+        this.controlFlowId = controlFlowId;
+    }
 
-	public BaseEvent()
-	{
-	}
+    public BaseEvent()
+    {
+    }
 
-	public UUID getControlFlowId()
-	{
-		return controlFlowId;
-	}
+    public UUID getControlFlowId()
+    {
+        return controlFlowId;
+    }
 
-	private static final long	serialVersionUID	= 1656650145236686849L;
-	private UUID				controlFlowId;
+    private static final long serialVersionUID = 1656650145236686849L;
+    private UUID controlFlowId;
 }

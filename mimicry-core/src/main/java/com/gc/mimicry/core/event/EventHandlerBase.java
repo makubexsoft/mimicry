@@ -4,45 +4,51 @@ import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.Scheduler;
 import com.google.common.base.Preconditions;
 
-public class EventHandlerBase implements EventHandler {
+public class EventHandlerBase implements EventHandler
+{
 
-	@Override
-	public void handleDownstream(EventHandlerContext ctx, Event evt) {
-		ctx.sendDownstream(evt);
-	}
+    @Override
+    public void handleDownstream(EventHandlerContext ctx, Event evt)
+    {
+        ctx.sendDownstream(evt);
+    }
 
-	@Override
-	public void handleUpstream(EventHandlerContext ctx, Event evt) {
-		ctx.sendUpstream(evt);
-	}
-	
-	/**
-	 * Override this method to initialize the handler after scheduler and clock
-	 * have been set.
-	 */
-	protected void initHandler() {
-	}
+    @Override
+    public void handleUpstream(EventHandlerContext ctx, Event evt)
+    {
+        ctx.sendUpstream(evt);
+    }
 
-	@Override
-	final public void init(Scheduler scheduler, Clock clock) {
-		Preconditions.checkNotNull(scheduler);
-		Preconditions.checkNotNull(clock);
+    /**
+     * Override this method to initialize the handler after scheduler and clock have been set.
+     */
+    protected void initHandler()
+    {
+    }
 
-		this.scheduler = scheduler;
-		this.clock = clock;
+    @Override
+    final public void init(Scheduler scheduler, Clock clock)
+    {
+        Preconditions.checkNotNull(scheduler);
+        Preconditions.checkNotNull(clock);
 
-		initHandler();
-	}
+        this.scheduler = scheduler;
+        this.clock = clock;
 
-	@Override
-	final public Scheduler getScheduler() {
-		return scheduler;
-	}
+        initHandler();
+    }
 
-	final public Clock getClock() {
-		return clock;
-	}
+    @Override
+    final public Scheduler getScheduler()
+    {
+        return scheduler;
+    }
 
-	private Scheduler scheduler;
-	private Clock clock;
+    final public Clock getClock()
+    {
+        return clock;
+    }
+
+    private Scheduler scheduler;
+    private Clock clock;
 }

@@ -7,39 +7,39 @@ import java.util.List;
 
 public class ClassLoadingContext
 {
-	public ClassLoadingContext(ClassLoader coreClassLoader)
-	{
-		this.coreClassLoader = coreClassLoader;
-		aspectClassPath = new ArrayList<URL>();
-		bridgeClassPath = new ArrayList<URL>();
-	}
+    public ClassLoadingContext(ClassLoader coreClassLoader)
+    {
+        this.coreClassLoader = coreClassLoader;
+        aspectClassPath = new ArrayList<URL>();
+        bridgeClassPath = new ArrayList<URL>();
+    }
 
-	public ClassLoader getCoreClassLoader()
-	{
-		return coreClassLoader;
-	}
+    public ClassLoader getCoreClassLoader()
+    {
+        return coreClassLoader;
+    }
 
-	public List<URL> getAspectClassPath()
-	{
-		return Collections.unmodifiableList( aspectClassPath );
-	}
+    public List<URL> getAspectClassPath()
+    {
+        return Collections.unmodifiableList(aspectClassPath);
+    }
 
-	public List<URL> getBridgeClassPath()
-	{
-		return Collections.unmodifiableList( bridgeClassPath );
-	}
+    public List<URL> getBridgeClassPath()
+    {
+        return Collections.unmodifiableList(bridgeClassPath);
+    }
 
-	public void addAspectClassPath( URL p )
-	{
-		aspectClassPath.add( p );
-	}
+    public void addAspectClassPath(URL p)
+    {
+        aspectClassPath.add(p);
+    }
 
-	public void addBridgeClassPath( URL p )
-	{
-		bridgeClassPath.add( p );
-	}
+    public void addBridgeClassPath(URL p)
+    {
+        bridgeClassPath.add(p);
+    }
 
-	private final ClassLoader	coreClassLoader;
-	private final List<URL>		aspectClassPath;
-	private final List<URL>		bridgeClassPath;
+    private final ClassLoader coreClassLoader;
+    private final List<URL> aspectClassPath;
+    private final List<URL> bridgeClassPath;
 }

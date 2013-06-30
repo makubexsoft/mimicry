@@ -5,9 +5,9 @@ import java.io.Closeable;
 public interface Publisher extends Closeable
 {
 
-	public Topic getTopic();
+    public Topic getTopic();
 
-	public void send( Message msg );
+    public void send(Message msg);
 
-	public void close();
+    public void close();
 }

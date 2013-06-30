@@ -10,13 +10,13 @@ import com.gc.mimicry.core.timing.Scheduler;
 public interface Session extends Closeable
 {
 
-	public UUID getId();
+    public UUID getId();
 
-	public SessionLocalMessagingService getMessagingService();
+    public SessionLocalMessagingService getMessagingService();
 
-	public Scheduler getScheduler();
+    public Scheduler getScheduler();
 
-	public Clock getClock();
+    public Clock getClock();
 
-	public void close();
+    public void close();
 }

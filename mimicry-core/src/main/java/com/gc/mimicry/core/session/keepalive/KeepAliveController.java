@@ -7,8 +7,8 @@ import com.gc.mimicry.util.concurrent.Future;
 public class KeepAliveController
 {
 
-	public Future<?> isAlive( UUID nodeId, UUID sessionId )
-	{
-		return null;
-	}
+    public Future<?> isAlive(UUID nodeId, UUID sessionId)
+    {
+        return null;
+    }
 }

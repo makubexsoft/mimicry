@@ -1,8 +1,7 @@
 package com.gc.mimicry.core.timing;
 
 /**
- * This clock models a discrete time line. To advance the timeline you have to
- * invoke {@link #sample(long)} manually.
+ * This clock models a discrete time line. To advance the timeline you have to invoke {@link #sample(long)} manually.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -10,34 +9,34 @@ package com.gc.mimicry.core.timing;
 public class DiscreteClock extends AbstractClock
 {
 
-	private volatile long	currentMillis;
+    private volatile long currentMillis;
 
-	/**
-	 * Creates a new clock setting the current time to the given milliseconds.
-	 * 
-	 * @param initialMillis
-	 */
-	public DiscreteClock(long initialMillis)
-	{
-		currentMillis = initialMillis;
-	}
+    /**
+     * Creates a new clock setting the current time to the given milliseconds.
+     * 
+     * @param initialMillis
+     */
+    public DiscreteClock(long initialMillis)
+    {
+        currentMillis = initialMillis;
+    }
 
-	public long currentMillis()
-	{
-		return currentMillis;
-	}
+    public long currentMillis()
+    {
+        return currentMillis;
+    }
 
-	/**
-	 * Advances the timeline by the given milliseconds.
-	 * 
-	 * @param deltaTMillis
-	 */
-	public void sample( long deltaTMillis )
-	{
-		if ( deltaTMillis < 0 )
-		{
-			throw new IllegalArgumentException( "Can't sample time in the past. delta = " + deltaTMillis );
-		}
-		currentMillis += deltaTMillis;
-	}
+    /**
+     * Advances the timeline by the given milliseconds.
+     * 
+     * @param deltaTMillis
+     */
+    public void sample(long deltaTMillis)
+    {
+        if (deltaTMillis < 0)
+        {
+            throw new IllegalArgumentException("Can't sample time in the past. delta = " + deltaTMillis);
+        }
+        currentMillis += deltaTMillis;
+    }
 }

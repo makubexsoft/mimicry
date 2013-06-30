@@ -9,13 +9,13 @@ package com.gc.mimicry.core.messaging;
 public interface MessageReceiver
 {
 
-	/**
-	 * Invoked when a message has been received on the given {@link Topic}.
-	 * 
-	 * @param topic
-	 *            The topic on which the message has been received.
-	 * @param msg
-	 *            The received message.
-	 */
-	public void messageReceived( Topic topic, Message msg );
+    /**
+     * Invoked when a message has been received on the given {@link Topic}.
+     * 
+     * @param topic
+     *            The topic on which the message has been received.
+     * @param msg
+     *            The received message.
+     */
+    public void messageReceived(Topic topic, Message msg);
 }

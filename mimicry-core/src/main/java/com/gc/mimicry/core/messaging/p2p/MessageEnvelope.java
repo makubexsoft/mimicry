@@ -5,23 +5,24 @@ import com.gc.mimicry.core.messaging.Message;
 public class MessageEnvelope extends Message
 {
 
-	private String	topicName;
-	private Message	content;
+    private static final long serialVersionUID = 6869966859004692299L;
+    private String topicName;
+    private Message content;
 
-	public MessageEnvelope(Message content, String topicName)
-	{
-		super( content.getType() );
-		this.content = content;
-		this.topicName = topicName;
-	}
+    public MessageEnvelope(Message content, String topicName)
+    {
+        super(content.getType());
+        this.content = content;
+        this.topicName = topicName;
+    }
 
-	public Message getContent()
-	{
-		return content;
-	}
+    public Message getContent()
+    {
+        return content;
+    }
 
-	public String getTopicName()
-	{
-		return topicName;
-	}
+    public String getTopicName()
+    {
+        return topicName;
+    }
 }

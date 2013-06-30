@@ -3,6 +3,7 @@ package com.gc.mimicry.bridge.net;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * Stub implementation of the {@link ServerSocket} that translates all
@@ -55,6 +56,12 @@ public class ManagedServerSocket extends ServerSocket
 	{
 		super();
 		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	public Socket accept() throws IOException {
+		// TODO Auto-generated method stub
+		return new ManagedSocket();
 	}
 
 	@Override

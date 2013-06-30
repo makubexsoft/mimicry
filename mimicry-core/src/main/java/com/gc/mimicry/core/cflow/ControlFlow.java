@@ -7,22 +7,22 @@ import com.gc.mimicry.util.concurrent.Future;
 
 public class ControlFlow
 {
-	private Future<?>	future;
-	private UUID			id;
+    private Future<?> future;
+    private UUID id;
 
-	public ControlFlow()
-	{
-		future = new DefaultFuture();
-		id = UUID.randomUUID();
-	}
+    public ControlFlow()
+    {
+        future = new DefaultFuture();
+        id = UUID.randomUUID();
+    }
 
-	public Future<?> getFuture()
-	{
-		return future;
-	}
-	
-	public UUID getId()
-	{
-		return id;
-	}
+    public Future<?> getFuture()
+    {
+        return future;
+    }
+
+    public UUID getId()
+    {
+        return id;
+    }
 }

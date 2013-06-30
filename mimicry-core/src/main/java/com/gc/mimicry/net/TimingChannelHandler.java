@@ -13,44 +13,44 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 public class TimingChannelHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler
 {
 
-	private final ChannelGroup	allChannels;
-	private final int			periodInMillis;
-	private String				timerName;
+    private final ChannelGroup allChannels;
+    private final int periodInMillis;
+    private String timerName;
 
-	public TimingChannelHandler(ScheduledExecutorService scheduler, int periodInMillis, String timerName)
-	{
-		allChannels = new DefaultChannelGroup();
-		this.periodInMillis = periodInMillis;
-		this.timerName = timerName;
-		scheduler.scheduleAtFixedRate( new TimeJob(), 0, periodInMillis, TimeUnit.MILLISECONDS );
-	}
+    public TimingChannelHandler(ScheduledExecutorService scheduler, int periodInMillis, String timerName)
+    {
+        allChannels = new DefaultChannelGroup();
+        this.periodInMillis = periodInMillis;
+        this.timerName = timerName;
+        scheduler.scheduleAtFixedRate(new TimeJob(), 0, periodInMillis, TimeUnit.MILLISECONDS);
+    }
 
-	public void beforeAdd( ChannelHandlerContext ctx ) throws Exception
-	{
-	}
+    public void beforeAdd(ChannelHandlerContext ctx) throws Exception
+    {
+    }
 
-	public void afterAdd( ChannelHandlerContext ctx ) throws Exception
-	{
-		allChannels.add( ctx.getChannel() );
-	}
+    public void afterAdd(ChannelHandlerContext ctx) throws Exception
+    {
+        allChannels.add(ctx.getChannel());
+    }
 
-	public void beforeRemove( ChannelHandlerContext ctx ) throws Exception
-	{
-	}
+    public void beforeRemove(ChannelHandlerContext ctx) throws Exception
+    {
+    }
 
-	public void afterRemove( ChannelHandlerContext ctx ) throws Exception
-	{
-	}
+    public void afterRemove(ChannelHandlerContext ctx) throws Exception
+    {
+    }
 
-	private class TimeJob implements Runnable
-	{
+    private class TimeJob implements Runnable
+    {
 
-		public void run()
-		{
-			for ( Channel ch : allChannels )
-			{
-				ch.getPipeline().sendDownstream( new TimingChannelEvent( ch, periodInMillis, timerName ) );
-			}
-		}
-	}
+        public void run()
+        {
+            for (Channel ch : allChannels)
+            {
+                ch.getPipeline().sendDownstream(new TimingChannelEvent(ch, periodInMillis, timerName));
+            }
+        }
+    }
 }

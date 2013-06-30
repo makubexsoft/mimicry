@@ -8,23 +8,23 @@ import com.gc.mimicry.net.NodeInfo;
 
 public class SessionCreatedMessage extends Message
 {
-	private static final long	serialVersionUID	= -3744393592368465852L;
-	private final UUID			sessionId;
-	private final Set<NodeInfo>	participants;
+    private static final long serialVersionUID = -3744393592368465852L;
+    private final UUID sessionId;
+    private final Set<NodeInfo> participants;
 
-	public SessionCreatedMessage(UUID sessionId, Set<NodeInfo> participants)
-	{
-		this.sessionId = sessionId;
-		this.participants = participants;
-	}
+    public SessionCreatedMessage(UUID sessionId, Set<NodeInfo> participants)
+    {
+        this.sessionId = sessionId;
+        this.participants = participants;
+    }
 
-	public UUID getSessionId()
-	{
-		return sessionId;
-	}
+    public UUID getSessionId()
+    {
+        return sessionId;
+    }
 
-	public Set<NodeInfo> getParticipants()
-	{
-		return participants;
-	}
+    public Set<NodeInfo> getParticipants()
+    {
+        return participants;
+    }
 }

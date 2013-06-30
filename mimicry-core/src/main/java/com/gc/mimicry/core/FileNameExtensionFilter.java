@@ -11,22 +11,22 @@ import java.io.FilenameFilter;
  */
 public class FileNameExtensionFilter implements java.io.FilenameFilter
 {
-	/**
-	 * Constructs a new filter with the given file extension. Prepend a dot to
-	 * the extension to reduce false-positive matches, e.g. ".txt"
-	 * 
-	 * @param extension
-	 */
-	public FileNameExtensionFilter(String extension)
-	{
-		this.extension = extension;
-	}
+    /**
+     * Constructs a new filter with the given file extension. Prepend a dot to the extension to reduce false-positive
+     * matches, e.g. ".txt"
+     * 
+     * @param extension
+     */
+    public FileNameExtensionFilter(String extension)
+    {
+        this.extension = extension;
+    }
 
-	@Override
-	public boolean accept( File dir, String name )
-	{
-		return name.toLowerCase().endsWith( extension.toLowerCase() );
-	}
+    @Override
+    public boolean accept(File dir, String name)
+    {
+        return name.toLowerCase().endsWith(extension.toLowerCase());
+    }
 
-	private final String	extension;
+    private final String extension;
 }

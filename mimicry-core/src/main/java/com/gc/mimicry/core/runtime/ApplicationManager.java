@@ -1,6 +1,5 @@
 package com.gc.mimicry.core.runtime;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,72 +21,81 @@ import com.google.common.base.Preconditions;
 
 public class ApplicationManager extends BaseResourceManager
 {
-	
-	public ApplicationManager(ClassLoadingContext context, Node node)
-	{
-		Preconditions.checkNotNull( context );
-		Preconditions.checkNotNull( node );
 
-		this.context = context;
-		this.node = node;
+    public ApplicationManager(ClassLoadingContext context, Node node)
+    {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(node);
 
-		applications = new HashSet<Application>();
-	}
+        this.context = context;
+        this.node = node;
 
-	public Set<Application> getApplications()
-	{
-		return applications;
-	}
+        applications = new HashSet<Application>();
+    }
 
-	public Application getApplication( UUID id )
-	{
-		for ( Application app : applications )
-		{
-			if ( app.getId().equals( id ) )
-			{
-				return app;
-			}
-		}
-		return null;
-	}
+    public Set<Application> getApplications()
+    {
+        return applications;
+    }
 
-	// TODO: remove hard coded paths, maybe use some singleton configuration for the first draft
-	public Application launchApplication( ApplicationDescriptor appDesc ) throws IOException
-	{
-		ChildFirstURLClassLoader outerClassLoader;
-		outerClassLoader = new ChildFirstURLClassLoader( new URL[] { new File( "../mimicry-bridge/target/classes" )
-				.toURI().toURL() }, context.getCoreClassLoader() );
+    public Application getApplication(UUID id)
+    {
+        for (Application app : applications)
+        {
+            if (app.getId().equals(id))
+            {
+                return app;
+            }
+        }
+        return null;
+    }
 
-		List<URL> aspectUrls = new ArrayList<URL>();
-		aspectUrls.addAll( context.getAspectClassPath() );
+    public Application launchApplication(ApplicationDescriptor appDesc) throws IOException
+    {
+        ChildFirstURLClassLoader outerClassLoader;
+        outerClassLoader = new ChildFirstURLClassLoader(context.getBridgeClassPath(), Thread.currentThread()
+                .getContextClassLoader());
 
-		Set<String> referencedClassPath = new HashSet<String>( appDesc.getClassPath() );
-		referencedClassPath.add( "./target/classes" );
+        List<URL> aspectUrls = new ArrayList<URL>();
+        aspectUrls.addAll(context.getAspectClassPath());
 
-		Set<URL> aspectJClassPath;
-		aspectJClassPath = new HashSet<URL>( Arrays.asList( ClassPathUtil.createClassPath( appDesc.getClassPath() ) ) );
-		aspectJClassPath.addAll( context.getAspectClassPath() );
-		aspectJClassPath.addAll( context.getBridgeClassPath() );
+        Set<URL> aspectJClassPath;
+        aspectJClassPath = new HashSet<URL>(Arrays.asList(ClassPathUtil.createClassPath(appDesc.getClassPath())));
+        aspectJClassPath.addAll(context.getAspectClassPath());
+        aspectJClassPath.addAll(context.getBridgeClassPath());
 
-		LoopInterceptingByteCodeLoader codeLoader;
-		codeLoader = new LoopInterceptingByteCodeLoader( referencedClassPath.toArray( new String[0] ) );
-		WeavingClassLoader loader = new WeavingClassLoader( aspectJClassPath, aspectUrls, codeLoader, outerClassLoader );
+        LoopInterceptingByteCodeLoader codeLoader = createApplicationClassLoader(appDesc);
+        WeavingClassLoader loader = new WeavingClassLoader(aspectJClassPath, aspectUrls, codeLoader, outerClassLoader);
 
-		ApplicationBridge bridge = new ApplicationBridge( loader );
-		bridge.setMainClass( appDesc.getMainClass() );
-		bridge.setCommandArgs( appDesc.getCommandLine() );
-		bridge.setEventBridge(node.getEventBridge());
-		bridge.setClock(node.getClock());
+        ApplicationBridge bridge = new ApplicationBridge(loader);
+        bridge.setMainClass(appDesc.getMainClass());
+        bridge.setCommandArgs(appDesc.getCommandLine());
+        bridge.setEventBridge(node.getEventBridge());
+        bridge.setClock(node.getClock());
 
-		Application app = new Application( node, bridge );
+        Application app = new Application(node, bridge);
 
-		applications.add( app );
-		attachResource( app );
+        applications.add(app);
+        attachResource(app);
 
-		return app;
-	}
+        return app;
+    }
 
-	private final Set<Application>		applications;
-	private final Node					node;
-	private final ClassLoadingContext	context;
+    private LoopInterceptingByteCodeLoader createApplicationClassLoader(ApplicationDescriptor appDesc)
+    {
+        //
+        // In order to resolve all symbols in soot
+        // we need to setup the classpath which can be referenced by soot
+        // App.'s Classpath + Core Bundle
+        //
+        Set<String> referencedClassPath = new HashSet<String>(appDesc.getClassPath());
+        referencedClassPath.addAll(ClassPathUtil.getSystemClassPath());
+        LoopInterceptingByteCodeLoader codeLoader;
+        codeLoader = new LoopInterceptingByteCodeLoader(referencedClassPath.toArray(new String[0]));
+        return codeLoader;
+    }
+
+    private final Set<Application> applications;
+    private final Node node;
+    private final ClassLoadingContext context;
 }

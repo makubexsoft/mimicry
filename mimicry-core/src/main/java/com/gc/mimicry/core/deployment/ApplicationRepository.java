@@ -5,8 +5,7 @@ import java.io.InputStream;
 import java.util.Set;
 
 /**
- * An {@link ApplicationRepository} is comparable to a maven repository. It
- * contains deployable application bundles.
+ * An {@link ApplicationRepository} is comparable to a maven repository. It contains deployable application bundles.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -14,9 +13,9 @@ import java.util.Set;
 public interface ApplicationRepository
 {
 
-	public Set<String> getApplicationNames();
+    public Set<String> getApplicationNames();
 
-	public ApplicationDescriptor getApplicationDescriptor( String applicationName );
+    public ApplicationDescriptor getApplicationDescriptor(String applicationName);
 
-	public void storeApplication( String appName, InputStream bundleStream ) throws IOException;
+    public void storeApplication(String appName, InputStream bundleStream) throws IOException;
 }

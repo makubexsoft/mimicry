@@ -22,90 +22,90 @@ import com.gc.mimicry.util.concurrent.DefaultValueFuture;
 public class SessionControllerFuture extends DefaultValueFuture<SessionController> implements MessageReceiver
 {
 
-	private static final Logger	logger;
-	static
-	{
-		logger = LoggerFactory.getLogger( SessionControllerFuture.class );
-	}
-	private Set<NodeInfo>		participatingNodes;
-	private UUID				sessionId;
-	private volatile int		requiredNodes;
-	private Subscriber			subscriber;
-	private Publisher			publisher;
-	private MessagingSystem		messaging;
+    private static final Logger logger;
+    static
+    {
+        logger = LoggerFactory.getLogger(SessionControllerFuture.class);
+    }
+    private Set<NodeInfo> participatingNodes;
+    private UUID sessionId;
+    private volatile int requiredNodes;
+    private Subscriber subscriber;
+    private Publisher publisher;
+    private MessagingSystem messaging;
 
-	SessionControllerFuture(UUID sessionId, int requiredNodes, TopicSession topicSession, MessagingSystem messaging)
-	{
-		this.sessionId = sessionId;
-		this.requiredNodes = requiredNodes;
-		this.subscriber = topicSession.createSubscriber();
-		this.publisher = topicSession.createPublisher();
-		this.messaging = messaging;
-		participatingNodes = new HashSet<NodeInfo>();
-		subscriber.setMessageReceiver( this );
-	}
+    SessionControllerFuture(UUID sessionId, int requiredNodes, TopicSession topicSession, MessagingSystem messaging)
+    {
+        this.sessionId = sessionId;
+        this.requiredNodes = requiredNodes;
+        this.subscriber = topicSession.createSubscriber();
+        this.publisher = topicSession.createPublisher();
+        this.messaging = messaging;
+        participatingNodes = new HashSet<NodeInfo>();
+        subscriber.setMessageReceiver(this);
+    }
 
-	@Override
-	protected boolean performCancellation()
-	{
-		subscriber.setMessageReceiver( null );
-		subscriber.close();
-		publisher.close();
-		return true;
-	}
+    @Override
+    protected boolean performCancellation()
+    {
+        subscriber.setMessageReceiver(null);
+        subscriber.close();
+        publisher.close();
+        return true;
+    }
 
-	public void messageReceived( Topic topic, Message msg )
-	{
-		if ( msg instanceof ParticipateInSessionMessage )
-		{
-			ParticipateInSessionMessage participateMsg = (ParticipateInSessionMessage) msg;
+    public void messageReceived(Topic topic, Message msg)
+    {
+        if (msg instanceof ParticipateInSessionMessage)
+        {
+            ParticipateInSessionMessage participateMsg = (ParticipateInSessionMessage) msg;
 
-			if ( sessionId.equals( participateMsg.getSessionId() ) )
-			{
-				addNode( participateMsg );
-			}
-		}
-	}
+            if (sessionId.equals(participateMsg.getSessionId()))
+            {
+                addNode(participateMsg);
+            }
+        }
+    }
 
-	private void addNode( ParticipateInSessionMessage participateMsg )
-	{
-		logger.info( "Node[" + participateMsg.getNode().getNodeId() + "] participating in Session["
-				+ participateMsg.getSessionId() + "]" );
-		participatingNodes.add( participateMsg.getNode() );
+    private void addNode(ParticipateInSessionMessage participateMsg)
+    {
+        logger.info("Node[" + participateMsg.getNode().getNodeId() + "] participating in Session["
+                + participateMsg.getSessionId() + "]");
+        participatingNodes.add(participateMsg.getNode());
 
-		checkWhetherHaveEnoughParticipants();
-	}
+        checkWhetherHaveEnoughParticipants();
+    }
 
-	private void checkWhetherHaveEnoughParticipants()
-	{
-		if ( participatingNodes.size() >= requiredNodes )
-		{
-			SessionController controller = createController();
-			publisher.send( new SessionCreatedMessage( sessionId, participatingNodes ) );
-			setValue( controller );
-		}
-	}
+    private void checkWhetherHaveEnoughParticipants()
+    {
+        if (participatingNodes.size() >= requiredNodes)
+        {
+            SessionController controller = createController();
+            publisher.send(new SessionCreatedMessage(sessionId, participatingNodes));
+            setValue(controller);
+        }
+    }
 
-	public Set<NodeInfo> getCurrentNodes()
-	{
-		return participatingNodes;
-	}
+    public Set<NodeInfo> getCurrentNodes()
+    {
+        return participatingNodes;
+    }
 
-	public void setRequiredNodes( int requiredNodes )
-	{
-		this.requiredNodes = requiredNodes;
-		checkWhetherHaveEnoughParticipants();
-	}
+    public void setRequiredNodes(int requiredNodes)
+    {
+        this.requiredNodes = requiredNodes;
+        checkWhetherHaveEnoughParticipants();
+    }
 
-	public int getRequiredNodes()
-	{
-		return requiredNodes;
-	}
+    public int getRequiredNodes()
+    {
+        return requiredNodes;
+    }
 
-	private SessionController createController()
-	{
-		logger.info( "Found " + participatingNodes.size() + " node(s) participating in session " + sessionId
-				+ ". Creating session controller." );
-		return new SessionController( sessionId, participatingNodes, messaging );
-	}
+    private SessionController createController()
+    {
+        logger.info("Found " + participatingNodes.size() + " node(s) participating in session " + sessionId
+                + ". Creating session controller.");
+        return new SessionController(sessionId, participatingNodes, messaging);
+    }
 }

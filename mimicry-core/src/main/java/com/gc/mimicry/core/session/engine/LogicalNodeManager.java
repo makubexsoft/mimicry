@@ -6,11 +6,11 @@ import com.google.common.base.Preconditions;
 
 public class LogicalNodeManager extends BaseResourceManager
 {
-	private final MessagingSystem	messaging;
+    private final MessagingSystem messaging;
 
-	public LogicalNodeManager(MessagingSystem messaging)
-	{
-		Preconditions.checkNotNull( messaging );
-		this.messaging = messaging;
-	}
+    public LogicalNodeManager(MessagingSystem messaging)
+    {
+        Preconditions.checkNotNull(messaging);
+        this.messaging = messaging;
+    }
 }

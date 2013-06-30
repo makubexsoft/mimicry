@@ -1,5 +1,6 @@
 package com.gc.mimicry.bridge;
 
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -118,16 +119,20 @@ public final class SimulatorBridge
 	 * @throws ClassNotFoundException
 	 * @throws SecurityException
 	 * @throws NoSuchMethodException
+	 * @throws NoSuchFieldException 
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 * @throws InvocationTargetException 
 	 */
 	public static void startApplication( ClassLoader applicationLoader ) throws ClassNotFoundException,
-			NoSuchMethodException, SecurityException
+			NoSuchMethodException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException
 	{
 		checkInitialized();
 		if ( started )
 		{
 			throw new IllegalStateException( "Application already running." );
 		}
-
+		
 		Class<?> mainClass = applicationLoader.loadClass( mainClassName );
 		final Method mainMethod = mainClass.getMethod( "main", String[].class );
 		ManagedThread thread = new ManagedThread( new Runnable()

@@ -1,18 +1,24 @@
 //
+// Built-In Variables
+// 
+//   network	  SimulatedNetwork
+//				  Reference to the network that is simulated
+//   repository   ApplicationRepository
+//				  Reference to the application repository that can be used to load applications from
+//
+
+//
 // Define an EventStack for all nodes
 //
 EventHandlerConfiguration[] commonStack = 
 [
 	[
-		className: "example.SomeHandler",
+		className: "com.gc.mimicry.plugin.tcp.SimpleTCPSimulation",
 		configuration: 
 		[
 			firstParam: "foo",
 			secondParam: "bar"
 		]
-	],
-	[
-		className: "example.AnotherHandler"
 	]
 ]
 
@@ -23,15 +29,18 @@ appBuilder = new ApplicationDescriptorBuilder("example-app")
 appBuilder.with {
 	withMainClass( "examples.PingPongServer" )
 	withCommandLine( "8000" )
-	withClassPath( "example-app.jar" )
+	withClassPath( "../mimicry-core/sample-app.jar" )
 }
 appDescription = appBuilder.build()
 
 //
-// You should install a clock before creating nodes since it is passed
-// to the event handlers when the event stack gets instantiated for each node
+// Initialize the network
 //
-clock = network.installClock(ClockType.REALTIME)
+NetworkConfiguration netCfg = [
+	clockType: ClockType.REALTIME,
+	initialTimeMillis: 0
+]
+network.init(netCfg)
 
 //
 // Spawn 10 nodes with separated application instances
@@ -43,10 +52,11 @@ clock = network.installClock(ClockType.REALTIME)
 	nodeRef = network.spawnNode(config)
 	appRef = network.spawnApplication(nodeRef, appDescription)
 	
+	// starts the main thread of the application
 	network.startApplication(appRef)
 })
 
 //
 // Start the timeline
 //
-// clock.start(1.0)
+network.getClock().start(1.0)

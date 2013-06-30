@@ -12,28 +12,28 @@ import com.google.common.base.Preconditions;
 public class ClockDriver implements Closeable, MessageReceiver
 {
 
-	private final MessagingSystem	messaging;
-	private final Node				node;
+    private final MessagingSystem messaging;
+    private final Node node;
 
-	public ClockDriver(MessagingSystem messaging, Node node)
-	{
-		Preconditions.checkNotNull( messaging );
-		Preconditions.checkNotNull( node );
+    public ClockDriver(MessagingSystem messaging, Node node)
+    {
+        Preconditions.checkNotNull(messaging);
+        Preconditions.checkNotNull(node);
 
-		this.messaging = messaging;
-		this.node = node;
-	}
+        this.messaging = messaging;
+        this.node = node;
+    }
 
-	@Override
-	public void close()
-	{
+    @Override
+    public void close()
+    {
 
-	}
+    }
 
-	@Override
-	public void messageReceived( Topic topic, Message msg )
-	{
-		// TODO Auto-generated method stub
-		// set clock of apps running on node as well as for each event handler
-	}
+    @Override
+    public void messageReceived(Topic topic, Message msg)
+    {
+        // TODO Auto-generated method stub
+        // set clock of apps running on node as well as for each event handler
+    }
 }

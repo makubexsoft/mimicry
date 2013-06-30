@@ -8,34 +8,34 @@ import org.jboss.netty.channel.SucceededChannelFuture;
 public class TimingChannelEvent implements ChannelEvent
 {
 
-	private final Channel	channel;
-	private final int		periodInMillis;
-	private String			timerName;
+    private final Channel channel;
+    private final int periodInMillis;
+    private String timerName;
 
-	public TimingChannelEvent(Channel channel, int periodInMillis, String timerName)
-	{
-		this.channel = channel;
-		this.periodInMillis = periodInMillis;
-		this.timerName = timerName;
-	}
+    public TimingChannelEvent(Channel channel, int periodInMillis, String timerName)
+    {
+        this.channel = channel;
+        this.periodInMillis = periodInMillis;
+        this.timerName = timerName;
+    }
 
-	public int getPeriodInMillis()
-	{
-		return periodInMillis;
-	}
+    public int getPeriodInMillis()
+    {
+        return periodInMillis;
+    }
 
-	public Channel getChannel()
-	{
-		return channel;
-	}
+    public Channel getChannel()
+    {
+        return channel;
+    }
 
-	public ChannelFuture getFuture()
-	{
-		return new SucceededChannelFuture( channel );
-	}
+    public ChannelFuture getFuture()
+    {
+        return new SucceededChannelFuture(channel);
+    }
 
-	public String getTimerName()
-	{
-		return timerName;
-	}
+    public String getTimerName()
+    {
+        return timerName;
+    }
 }

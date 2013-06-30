@@ -4,11 +4,11 @@ import java.io.Closeable;
 
 public interface TopicSession extends Closeable
 {
-	public Publisher createPublisher();
+    public Publisher createPublisher();
 
-	public Subscriber createSubscriber();
+    public Subscriber createSubscriber();
 
-	public Topic getTopic();
+    public Topic getTopic();
 
-	public void close();
+    public void close();
 }
