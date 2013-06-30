@@ -15,18 +15,34 @@ public class EventHandlerBase implements EventHandler {
 	public void handleUpstream(EventHandlerContext ctx, Event evt) {
 		ctx.sendUpstream(evt);
 	}
-
-	@Override
-	public void init(Scheduler scheduler, Clock clock) {
-		Preconditions.checkNotNull(scheduler);
-		this.scheduler = scheduler;
+	
+	/**
+	 * Override this method to initialize the handler after scheduler and clock
+	 * have been set.
+	 */
+	protected void initHandler() {
 	}
 
 	@Override
-	public Scheduler getScheduler() {
+	final public void init(Scheduler scheduler, Clock clock) {
+		Preconditions.checkNotNull(scheduler);
+		Preconditions.checkNotNull(clock);
+
+		this.scheduler = scheduler;
+		this.clock = clock;
+
+		initHandler();
+	}
+
+	@Override
+	final public Scheduler getScheduler() {
 		return scheduler;
 	}
 
-	private Scheduler scheduler;
+	final public Clock getClock() {
+		return clock;
+	}
 
+	private Scheduler scheduler;
+	private Clock clock;
 }
