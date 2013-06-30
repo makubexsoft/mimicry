@@ -25,7 +25,7 @@ public class EventStack implements EventListener
         this.eventBroker = eventBroker;
         this.eventBridge = eventBridge;
 
-        eventBridge.addEventListener(this);
+        eventBridge.addDownstreamEventListener(this);
         handlerList = new CopyOnWriteArrayList<EventHandler>();
     }
 
@@ -78,7 +78,7 @@ public class EventStack implements EventListener
         else
         {
             // reached top
-            eventBridge.eventReceived(evt);
+            eventBridge.dispatchEventToApplication(evt);
         }
     }
 

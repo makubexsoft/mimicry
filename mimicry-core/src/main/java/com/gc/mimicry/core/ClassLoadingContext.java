@@ -7,16 +7,16 @@ import java.util.List;
 
 public class ClassLoadingContext
 {
-    public ClassLoadingContext(ClassLoader coreClassLoader)
+    public ClassLoadingContext(ClassLoader eventHandlerClassLoader)
     {
-        this.coreClassLoader = coreClassLoader;
+        this.eventHandlerClassLoader = eventHandlerClassLoader;
         aspectClassPath = new ArrayList<URL>();
         bridgeClassPath = new ArrayList<URL>();
     }
 
-    public ClassLoader getCoreClassLoader()
+    public ClassLoader getEventHandlerClassLoader()
     {
-        return coreClassLoader;
+        return eventHandlerClassLoader;
     }
 
     public List<URL> getAspectClassPath()
@@ -39,7 +39,7 @@ public class ClassLoadingContext
         bridgeClassPath.add(p);
     }
 
-    private final ClassLoader coreClassLoader;
+    private final ClassLoader eventHandlerClassLoader;
     private final List<URL> aspectClassPath;
     private final List<URL> bridgeClassPath;
 }

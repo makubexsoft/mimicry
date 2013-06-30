@@ -1,88 +1,114 @@
 package com.gc.mimicry.core.event;
 
-import java.util.WeakHashMap;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * The event bridge is located between the {@link EventStack} and the woven aspects. Once the application becomes
- * deactivated the bridge no longer forwards events in any direction. Furthermore the bridge consumes upstream events
- * that are responses to pending requests. Other events are passed to the registered event listeners which are typically
- * the managed instances.
+ * 
  * 
  * @author Marc-Christian Schulze
  * 
  */
 public class EventBridge
 {
-
-    private final WeakHashMap<EventListener, Boolean> listener;
+    private final Map<UUID, Boolean> applicationActiveState;
+    private CopyOnWriteArrayList<EventListener> downstreamListener;
+    private Map<UUID, CopyOnWriteArrayList<WeakReference<EventListener>>> upstreamListener;
 
     public EventBridge()
     {
-        listener = new WeakHashMap<EventListener, Boolean>();
+        applicationActiveState = new HashMap<UUID, Boolean>();
     }
 
-    /**
-     * Emits the given event and waits an infinite time for a corresponding response event. This method is invoked by
-     * the woven user code.
-     * 
-     * @param evt
-     * @return
-     */
-    public Event emitAndWait(Event evt)
+    public void dispatchEventToApplication(Event evt)
     {
-
-        return null;
+        if (evt instanceof SetApplicationActiveEvent)
+        {
+            setApplicationActive(evt.getDestinationAppId(), ((SetApplicationActiveEvent) evt).isActive());
+        }
+        else
+        {
+            handleEvent(evt);
+        }
     }
 
-    /**
-     * Emits the given event and waits the given time for a corresponding response event. This method is invoked by the
-     * woven user code.
-     * 
-     * @param evt
-     * @param timeoutMillis
-     * @return
-     */
-    public Event emitAndWait(Event evt, long timeoutMillis)
+    private void handleEvent(Event evt)
     {
-
-        return null;
+        UUID appId = evt.getDestinationAppId();
+        if (isApplicationActive(appId))
+        {
+            CopyOnWriteArrayList<WeakReference<EventListener>> list = upstreamListener.get(evt.getDestinationAppId());
+            if (list != null)
+            {
+                for (WeakReference<EventListener> ref : list)
+                {
+                    EventListener listener = ref.get();
+                    if (listener != null)
+                    {
+                        listener.eventOccurred(evt);
+                    }
+                    else
+                    {
+                        list.remove(ref);
+                    }
+                }
+            }
+        }
     }
 
-    /**
-     * Emits the given event and directly returns to the caller. This method is invoked by the woven user code.
-     * 
-     * @param evt
-     */
-    public void emit(Event evt)
+    public void dispatchEventToStack(Event evt)
     {
-
+        for (EventListener l : downstreamListener)
+        {
+            l.eventOccurred(evt);
+        }
     }
 
-    public void eventReceived(Event evt)
+    public void addDownstreamEventListener(EventListener l)
     {
-
+        downstreamListener.add(l);
     }
 
-    /**
-     * Adds a weak reference to the given listener to this bridge. The listener is invoked for each event that has
-     * passed the event bridge and was not a response to any pending request. Multiple invocations with the same
-     * argument will be ignored.
-     * 
-     * @param l
-     */
-    public void addEventListener(EventListener l)
+    public void removeDownstreamEventListener(EventListener l)
     {
-        listener.put(l, true);
+        downstreamListener.remove(l);
     }
 
-    /**
-     * Removes the given listener from the list. Multiple invocations with the same argument will be ignored.
-     * 
-     * @param l
-     */
-    public void removeEventListener(EventListener l)
+    public void addUpstreamEventListener(UUID applicationId, EventListener l)
     {
-        listener.remove(l);
+        CopyOnWriteArrayList<WeakReference<EventListener>> list = upstreamListener.get(applicationId);
+        if (list == null)
+        {
+            list = new CopyOnWriteArrayList<WeakReference<EventListener>>();
+        }
+        list.add(new WeakReference<EventListener>(l));
+        upstreamListener.put(applicationId, list);
     }
 
+    public void removeUpstreamEventListener(UUID applicationId, EventListener l)
+    {
+        CopyOnWriteArrayList<WeakReference<EventListener>> list = upstreamListener.get(applicationId);
+        if (list != null)
+        {
+            list.remove(l);
+        }
+    }
+
+    private boolean isApplicationActive(UUID appId)
+    {
+        Boolean flag = applicationActiveState.get(appId);
+        if (flag == null)
+        {
+            return true;
+        }
+        return flag;
+    }
+
+    private void setApplicationActive(UUID appId, boolean active)
+    {
+        applicationActiveState.put(appId, active);
+    }
 }

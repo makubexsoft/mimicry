@@ -12,4 +12,6 @@ public interface Event extends Serializable
      * @return
      */
     public UUID getControlFlowId();
+
+    public UUID getDestinationAppId();
 }

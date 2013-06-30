@@ -118,7 +118,7 @@ public class NodeManager
     {
         try
         {
-            Class<?> loadedClass = ctx.getCoreClassLoader().loadClass(name);
+            Class<?> loadedClass = ctx.getEventHandlerClassLoader().loadClass(name);
             if (!EventHandler.class.isAssignableFrom(loadedClass))
             {
                 return null;

@@ -7,6 +7,8 @@ import groovy.util.ScriptException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
@@ -30,12 +32,14 @@ public class Main {
 		ApplicationRepository appRepo = new LocalApplicationRepository();
 
 		
-		 String BRIDGE_PATH = "../mimicry-bridge/target/classes";
-	     String ASPECTS_PATH = "../mimicry-aspects/target/classes";
+		String BRIDGE_PATH = "../mimicry-bridge/target/classes";
+	    String ASPECTS_PATH = "../mimicry-aspects/target/classes";
+	     
+	    URLClassLoader eventHandlerCL = new URLClassLoader(new URL[]{new File("../mimicry-plugin-core/target/classes").toURI().toURL()}, Main.class.getClassLoader()); 
 	    
 		// 1. Setup loopback event communication
 		ClassLoadingContext ctx;
-		ctx = new ClassLoadingContext(Main.class.getClassLoader());
+		ctx = new ClassLoadingContext(eventHandlerCL);
 		ctx.addAspectClassPath(new File(ASPECTS_PATH).toURI().toURL());
 
 		ctx.addBridgeClassPath(new File(ASPECTS_PATH).toURI().toURL());
