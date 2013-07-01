@@ -5,15 +5,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import com.gc.mimicry.core.runtime.Node;
+import com.gc.mimicry.shared.events.Event;
 import com.google.common.base.Preconditions;
 
 public class EventStack implements EventListener
 {
-
     private final Node node;
     private final List<EventHandler> handlerList;
-    private EventBroker eventBroker;
-    private EventBridge eventBridge;
+    private final EventBroker eventBroker;
+    private final EventBridge eventBridge;
 
     public EventStack(Node node, EventBroker eventBroker, EventBridge eventBridge)
     {

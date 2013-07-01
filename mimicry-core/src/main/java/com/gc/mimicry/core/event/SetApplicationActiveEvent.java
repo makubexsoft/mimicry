@@ -2,6 +2,8 @@ package com.gc.mimicry.core.event;
 
 import java.util.UUID;
 
+import com.gc.mimicry.shared.events.Event;
+
 
 public class SetApplicationActiveEvent implements Event {
 	

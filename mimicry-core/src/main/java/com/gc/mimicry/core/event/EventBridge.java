@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.gc.mimicry.shared.events.Event;
+
 /**
  * 
  * 
@@ -15,12 +17,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class EventBridge
 {
     private final Map<UUID, Boolean> applicationActiveState;
-    private CopyOnWriteArrayList<EventListener> downstreamListener;
-    private Map<UUID, CopyOnWriteArrayList<WeakReference<EventListener>>> upstreamListener;
+    private final CopyOnWriteArrayList<EventListener> downstreamListener;
+    private final Map<UUID, CopyOnWriteArrayList<WeakReference<EventListener>>> upstreamListener;
 
     public EventBridge()
     {
         applicationActiveState = new HashMap<UUID, Boolean>();
+        downstreamListener = new CopyOnWriteArrayList<EventListener>();
+        upstreamListener = new HashMap<UUID, CopyOnWriteArrayList<WeakReference<EventListener>>>();
     }
 
     public void dispatchEventToApplication(Event evt)

@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>core</artifactId>
-	
+
 	<parent>
 		<groupId>com.gc.mimicry</groupId>
 		<artifactId>parent</artifactId>
@@ -11,6 +11,13 @@
 	</parent>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.gc.mimicry</groupId>
+			<artifactId>mimicry-shared</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -87,6 +94,7 @@
 			<artifactId>osgi-over-slf4j</artifactId>
 			<version>1.7.5</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

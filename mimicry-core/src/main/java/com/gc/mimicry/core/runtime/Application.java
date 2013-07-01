@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.util.UUID;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
-import com.gc.mimicry.core.event.EventBridge;
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.RealtimeClock;
 import com.gc.mimicry.util.concurrent.Future;
@@ -30,7 +29,7 @@ public class Application implements Closeable
 
         bridge.setApplicationId(id);
         bridge.setClock(clock);
-        bridge.setEventBridge(new EventBridge());
+        bridge.setEventBridge(node.getEventBridge());
 
         terminationFuture = bridge.getShutdownFuture();
     }

@@ -2,6 +2,8 @@ package com.gc.mimicry.core.event;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.gc.mimicry.shared.events.Event;
+
 public class SimpleEventBroker implements EventBroker
 {
     private final CopyOnWriteArrayList<EventListener> listener;

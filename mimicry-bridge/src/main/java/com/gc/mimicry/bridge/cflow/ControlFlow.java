@@ -2,15 +2,13 @@ package com.gc.mimicry.bridge.cflow;
 
 import java.util.UUID;
 
-import com.gc.mimicry.core.event.Event;
+import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.util.concurrent.DefaultValueFuture;
-import com.gc.mimicry.util.concurrent.ValueFuture;
 
 public class ControlFlow
 {
-    private final ValueFuture<Event> future;
+    private final DefaultValueFuture<Event> future;
     private final UUID id;
-    private Event cause;
 
     public ControlFlow()
     {
@@ -20,12 +18,12 @@ public class ControlFlow
 
     public void awaitTermination()
     {
-
+        future.awaitUninterruptibly(Long.MAX_VALUE);
     }
 
     public void awaitTermination(long timeoutMillis)
     {
-
+        future.awaitUninterruptibly(timeoutMillis);
     }
 
     /**
@@ -35,12 +33,12 @@ public class ControlFlow
      */
     public void terminate(Event event)
     {
-        cause = event;
+        future.setValue(event);
     }
 
     public Event getTerminationCause()
     {
-        return cause;
+        return future.getValue();
     }
 
     public UUID getId()

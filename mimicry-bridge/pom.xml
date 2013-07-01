@@ -22,6 +22,11 @@
 			<version>1.8.5</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.gc.mimicry</groupId>
+			<artifactId>mimicry-shared</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

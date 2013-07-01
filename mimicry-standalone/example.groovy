@@ -19,6 +19,9 @@ EventHandlerConfiguration[] commonStack =
 			firstParam: "foo",
 			secondParam: "bar"
 		]
+	],
+	[
+		className: "com.gc.mimicry.plugin.tcp.PortManager"
 	]
 ]
 

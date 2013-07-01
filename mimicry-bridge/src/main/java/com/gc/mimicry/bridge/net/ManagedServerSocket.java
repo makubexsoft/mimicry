@@ -12,13 +12,16 @@ import java.nio.channels.ServerSocketChannel;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
-import com.gc.mimicry.bridge.net.events.SetServerSocketOptionEvent;
-import com.gc.mimicry.bridge.net.events.SocketAcceptedEvent;
-import com.gc.mimicry.bridge.net.events.SocketBindRequestEvent;
-import com.gc.mimicry.bridge.net.events.SocketBoundEvent;
-import com.gc.mimicry.bridge.net.events.SocketClosedEvent;
-import com.gc.mimicry.core.event.Event;
 import com.gc.mimicry.core.event.EventListener;
+import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.net.events.ServerSocketOption;
+import com.gc.mimicry.shared.net.events.SetServerSocketOptionEvent;
+import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
+import com.gc.mimicry.shared.net.events.SocketAwaitingConnectionEvent;
+import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
+import com.gc.mimicry.shared.net.events.SocketBoundEvent;
+import com.gc.mimicry.shared.net.events.SocketClosedEvent;
+import com.gc.mimicry.shared.net.events.SocketErrorEvent;
 
 /**
  * Stub implementation of the {@link ServerSocket} that translates all interactions into events and vice-versa.
@@ -29,7 +32,8 @@ import com.gc.mimicry.core.event.EventListener;
 public class ManagedServerSocket extends ServerSocket
 {
     private static final int DEFAULT_BACKLOG = 50;
-    private final CFlowManager cflowMgr = new CFlowManager();
+    private final CFlowManager cflowMgr = new CFlowManager(SimulatorBridge.getApplicationId(),
+            SimulatorBridge.getEventBridge());
 
     /**
      * Overrides the original constructor that might be invoked by subclasses or via reflection. This implementation
@@ -114,6 +118,10 @@ public class ManagedServerSocket extends ServerSocket
         }
     }
 
+    /**
+     * Generates a {@link SocketAwaitingConnectionEvent} and awaits either an {@link SocketAcceptedEvent} in case there
+     * is an incoming connection or a {@link SocketClosedEvent} if the socket is closed in the meanwhile.
+     */
     @Override
     public Socket accept() throws IOException
     {
@@ -127,6 +135,7 @@ public class ManagedServerSocket extends ServerSocket
         }
 
         ControlFlow controlFlow = cflowMgr.createControlFlow();
+        emitEvent(new SocketAwaitingConnectionEvent());
         controlFlow.awaitTermination();
 
         Event event = controlFlow.getTerminationCause();
@@ -143,12 +152,19 @@ public class ManagedServerSocket extends ServerSocket
         return new ManagedSocket(sae);
     }
 
+    /**
+     * Delegates to {@link #bind(SocketAddress, int)}
+     */
     @Override
     public void bind(SocketAddress endpoint) throws IOException
     {
         bind(endpoint, DEFAULT_BACKLOG);
     }
 
+    /**
+     * Generates a {@link SocketBindRequestEvent} and awaits either an {@link SocketBoundEvent} or a
+     * {@link SocketClosedEvent}.
+     */
     @Override
     public void bind(SocketAddress endpoint, int backlog) throws IOException
     {
@@ -180,7 +196,9 @@ public class ManagedServerSocket extends ServerSocket
 
         ControlFlow controlFlow = cflowMgr.createControlFlow();
 
-        SocketBindRequestEvent evt = new SocketBindRequestEvent();
+        SocketBindRequestEvent evt;
+        evt = new SocketBindRequestEvent(SimulatorBridge.getApplicationId(), controlFlow.getId(), epoint.getPort(),
+                reusePort);
         emitEvent(evt);
 
         controlFlow.awaitTermination();
@@ -192,7 +210,8 @@ public class ManagedServerSocket extends ServerSocket
         }
         else
         {
-            throw new SocketException("Failed to bind socket.");
+            SocketErrorEvent error = (SocketErrorEvent) event;
+            throw new SocketException("Failed to bind socket: " + error.getMessage());
         }
     }
 
@@ -317,6 +336,7 @@ public class ManagedServerSocket extends ServerSocket
             throw new SocketException("Socket is closed");
         }
         emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.REUSE_ADDRESS, on));
+        reusePort = on;
     }
 
     @Override
@@ -346,4 +366,5 @@ public class ManagedServerSocket extends ServerSocket
     private boolean bound;
     private boolean closed;
     private int socketTimeout;
+    private boolean reusePort;
 }

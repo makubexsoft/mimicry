@@ -15,10 +15,10 @@ import java.nio.channels.SocketChannel;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
-import com.gc.mimicry.bridge.net.events.SocketAcceptedEvent;
-import com.gc.mimicry.core.event.Event;
 import com.gc.mimicry.core.event.EventBridge;
 import com.gc.mimicry.core.event.EventListener;
+import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
 
 /**
  * Stub implementation of the {@link Socket} that translates all interactions into events and vice-versa.

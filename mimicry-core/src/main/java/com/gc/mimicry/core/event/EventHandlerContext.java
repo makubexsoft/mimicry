@@ -1,5 +1,6 @@
 package com.gc.mimicry.core.event;
 
+import com.gc.mimicry.shared.events.Event;
 import com.google.common.base.Preconditions;
 
 public class EventHandlerContext

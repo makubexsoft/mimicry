@@ -1,4 +1,4 @@
-package com.gc.mimicry.core.event;
+package com.gc.mimicry.shared.events;
 
 import java.io.Serializable;
 import java.util.UUID;

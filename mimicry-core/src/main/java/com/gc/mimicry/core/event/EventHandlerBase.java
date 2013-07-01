@@ -2,6 +2,7 @@ package com.gc.mimicry.core.event;
 
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.Scheduler;
+import com.gc.mimicry.shared.events.Event;
 import com.google.common.base.Preconditions;
 
 public class EventHandlerBase implements EventHandler

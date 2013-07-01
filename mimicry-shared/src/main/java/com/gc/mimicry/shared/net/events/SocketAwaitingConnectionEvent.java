@@ -1,10 +1,10 @@
-package com.gc.mimicry.bridge.net.events;
+package com.gc.mimicry.shared.net.events;
 
 import java.util.UUID;
 
-import com.gc.mimicry.core.event.Event;
+import com.gc.mimicry.shared.events.Event;
 
-public class SocketAcceptedEvent implements Event
+public class SocketAwaitingConnectionEvent implements Event
 {
 
     @Override

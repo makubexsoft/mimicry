@@ -1,4 +1,4 @@
-package com.gc.mimicry.bridge.net;
+package com.gc.mimicry.shared.net.events;
 
 public enum ServerSocketOption
 {

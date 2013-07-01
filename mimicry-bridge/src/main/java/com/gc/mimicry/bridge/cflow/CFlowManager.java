@@ -5,16 +5,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.gc.mimicry.core.event.Event;
+import com.gc.mimicry.core.event.EventBridge;
 import com.gc.mimicry.core.event.EventListener;
+import com.gc.mimicry.shared.events.Event;
 
 public class CFlowManager implements EventListener
 {
     private final Map<UUID, ControlFlow> controlFlows;
 
-    public CFlowManager()
+    public CFlowManager(UUID appId, EventBridge bridge)
     {
         controlFlows = new HashMap<UUID, ControlFlow>();
+        bridge.addUpstreamEventListener(appId, this);
     }
 
     @Override

@@ -8,6 +8,7 @@
 
 	<modules>
 		<module>../mimicry-aspects</module>
+		<module>../mimicry-shared</module>
 		<module>../mimicry-bridge</module>
 		<module>../mimicry-core</module>
 		<module>../mimicry-dedicated-engine</module>
