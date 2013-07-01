@@ -13,15 +13,18 @@
 EventHandlerConfiguration[] commonStack = 
 [
 	[
+		className: "com.gc.mimicry.plugin.tcp.PortManager"
+	],
+	[
+		className: "com.gc.mimicry.plugin.tcp.TCPConnectionManager"	
+	],
+	[
 		className: "com.gc.mimicry.plugin.tcp.SimpleTCPSimulation",
-		configuration: 
+		configuration:
 		[
 			firstParam: "foo",
 			secondParam: "bar"
 		]
-	],
-	[
-		className: "com.gc.mimicry.plugin.tcp.PortManager"
 	]
 ]
 

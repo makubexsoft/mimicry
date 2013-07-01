@@ -18,8 +18,8 @@ import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
 import com.gc.mimicry.shared.events.BaseEvent;
 import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.net.events.ConnectionEstablishedEvent;
 import com.gc.mimicry.shared.net.events.SetSocketOptionEvent;
-import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
 import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.shared.net.events.SocketBoundEvent;
 import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
@@ -135,9 +135,13 @@ public class ManagedSocket extends Socket
      * 
      * @param event
      */
-    ManagedSocket(SocketAcceptedEvent event)
+    ManagedSocket(ConnectionEstablishedEvent event)
     {
+        localAddress = event.getServerAddress();
+        remoteAddress = event.getClientAddress();
 
+        connected = true;
+        bound = true;
     }
 
     private void init(SocketAddress address, SocketAddress localAddr, boolean stream) throws IOException
@@ -500,7 +504,7 @@ public class ManagedSocket extends Socket
     }
 
     /**
-     * Emits a {@link SocketConnectionRequest} and awaits either a {@link SocketAcceptedEvent} or a
+     * Emits a {@link SocketConnectionRequest} and awaits either a {@link ConnectionEstablishedEvent} or a
      * {@link SocketErrorEvent}.
      */
     @Override
@@ -535,7 +539,7 @@ public class ManagedSocket extends Socket
 
         Event response = processEvent(new SocketConnectionRequest(localAddress, epoint));
 
-        if (response instanceof SocketAcceptedEvent)
+        if (response instanceof ConnectionEstablishedEvent)
         {
             remoteAddress = epoint;
             connected = true;
@@ -555,7 +559,13 @@ public class ManagedSocket extends Socket
     @Override
     public String toString()
     {
-        return "Managed" + super.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("ManagedSocket [remoteAddress=");
+        builder.append(remoteAddress);
+        builder.append(", localAddress=");
+        builder.append(localAddress);
+        builder.append("]");
+        return builder.toString();
     }
 
     @Override

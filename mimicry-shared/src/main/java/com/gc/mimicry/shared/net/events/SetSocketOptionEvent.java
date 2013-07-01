@@ -49,4 +49,19 @@ public class SetSocketOptionEvent extends BaseEvent
 	{
 		return boolValue;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "SetSocketOptionEvent [option=" );
+		builder.append( option );
+		builder.append( ", intValue=" );
+		builder.append( intValue );
+		builder.append( ", boolValue=" );
+		builder.append( boolValue );
+		builder.append( "]" );
+		return builder.toString();
+	}
+
 }

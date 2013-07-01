@@ -34,8 +34,6 @@ public class SocketConnectionRequest extends BaseEvent
 		builder.append( source );
 		builder.append( ", destination=" );
 		builder.append( destination );
-		builder.append( ", toString()=" );
-		builder.append( super.toString() );
 		builder.append( "]" );
 		return builder.toString();
 	}

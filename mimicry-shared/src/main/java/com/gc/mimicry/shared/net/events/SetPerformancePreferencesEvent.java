@@ -30,4 +30,19 @@ public class SetPerformancePreferencesEvent extends BaseEvent
 	{
 		return bandwidth;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "SetPerformancePreferencesEvent [connectionTime=" );
+		builder.append( connectionTime );
+		builder.append( ", latency=" );
+		builder.append( latency );
+		builder.append( ", bandwidth=" );
+		builder.append( bandwidth );
+		builder.append( "]" );
+		return builder.toString();
+	}
+
 }

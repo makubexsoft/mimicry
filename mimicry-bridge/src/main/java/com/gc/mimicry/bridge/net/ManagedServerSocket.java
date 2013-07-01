@@ -15,10 +15,10 @@ import com.gc.mimicry.bridge.cflow.ControlFlow;
 import com.gc.mimicry.core.event.EventListener;
 import com.gc.mimicry.shared.events.BaseEvent;
 import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.net.events.ConnectionEstablishedEvent;
 import com.gc.mimicry.shared.net.events.ServerSocketOption;
 import com.gc.mimicry.shared.net.events.SetPerformancePreferencesEvent;
 import com.gc.mimicry.shared.net.events.SetServerSocketOptionEvent;
-import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
 import com.gc.mimicry.shared.net.events.SocketAwaitingConnectionEvent;
 import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.shared.net.events.SocketBoundEvent;
@@ -121,8 +121,8 @@ public class ManagedServerSocket extends ServerSocket
     }
 
     /**
-     * Generates a {@link SocketAwaitingConnectionEvent} and awaits either an {@link SocketAcceptedEvent} in case there
-     * is an incoming connection or a {@link SocketClosedEvent} if the socket is closed in the meanwhile.
+     * Generates a {@link SocketAwaitingConnectionEvent} and awaits either an {@link ConnectionEstablishedEvent} in case
+     * there is an incoming connection or a {@link SocketClosedEvent} if the socket is closed in the meanwhile.
      */
     @Override
     public Socket accept() throws IOException
@@ -144,12 +144,12 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket has been closed.");
         }
-        if (!(event instanceof SocketAcceptedEvent))
+        if (!(event instanceof ConnectionEstablishedEvent))
         {
             throw new RuntimeException("Received unexpected event: " + event);
         }
 
-        SocketAcceptedEvent sae = (SocketAcceptedEvent) event;
+        ConnectionEstablishedEvent sae = (ConnectionEstablishedEvent) event;
         return new ManagedSocket(sae);
     }
 
@@ -361,19 +361,7 @@ public class ManagedServerSocket extends ServerSocket
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        builder.append("ManagedServerSocket [cflowMgr=");
-        builder.append(cflowMgr);
-        builder.append(", bound=");
-        builder.append(bound);
-        builder.append(", closed=");
-        builder.append(closed);
-        builder.append(", socketTimeout=");
-        builder.append(socketTimeout);
-        builder.append(", reusePort=");
-        builder.append(reusePort);
-        builder.append(", receiveBufferSize=");
-        builder.append(receiveBufferSize);
-        builder.append(", localAddress=");
+        builder.append("ManagedServerSocket [localAddress=");
         builder.append(localAddress);
         builder.append("]");
         return builder.toString();

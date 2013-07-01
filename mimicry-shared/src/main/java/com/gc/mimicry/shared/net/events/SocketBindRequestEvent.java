@@ -34,9 +34,8 @@ public class SocketBindRequestEvent extends BaseEvent
 		builder.append( endpoint );
 		builder.append( ", reusePort=" );
 		builder.append( reusePort );
-		builder.append( ", toString()=" );
-		builder.append( super.toString() );
 		builder.append( "]" );
 		return builder.toString();
 	}
+
 }
