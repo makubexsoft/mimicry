@@ -166,8 +166,35 @@ public class ManagedSocket extends Socket implements EventListener
     @Override
     public void bind(SocketAddress bindpoint) throws IOException
     {
-        // TODO Auto-generated method stub
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        if (isBound())
+        {
+            throw new SocketException("Already bound");
+        }
 
+        if (bindpoint != null && (!(bindpoint instanceof InetSocketAddress)))
+        {
+            throw new IllegalArgumentException("Unsupported address type");
+        }
+        InetSocketAddress epoint = (InetSocketAddress) bindpoint;
+        if (epoint != null && epoint.isUnresolved())
+        {
+            throw new SocketException("Unresolved address");
+        }
+        if (epoint == null)
+        {
+            epoint = new InetSocketAddress(0);
+        }
+        InetAddress addr = epoint.getAddress();
+        int port = epoint.getPort();
+
+        //
+        // checkAddress(addr, "bind");
+        // getImpl().bind(addr, port);
+        // bound = true;
     }
 
     @Override
@@ -366,8 +393,76 @@ public class ManagedSocket extends Socket implements EventListener
     @Override
     public void connect(SocketAddress endpoint, int timeout) throws IOException
     {
-        // TODO Auto-generated method stub
+        if (endpoint == null)
+        {
+            throw new IllegalArgumentException("connect: The address can't be null");
+        }
 
+        if (timeout < 0)
+        {
+            throw new IllegalArgumentException("connect: timeout can't be negative");
+        }
+
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        if (isConnected())
+        {
+            throw new SocketException("already connected");
+        }
+
+        if (!(endpoint instanceof InetSocketAddress))
+        {
+            throw new IllegalArgumentException("Unsupported address type");
+        }
+
+        InetSocketAddress epoint = (InetSocketAddress) endpoint;
+        InetAddress addr = epoint.getAddress();
+        int port = epoint.getPort();
+
+        SecurityManager security = System.getSecurityManager();
+        if (security != null)
+        {
+            if (epoint.isUnresolved())
+            {
+                security.checkConnect(epoint.getHostName(), port);
+            }
+            else
+            {
+                security.checkConnect(addr.getHostAddress(), port);
+            }
+        }
+        // if (!created)
+        // {
+        // createImpl(true);
+        // }
+        // if (!oldImpl)
+        // {
+        // impl.connect(epoint, timeout);
+        // }
+        // else if (timeout == 0)
+        // {
+        // if (epoint.isUnresolved())
+        // {
+        // impl.connect(addr.getHostName(), port);
+        // }
+        // else
+        // {
+        // impl.connect(addr, port);
+        // }
+        // }
+        // else
+        // {
+        // throw new UnsupportedOperationException("SocketImpl.connect(addr, timeout)");
+        // }
+        // connected = true;
+        // /*
+        // * If the socket was not bound before the connect, it is now because the kernel will have picked an ephemeral
+        // * port & a local address
+        // */
+        // bound = true;
     }
 
     @Override

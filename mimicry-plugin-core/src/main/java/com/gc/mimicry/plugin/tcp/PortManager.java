@@ -1,7 +1,12 @@
 package com.gc.mimicry.plugin.tcp;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gc.mimicry.core.event.EventHandlerBase;
 import com.gc.mimicry.core.event.EventHandlerContext;
@@ -21,34 +26,38 @@ import com.gc.mimicry.shared.net.events.SocketErrorEvent;
  */
 public class PortManager extends EventHandlerBase
 {
-	private static final int			MIN_PORT	= 1;
-	private static final int			MAX_PORT	= 65535;
-	private static final boolean		REUSABLE	= true;
-
-	private final Map<Integer, Boolean>	allocatedPorts;
-
 	public PortManager()
 	{
 		allocatedPorts = new HashMap<Integer, Boolean>();
 	}
 
-	public boolean isPortAllocated( int port )
+	@Override
+	public void handleDownstream( EventHandlerContext ctx, Event evt )
+	{
+		if ( evt instanceof SocketBindRequestEvent )
+		{
+			SocketBindRequestEvent bindRequest = (SocketBindRequestEvent) evt;
+			handleBindRequest( ctx, bindRequest );
+		}
+	}
+
+	private boolean isPortAllocated( int port )
 	{
 		return allocatedPorts.get( port ) != null;
 	}
 
-	public boolean isPortReusable( int port )
+	private boolean isPortReusable( int port )
 	{
 		return allocatedPorts.get( port );
 	}
 
-	public void allocatePort( int port, boolean reusable )
+	private void allocatePort( int port, boolean reusable )
 	{
 		allocatedPorts.put( port, reusable );
-		System.out.println( "Port [" + port + "] allocated." );
+		logger.info( "Allocated port=" + port + ", reusable=" + reusable );
 	}
 
-	public int findFreePort( boolean canBeReusable )
+	private int findFreePort( boolean canBeReusable )
 	{
 		for ( int port = MIN_PORT; port <= MAX_PORT; port++ )
 		{
@@ -64,48 +73,60 @@ public class PortManager extends EventHandlerBase
 		return -1;
 	}
 
-	@Override
-	public void handleDownstream( EventHandlerContext ctx, Event evt )
+	private void handleBindRequest( EventHandlerContext ctx, SocketBindRequestEvent bindRequest )
 	{
-		if ( evt instanceof SocketBindRequestEvent )
+		int port = bindRequest.getEndPoint().getPort();
+		boolean reusable = bindRequest.isReusePort();
+
+		if ( port == 0 )
 		{
-			SocketBindRequestEvent bindRequest = (SocketBindRequestEvent) evt;
-			int port = bindRequest.getPort();
-			boolean reusable = bindRequest.isReusePort();
-
-			if ( port == 0 )
-			{
-				port = findFreePort( reusable );
-			}
-			if ( port == -1 )
-			{
-				// no port available at the moment
-				ctx.sendUpstream( new SocketErrorEvent( "No port available at the moment." ) );
-			}
-
-			tryToAllocatePort( ctx, port, reusable );
+			port = findFreePort( reusable );
 		}
+		if ( port == -1 )
+		{
+			// no port available at the moment
+			ctx.sendUpstream( new SocketErrorEvent( "No port available at the moment." ) );
+			return;
+		}
+
+		tryAllocatePort( bindRequest.getDestinationAppId(), bindRequest.getControlFlowId(), ctx, port, reusable );
 	}
 
-	private void tryToAllocatePort( EventHandlerContext ctx, int port, boolean reusable )
+	private void tryAllocatePort( UUID app, UUID cflow, EventHandlerContext ctx, int port, boolean reusable )
 	{
 		if ( isPortAllocated( port ) )
 		{
-			if ( reusable && isPortReusable( port ) )
-			{
-				allocatePort( port, REUSABLE );
-				ctx.sendUpstream( new SocketBoundEvent( port ) );
-			}
-			else
-			{
-				// port already in use
-				ctx.sendUpstream( new SocketErrorEvent( "Port " + port + " already in use." ) );
-			}
+			tryReusePort( app, cflow, ctx, port, reusable );
 		}
 		else
 		{
 			allocatePort( port, reusable );
-			ctx.sendUpstream( new SocketBoundEvent( port ) );
+			ctx.sendUpstream( new SocketBoundEvent( app, cflow, new InetSocketAddress( port ) ) );
 		}
 	}
+
+	private void tryReusePort( UUID app, UUID cflow, EventHandlerContext ctx, int port, boolean reusable )
+	{
+		if ( reusable && isPortReusable( port ) )
+		{
+			allocatePort( port, REUSABLE );
+			ctx.sendUpstream( new SocketBoundEvent( app, cflow, new InetSocketAddress( port ) ) );
+		}
+		else
+		{
+			// port already in use
+			ctx.sendUpstream( new SocketErrorEvent( "Port " + port + " already in use." ) );
+		}
+	}
+
+	private static final Logger			logger;
+	static
+	{
+		logger = LoggerFactory.getLogger( PortManager.class );
+	}
+	private static final int			MIN_PORT	= 1;
+	private static final int			MAX_PORT	= 65535;
+	private static final boolean		REUSABLE	= true;
+
+	private final Map<Integer, Boolean>	allocatedPorts;
 }

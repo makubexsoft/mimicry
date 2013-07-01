@@ -1,36 +1,24 @@
 package com.gc.mimicry.shared.net.events;
 
+import java.net.InetSocketAddress;
 import java.util.UUID;
 
-import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.events.BaseEvent;
 
-public class SocketBoundEvent implements Event
+public class SocketBoundEvent extends BaseEvent
 {
-    private final int port;
+    private final InetSocketAddress address;
 
-    public SocketBoundEvent(int port)
+    public SocketBoundEvent(UUID appId, UUID cflow, InetSocketAddress address)
     {
-        this.port = port;
+    	super(appId, cflow);
+    	
+        this.address = address;
     }
 
-    public int getPort()
+    public InetSocketAddress getAddress()
     {
-        return port;
+        return address;
     }
-
-    @Override
-    public UUID getControlFlowId()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public UUID getDestinationAppId()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }
  

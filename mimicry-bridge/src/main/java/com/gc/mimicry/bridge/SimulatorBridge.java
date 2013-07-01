@@ -168,7 +168,7 @@ public final class SimulatorBridge
                 }
 
             }
-        }, "Main-Thread");
+        }, "Application[id=" + getApplicationId() + "] main");
         thread.start();
         started = true;
     }

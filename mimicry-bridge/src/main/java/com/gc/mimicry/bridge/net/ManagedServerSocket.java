@@ -15,6 +15,7 @@ import com.gc.mimicry.bridge.cflow.ControlFlow;
 import com.gc.mimicry.core.event.EventListener;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.ServerSocketOption;
+import com.gc.mimicry.shared.net.events.SetPerformancePreferencesEvent;
 import com.gc.mimicry.shared.net.events.SetServerSocketOptionEvent;
 import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
 import com.gc.mimicry.shared.net.events.SocketAwaitingConnectionEvent;
@@ -197,8 +198,7 @@ public class ManagedServerSocket extends ServerSocket
         ControlFlow controlFlow = cflowMgr.createControlFlow();
 
         SocketBindRequestEvent evt;
-        evt = new SocketBindRequestEvent(SimulatorBridge.getApplicationId(), controlFlow.getId(), epoint.getPort(),
-                reusePort);
+        evt = new SocketBindRequestEvent(SimulatorBridge.getApplicationId(), controlFlow.getId(), epoint, reusePort);
         emitEvent(evt);
 
         controlFlow.awaitTermination();
@@ -206,7 +206,8 @@ public class ManagedServerSocket extends ServerSocket
         Event event = controlFlow.getTerminationCause();
         if (event instanceof SocketBoundEvent)
         {
-            // STATE: bound = true
+            localAddress = ((SocketBoundEvent) event).getAddress();
+            bound = true;
         }
         else
         {
@@ -245,8 +246,7 @@ public class ManagedServerSocket extends ServerSocket
             return -1;
         }
 
-        // TODO Auto-generated method stub
-        return super.getLocalPort();
+        return localAddress.getPort();
     }
 
     @Override
@@ -257,8 +257,7 @@ public class ManagedServerSocket extends ServerSocket
             return null;
         }
 
-        // TODO Auto-generated method stub
-        return super.getLocalSocketAddress();
+        return localAddress;
     }
 
     @Override
@@ -268,9 +267,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        int result = 0;
-        // TODO Auto-generated method stub
-        return super.getReceiveBufferSize();
+        return receiveBufferSize;
     }
 
     @Override
@@ -280,8 +277,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        // TODO Auto-generated method stub
-        return super.getReuseAddress();
+        return reusePort;
     }
 
     @Override
@@ -306,13 +302,19 @@ public class ManagedServerSocket extends ServerSocket
         return closed;
     }
 
+    /**
+     * Emits a {@link SetPerformancePreferencesEvent}.
+     */
     @Override
     public void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
     {
-        // TODO Auto-generated method stub
-        super.setPerformancePreferences(connectionTime, latency, bandwidth);
+        emitEvent(new SetPerformancePreferencesEvent(SimulatorBridge.getApplicationId(), connectionTime, latency,
+                bandwidth));
     }
 
+    /**
+     * Emits an event of type {@link SetServerSocketOptionEvent} with {@link ServerSocketOption} = RECEIVE_BUFFER_SIZE
+     */
     @Override
     public synchronized void setReceiveBufferSize(int size) throws SocketException
     {
@@ -324,10 +326,13 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        // TODO Auto-generated method stub
-        super.setReceiveBufferSize(size);
+        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.RECEIVE_BUFFER_SIZE, size));
+        receiveBufferSize = size;
     }
 
+    /**
+     * Emits an event of type {@link SetServerSocketOptionEvent} with {@link ServerSocketOption} = REUSE_ADDRESS
+     */
     @Override
     public void setReuseAddress(boolean on) throws SocketException
     {
@@ -339,6 +344,9 @@ public class ManagedServerSocket extends ServerSocket
         reusePort = on;
     }
 
+    /**
+     * Emits an event of type {@link SetServerSocketOptionEvent} with {@link ServerSocketOption} = SOCKET_TIMEOUT
+     */
     @Override
     public synchronized void setSoTimeout(int timeout) throws SocketException
     {
@@ -347,24 +355,45 @@ public class ManagedServerSocket extends ServerSocket
             throw new SocketException("Socket is closed");
         }
 
+        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.SOCKET_TIMEOUT, timeout));
         socketTimeout = timeout;
     }
 
     @Override
     public void close() throws IOException
     {
-        // TODO Auto-generated method stub
-        super.close();
+        Event closeEvent = new SocketClosedEvent();
+        emitEvent(closeEvent);
+        cflowMgr.terminateAll(closeEvent);
+        closed = true;
     }
 
     @Override
     public String toString()
     {
-        return "Managed" + super.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("ManagedServerSocket [cflowMgr=");
+        builder.append(cflowMgr);
+        builder.append(", bound=");
+        builder.append(bound);
+        builder.append(", closed=");
+        builder.append(closed);
+        builder.append(", socketTimeout=");
+        builder.append(socketTimeout);
+        builder.append(", reusePort=");
+        builder.append(reusePort);
+        builder.append(", receiveBufferSize=");
+        builder.append(receiveBufferSize);
+        builder.append(", localAddress=");
+        builder.append(localAddress);
+        builder.append("]");
+        return builder.toString();
     }
 
     private boolean bound;
     private boolean closed;
     private int socketTimeout;
     private boolean reusePort;
+    private int receiveBufferSize;
+    private InetSocketAddress localAddress;
 }

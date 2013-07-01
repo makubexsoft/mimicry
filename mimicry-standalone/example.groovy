@@ -34,7 +34,15 @@ appBuilder.with {
 	withCommandLine( "8000" )
 	withClassPath( "../mimicry-core/sample-app.jar" )
 }
-appDescription = appBuilder.build()
+serverAppDesc = appBuilder.build()
+
+appBuilder = new ApplicationDescriptorBuilder("example-app")
+appBuilder.with {
+	withMainClass( "examples.PingPongClient" )
+	withCommandLine( "127.0.0.1 8000" )
+	withClassPath( "../mimicry-core/sample-app.jar" )
+}
+clientAppDesc = appBuilder.build()
 
 //
 // Initialize the network
@@ -46,18 +54,32 @@ NetworkConfiguration netCfg = [
 network.init(netCfg)
 
 //
-// Spawn 10 nodes with separated application instances
+// Spawn server app
 //
-10.times({
-	config = new NodeConfiguration("node-" + it)
-	config.eventStack.addAll( commonStack )
+
+	serverConfig = new NodeConfiguration("ServerNode")
+	serverConfig.eventStack.addAll( commonStack )
 	
-	nodeRef = network.spawnNode(config)
-	appRef = network.spawnApplication(nodeRef, appDescription)
+	serverNodeRef = network.spawnNode(serverConfig)
+	serverRef = network.spawnApplication(serverNodeRef, serverAppDesc)
 	
 	// starts the main thread of the application
-	network.startApplication(appRef)
-})
+	network.startApplication(serverRef)
+
+//
+// Spawn client app
+//
+
+	clientConfig = new NodeConfiguration("ClientNode")
+	clientConfig.eventStack.addAll( commonStack )
+	
+	clientNodeRef = network.spawnNode(clientConfig)
+	clientRef = network.spawnApplication(clientNodeRef, clientAppDesc)
+	
+	// starts the main thread of the application
+	network.startApplication(clientRef)
+
+
 
 //
 // Start the timeline
