@@ -25,6 +25,16 @@ public class EventStack implements EventListener
         this.eventBroker = eventBroker;
         this.eventBridge = eventBridge;
 
+        eventBroker.addEventListener(new EventListener()
+        {
+
+            @Override
+            public void handleEvent(Event evt)
+            {
+                sendUpstream(handlerList.size() - 1, evt);
+            }
+        });
+
         eventBridge.addDownstreamEventListener(this);
         handlerList = new CopyOnWriteArrayList<EventHandler>();
     }
@@ -116,7 +126,7 @@ public class EventStack implements EventListener
     }
 
     @Override
-    public void eventOccurred(Event evt)
+    public void handleEvent(Event evt)
     {
         sendDownstream(-1, evt);
     }

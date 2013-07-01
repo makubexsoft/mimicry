@@ -7,6 +7,7 @@ import com.gc.mimicry.shared.events.BaseEvent;
 
 public class SocketConnectionRequest extends BaseEvent
 {
+	private static final long	serialVersionUID	= 2238712155493335986L;
 	private InetSocketAddress	source;
 	private InetSocketAddress	destination;
 
@@ -19,4 +20,27 @@ public class SocketConnectionRequest extends BaseEvent
 		this.destination = destination;
 	}
 
+	public InetSocketAddress getSource()
+	{
+		return source;
+	}
+
+	public InetSocketAddress getDestination()
+	{
+		return destination;
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "SocketConnectionRequest [source=" );
+		builder.append( source );
+		builder.append( ", destination=" );
+		builder.append( destination );
+		builder.append( ", toString()=" );
+		builder.append( super.toString() );
+		builder.append( "]" );
+		return builder.toString();
+	}
 }

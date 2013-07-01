@@ -2,23 +2,23 @@ package com.gc.mimicry.shared.net.events;
 
 import java.util.UUID;
 
+import com.gc.mimicry.shared.events.BaseEvent;
 import com.gc.mimicry.shared.events.Event;
 
-public class SocketAwaitingConnectionEvent implements Event
+public class SocketAwaitingConnectionEvent extends BaseEvent
 {
 
-    @Override
-    public UUID getControlFlowId()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	public SocketAwaitingConnectionEvent(UUID appId, UUID controlFlowId)
+	{
+		super( appId, controlFlowId );
+	}
 
-    @Override
-    public UUID getDestinationAppId()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "SocketAwaitingConnectionEvent []" );
+		return builder.toString();
+	}
+	
 }

@@ -20,7 +20,7 @@ public class CFlowManager implements EventListener
     }
 
     @Override
-    public void eventOccurred(Event evt)
+    public void handleEvent(Event evt)
     {
         UUID cflowId = evt.getControlFlowId();
         if (cflowId != null)

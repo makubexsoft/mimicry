@@ -39,6 +39,10 @@ public class PortManager extends EventHandlerBase
 			SocketBindRequestEvent bindRequest = (SocketBindRequestEvent) evt;
 			handleBindRequest( ctx, bindRequest );
 		}
+		else
+		{
+			super.handleDownstream( ctx, evt );
+		}
 	}
 
 	private boolean isPortAllocated( int port )
@@ -85,7 +89,8 @@ public class PortManager extends EventHandlerBase
 		if ( port == -1 )
 		{
 			// no port available at the moment
-			ctx.sendUpstream( new SocketErrorEvent( "No port available at the moment." ) );
+			ctx.sendUpstream( new SocketErrorEvent( "No port available at the moment.", bindRequest
+					.getDestinationAppId(), bindRequest.getControlFlowId() ) );
 			return;
 		}
 
@@ -115,7 +120,7 @@ public class PortManager extends EventHandlerBase
 		else
 		{
 			// port already in use
-			ctx.sendUpstream( new SocketErrorEvent( "Port " + port + " already in use." ) );
+			ctx.sendUpstream( new SocketErrorEvent( "Port " + port + " already in use.", app, cflow ) );
 		}
 	}
 

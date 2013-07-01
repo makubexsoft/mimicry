@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.ServerSocketChannel;
 
+import com.gc.mimicry.bridge.Bridge;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
@@ -85,7 +86,7 @@ public class ManagedServerSocket extends ServerSocket
         {
 
             @Override
-            public void eventOccurred(Event evt)
+            public void handleEvent(Event evt)
             {
                 cflowMgr.terminateAll(evt);
             }
@@ -136,7 +137,7 @@ public class ManagedServerSocket extends ServerSocket
         }
 
         ControlFlow controlFlow = cflowMgr.createControlFlow();
-        emitEvent(new SocketAwaitingConnectionEvent());
+        Bridge.emitEvent(new SocketAwaitingConnectionEvent(Bridge.appId(), controlFlow.getId()));
         controlFlow.awaitTermination();
 
         Event event = controlFlow.getTerminationCause();
@@ -199,7 +200,7 @@ public class ManagedServerSocket extends ServerSocket
 
         SocketBindRequestEvent evt;
         evt = new SocketBindRequestEvent(SimulatorBridge.getApplicationId(), controlFlow.getId(), epoint, reusePort);
-        emitEvent(evt);
+        Bridge.emitEvent(evt);
 
         controlFlow.awaitTermination();
 
@@ -214,11 +215,6 @@ public class ManagedServerSocket extends ServerSocket
             SocketErrorEvent error = (SocketErrorEvent) event;
             throw new SocketException("Failed to bind socket: " + error.getMessage());
         }
-    }
-
-    private void emitEvent(Event evt)
-    {
-        SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
     }
 
     @Override
@@ -308,8 +304,8 @@ public class ManagedServerSocket extends ServerSocket
     @Override
     public void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
     {
-        emitEvent(new SetPerformancePreferencesEvent(SimulatorBridge.getApplicationId(), connectionTime, latency,
-                bandwidth));
+        Bridge.emitEvent(new SetPerformancePreferencesEvent(SimulatorBridge.getApplicationId(), connectionTime,
+                latency, bandwidth));
     }
 
     /**
@@ -326,7 +322,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.RECEIVE_BUFFER_SIZE, size));
+        Bridge.emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.RECEIVE_BUFFER_SIZE, size));
         receiveBufferSize = size;
     }
 
@@ -340,7 +336,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.REUSE_ADDRESS, on));
+        Bridge.emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.REUSE_ADDRESS, on));
         reusePort = on;
     }
 
@@ -355,7 +351,7 @@ public class ManagedServerSocket extends ServerSocket
             throw new SocketException("Socket is closed");
         }
 
-        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.SOCKET_TIMEOUT, timeout));
+        Bridge.emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.SOCKET_TIMEOUT, timeout));
         socketTimeout = timeout;
     }
 
@@ -363,7 +359,7 @@ public class ManagedServerSocket extends ServerSocket
     public void close() throws IOException
     {
         Event closeEvent = new SocketClosedEvent();
-        emitEvent(closeEvent);
+        Bridge.emitEvent(closeEvent);
         cflowMgr.terminateAll(closeEvent);
         closed = true;
     }

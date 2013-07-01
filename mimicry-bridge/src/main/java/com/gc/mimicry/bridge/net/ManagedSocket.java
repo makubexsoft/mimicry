@@ -13,12 +13,19 @@ import java.net.SocketImpl;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
+import com.gc.mimicry.bridge.Bridge;
 import com.gc.mimicry.bridge.SimulatorBridge;
+import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
 import com.gc.mimicry.core.event.EventBridge;
-import com.gc.mimicry.core.event.EventListener;
 import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.net.events.SetSocketOptionEvent;
 import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
+import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
+import com.gc.mimicry.shared.net.events.SocketBoundEvent;
+import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
+import com.gc.mimicry.shared.net.events.SocketErrorEvent;
+import com.gc.mimicry.shared.net.events.SocketOption;
 
 /**
  * Stub implementation of the {@link Socket} that translates all interactions into events and vice-versa.
@@ -26,8 +33,13 @@ import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
  * @author Marc-Christian Schulze
  * 
  */
-public class ManagedSocket extends Socket implements EventListener
+public class ManagedSocket extends Socket
 {
+    private final CFlowManager cflowMgr = new CFlowManager(Bridge.appId(), SimulatorBridge.getEventBridge());
+    private boolean bound;
+    private boolean connected;
+    private boolean closed;
+
     /**
      * Overrides the original constructor that might be invoked by subclasses or via reflection. This implementation
      * doesn't initialize the underlying socket and therefore doesn't perform any network communication.
@@ -147,10 +159,11 @@ public class ManagedSocket extends Socket implements EventListener
 
         try
         {
-            if (localAddr != null)
+            if (localAddr == null)
             {
-                bind(localAddr);
+                localAddr = new InetSocketAddress(0);
             }
+            bind(localAddr);
             if (address != null)
             {
                 connect(address);
@@ -188,13 +201,22 @@ public class ManagedSocket extends Socket implements EventListener
         {
             epoint = new InetSocketAddress(0);
         }
-        InetAddress addr = epoint.getAddress();
-        int port = epoint.getPort();
 
-        //
-        // checkAddress(addr, "bind");
-        // getImpl().bind(addr, port);
-        // bound = true;
+        ControlFlow cflow = cflowMgr.createControlFlow();
+        Bridge.emitEvent(new SocketBindRequestEvent(Bridge.appId(), cflow.getId(), epoint, reuseAddress));
+        cflow.awaitTermination();
+
+        Event event = cflow.getTerminationCause();
+        if (event instanceof SocketBoundEvent)
+        {
+            localAddress = ((SocketBoundEvent) event).getAddress();
+            bound = true;
+        }
+        else
+        {
+            SocketErrorEvent error = (SocketErrorEvent) event;
+            throw new SocketException("Failed to bind socket: " + error.getMessage());
+        }
     }
 
     @Override
@@ -204,47 +226,71 @@ public class ManagedSocket extends Socket implements EventListener
 
     }
 
+    /**
+     * Delegates to {@link #connect(SocketAddress, int)}.
+     */
     @Override
     public void connect(SocketAddress endpoint) throws IOException
     {
-
-        // TODO Auto-generated method stub
-
+        connect(endpoint, 0);
     }
 
     @Override
     public InputStream getInputStream() throws IOException
     {
-        // TODO Auto-generated method stub
-        return super.getInputStream();
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        if (!isConnected())
+        {
+            throw new SocketException("Socket is not connected");
+        }
+        if (isInputShutdown())
+        {
+            throw new SocketException("Socket input is shutdown");
+        }
+
+        // TODO:
+        return null;
     }
 
     @Override
     public OutputStream getOutputStream() throws IOException
     {
-        // TODO Auto-generated method stub
-        return super.getOutputStream();
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        if (!isConnected())
+        {
+            throw new SocketException("Socket is not connected");
+        }
+        if (isOutputShutdown())
+        {
+            throw new SocketException("Socket output is shutdown");
+        }
+
+        // TODO:
+        return null;
     }
 
     @Override
     public boolean isBound()
     {
-        // TODO Auto-generated method stub
-        return super.isBound();
+        return bound;
     }
 
     @Override
     public boolean isClosed()
     {
-        // TODO Auto-generated method stub
-        return super.isClosed();
+        return closed;
     }
 
     @Override
     public boolean isConnected()
     {
-        // TODO Auto-generated method stub
-        return super.isConnected();
+        return connected;
     }
 
     @Override
@@ -268,11 +314,19 @@ public class ManagedSocket extends Socket implements EventListener
         super.sendUrgentData(data);
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = OOB_INLINE
+     */
     @Override
     public void setOOBInline(boolean on) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setOOBInline(on);
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.OOB_INLINE, on));
+        oobInline = on;
     }
 
     @Override
@@ -282,58 +336,152 @@ public class ManagedSocket extends Socket implements EventListener
         super.setPerformancePreferences(connectionTime, latency, bandwidth);
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = RECEIVE_BUFFER_SIZE
+     */
     @Override
     public synchronized void setReceiveBufferSize(int size) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setReceiveBufferSize(size);
+        if (size <= 0)
+        {
+            throw new IllegalArgumentException("invalid receive size");
+        }
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.RECEIVE_BUFFER_SIZE, size));
+        receiveBufferSize = size;
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = REUSE_ADDRESS
+     */
     @Override
     public void setReuseAddress(boolean on) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setReuseAddress(on);
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.REUSE_ADDRESS, on));
+        reuseAddress = on;
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = SEND_BUFFER_SIZE
+     */
     @Override
     public synchronized void setSendBufferSize(int size) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setSendBufferSize(size);
+        if (!(size > 0))
+        {
+            throw new IllegalArgumentException("negative send size");
+        }
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.SEND_BUFFER_SIZE, size));
+        sendBufferSize = size;
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = SO_LINGER
+     */
     @Override
     public void setSoLinger(boolean on, int linger) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setSoLinger(on, linger);
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        if (on)
+        {
+            if (linger < 0)
+            {
+                throw new IllegalArgumentException("invalid value for SO_LINGER");
+            }
+            if (linger > 65535)
+            {
+                linger = 65535;
+            }
+
+        }
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.SO_LINGER, linger, on));
+        soLinger = linger;
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = SO_TIMEOUT
+     */
     @Override
     public synchronized void setSoTimeout(int timeout) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setSoTimeout(timeout);
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        if (timeout < 0)
+        {
+            throw new IllegalArgumentException("timeout can't be negative");
+        }
+
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.SO_TIMEOUT, timeout));
+        soTimeout = timeout;
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = TCP_NO_DELAY
+     */
     @Override
     public void setTcpNoDelay(boolean on) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setTcpNoDelay(on);
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.TCP_NO_DELAY, on));
+        tcpNoDelay = on;
     }
 
+    /**
+     * Emits event of type {@link SetSocketOptionEvent} with {@link SocketOption} = TRAFFIC_CLASS
+     */
     @Override
     public void setTrafficClass(int tc) throws SocketException
     {
-        // TODO Auto-generated method stub
-        super.setTrafficClass(tc);
+        if (tc < 0 || tc > 255)
+        {
+            throw new IllegalArgumentException("tc is not in range 0 -- 255");
+        }
+
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.TRAFFIC_CLASS, tc));
+        trafficClass = tc;
     }
 
     @Override
     public void shutdownInput() throws IOException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        if (!isConnected())
+        {
+            throw new SocketException("Socket is not connected");
+        }
+        if (isInputShutdown())
+        {
+            throw new SocketException("Socket input is already shutdown");
+        }
         // TODO Auto-generated method stub
         super.shutdownInput();
     }
@@ -341,55 +489,26 @@ public class ManagedSocket extends Socket implements EventListener
     @Override
     public void shutdownOutput() throws IOException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        if (!isConnected())
+        {
+            throw new SocketException("Socket is not connected");
+        }
+        if (isOutputShutdown())
+        {
+            throw new SocketException("Socket output is already shutdown");
+        }
         // TODO Auto-generated method stub
         super.shutdownOutput();
     }
 
-    public InetSocketAddress getAddress()
-    {
-        return address;
-    }
-
-    public InetSocketAddress getLocalAdress()
-    {
-        return localAdress;
-    }
-
-    public boolean isKeepAlive()
-    {
-        return keepAlive;
-    }
-
-    public boolean isOobInline()
-    {
-        return oobInline;
-    }
-
-    public boolean isReuseAddress()
-    {
-        return reuseAddress;
-    }
-
-    public boolean isTcpNoDelay()
-    {
-        return tcpNoDelay;
-    }
-
-    public void setAddress(InetSocketAddress address)
-    {
-        this.address = address;
-    }
-
-    public void setLocalAdress(InetSocketAddress localAdress)
-    {
-        this.localAdress = localAdress;
-    }
-
-    public void setOobInline(boolean oobInline)
-    {
-        this.oobInline = oobInline;
-    }
-
+    /**
+     * Emits a {@link SocketConnectionRequest} and awaits either a {@link SocketAcceptedEvent} or a
+     * {@link SocketErrorEvent}.
+     */
     @Override
     public void connect(SocketAddress endpoint, int timeout) throws IOException
     {
@@ -419,50 +538,29 @@ public class ManagedSocket extends Socket implements EventListener
         }
 
         InetSocketAddress epoint = (InetSocketAddress) endpoint;
-        InetAddress addr = epoint.getAddress();
-        int port = epoint.getPort();
 
-        SecurityManager security = System.getSecurityManager();
-        if (security != null)
+        ControlFlow cflow = cflowMgr.createControlFlow();
+
+        Bridge.emitEvent(new SocketConnectionRequest(Bridge.appId(), cflow.getId(), localAddress, epoint));
+
+        cflow.awaitTermination();
+
+        Event cause = cflow.getTerminationCause();
+        if (cause instanceof SocketAcceptedEvent)
         {
-            if (epoint.isUnresolved())
-            {
-                security.checkConnect(epoint.getHostName(), port);
-            }
-            else
-            {
-                security.checkConnect(addr.getHostAddress(), port);
-            }
+            remoteAddress = epoint;
+            connected = true;
+            /*
+             * If the socket was not bound before the connect, it is now because the kernel will have picked an
+             * ephemeral port & a local address
+             */
+            bound = true;
         }
-        // if (!created)
-        // {
-        // createImpl(true);
-        // }
-        // if (!oldImpl)
-        // {
-        // impl.connect(epoint, timeout);
-        // }
-        // else if (timeout == 0)
-        // {
-        // if (epoint.isUnresolved())
-        // {
-        // impl.connect(addr.getHostName(), port);
-        // }
-        // else
-        // {
-        // impl.connect(addr, port);
-        // }
-        // }
-        // else
-        // {
-        // throw new UnsupportedOperationException("SocketImpl.connect(addr, timeout)");
-        // }
-        // connected = true;
-        // /*
-        // * If the socket was not bound before the connect, it is now because the kernel will have picked an ephemeral
-        // * port & a local address
-        // */
-        // bound = true;
+        else
+        {
+            SocketErrorEvent error = (SocketErrorEvent) cause;
+            throw new SocketException(error.getMessage());
+        }
     }
 
     @Override
@@ -472,15 +570,12 @@ public class ManagedSocket extends Socket implements EventListener
     }
 
     @Override
-    public void eventOccurred(Event evt)
-    {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void setKeepAlive(boolean on) throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         ControlFlow cflow = new ControlFlow();
 
         EventBridge bridge = SimulatorBridge.getEventBridge();
@@ -501,107 +596,162 @@ public class ManagedSocket extends Socket implements EventListener
     @Override
     public InetAddress getInetAddress()
     {
-        if (address == null)
+        if (remoteAddress == null)
         {
             return null;
         }
-        return address.getAddress();
+        return remoteAddress.getAddress();
     }
 
     @Override
     public InetAddress getLocalAddress()
     {
-        if (localAdress == null)
-        {
-            return null;
-        }
-        return localAdress.getAddress();
+        // // This is for backward compatibility
+        // if (!isBound())
+        // {
+        // return InetAddress.anyLocalAddress();
+        // }
+        // InetAddress in = null;
+        // try
+        // {
+        // in = (InetAddress) getImpl().getOption(SocketOptions.SO_BINDADDR);
+        // if (in.isAnyLocalAddress())
+        // {
+        // in = InetAddress.anyLocalAddress();
+        // }
+        // }
+        // catch (Exception e)
+        // {
+        // in = InetAddress.anyLocalAddress(); // "0.0.0.0"
+        // }
+        // return localAdress.getAddress();
+        return null;
     }
 
     @Override
     public int getLocalPort()
     {
-        if (localAdress == null)
+        if (!isBound())
         {
             return -1;
         }
-        return localAdress.getPort();
+        return localAddress.getPort();
     }
 
     @Override
     public SocketAddress getLocalSocketAddress()
     {
-        return localAdress;
+        if (!isBound())
+        {
+            return null;
+        }
+        return new InetSocketAddress(getLocalAddress(), getLocalPort());
     }
 
     @Override
     public int getPort()
     {
-        if (address == null)
+        if (!isConnected())
         {
             return 0;
         }
-        return address.getPort();
+        return remoteAddress.getPort();
     }
 
     @Override
     public SocketAddress getRemoteSocketAddress()
     {
-        return address;
+        if (!isConnected())
+        {
+            return null;
+        }
+        return new InetSocketAddress(getInetAddress(), getPort());
     }
 
     @Override
     public SocketChannel getChannel()
     {
-        // TODO: Currently channel-based sockets are not supported.
-        throw new UnsupportedOperationException("Currently channel-based sockets are not supported.");
+        return null;
     }
 
     @Override
     public boolean getKeepAlive() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         return keepAlive;
     }
 
     @Override
     public boolean getOOBInline() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         return oobInline;
     }
 
     @Override
     public synchronized int getReceiveBufferSize() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         return receiveBufferSize;
     }
 
     @Override
     public boolean getReuseAddress() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         return reuseAddress;
     }
 
     @Override
     public synchronized int getSendBufferSize() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         return sendBufferSize;
     }
 
     @Override
     public int getSoLinger() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         return soLinger;
     }
 
     @Override
     public synchronized int getSoTimeout() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
         return soTimeout;
     }
 
     @Override
     public boolean getTcpNoDelay() throws SocketException
     {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
         return tcpNoDelay;
     }
 
@@ -611,8 +761,8 @@ public class ManagedSocket extends Socket implements EventListener
         return trafficClass;
     }
 
-    private InetSocketAddress address;
-    private InetSocketAddress localAdress;
+    private InetSocketAddress remoteAddress;
+    private InetSocketAddress localAddress;
     private boolean keepAlive;
     private boolean oobInline;
     private int receiveBufferSize;

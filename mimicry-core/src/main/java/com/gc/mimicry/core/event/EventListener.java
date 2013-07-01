@@ -4,5 +4,5 @@ import com.gc.mimicry.shared.events.Event;
 
 public interface EventListener
 {
-    public void eventOccurred(Event evt);
+    public void handleEvent(Event evt);
 }

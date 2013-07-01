@@ -18,7 +18,7 @@ public class SimpleEventBroker implements EventBroker
     {
         for (EventListener l : listener)
         {
-            l.eventOccurred(event);
+            l.handleEvent(event);
         }
     }
 

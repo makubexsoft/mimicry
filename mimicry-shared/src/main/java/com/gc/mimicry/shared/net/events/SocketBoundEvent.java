@@ -7,7 +7,8 @@ import com.gc.mimicry.shared.events.BaseEvent;
 
 public class SocketBoundEvent extends BaseEvent
 {
-    private final InetSocketAddress address;
+	private static final long	serialVersionUID	= -696695113477236492L;
+	private final InetSocketAddress address;
 
     public SocketBoundEvent(UUID appId, UUID cflow, InetSocketAddress address)
     {
@@ -20,5 +21,17 @@ public class SocketBoundEvent extends BaseEvent
     {
         return address;
     }
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "SocketBoundEvent [address=" );
+		builder.append( address );
+		builder.append( "]" );
+		return builder.toString();
+	}
+    
+    
 }
  

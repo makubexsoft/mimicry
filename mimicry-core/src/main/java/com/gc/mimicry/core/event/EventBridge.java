@@ -52,7 +52,7 @@ public class EventBridge
                     EventListener listener = ref.get();
                     if (listener != null)
                     {
-                        listener.eventOccurred(evt);
+                        listener.handleEvent(evt);
                     }
                     else
                     {
@@ -67,7 +67,7 @@ public class EventBridge
     {
         for (EventListener l : downstreamListener)
         {
-            l.eventOccurred(evt);
+            l.handleEvent(evt);
         }
     }
 
