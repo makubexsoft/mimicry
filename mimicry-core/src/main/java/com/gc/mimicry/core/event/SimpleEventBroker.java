@@ -22,6 +22,17 @@ public class SimpleEventBroker implements EventBroker
         }
     }
 
+    public void fireEvent(Event event, EventListener ignoreListener)
+    {
+        for (EventListener l : listener)
+        {
+            if (l != ignoreListener)
+            {
+                l.handleEvent(event);
+            }
+        }
+    }
+
     @Override
     public void addEventListener(EventListener l)
     {

@@ -14,6 +14,7 @@ public class EventStack implements EventListener
     private final List<EventHandler> handlerList;
     private final EventBroker eventBroker;
     private final EventBridge eventBridge;
+    private final EventListener brokerListener;
 
     public EventStack(Node node, EventBroker eventBroker, EventBridge eventBridge)
     {
@@ -25,7 +26,7 @@ public class EventStack implements EventListener
         this.eventBroker = eventBroker;
         this.eventBridge = eventBridge;
 
-        eventBroker.addEventListener(new EventListener()
+        brokerListener = new EventListener()
         {
 
             @Override
@@ -33,7 +34,8 @@ public class EventStack implements EventListener
             {
                 sendUpstream(handlerList.size() - 1, evt);
             }
-        });
+        };
+        eventBroker.addEventListener(brokerListener);
 
         eventBridge.addDownstreamEventListener(this);
         handlerList = new CopyOnWriteArrayList<EventHandler>();
@@ -64,7 +66,7 @@ public class EventStack implements EventListener
         else
         {
             // reached bottom
-            eventBroker.fireEvent(evt);
+            eventBroker.fireEvent(evt, brokerListener);
         }
     }
 

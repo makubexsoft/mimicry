@@ -2,6 +2,7 @@ package com.gc.mimicry.core.event;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -9,7 +10,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.gc.mimicry.shared.events.Event;
 
 /**
- * 
+ * This bridge is placed on top of the {@link EventStack} and below all applications. It basically routes and filters
+ * events for the applications above.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -27,39 +29,20 @@ public class EventBridge
         upstreamListener = new HashMap<UUID, CopyOnWriteArrayList<WeakReference<EventListener>>>();
     }
 
+    /**
+     * Passes the event to the target application if specified and the application is active.
+     * 
+     * @param evt
+     */
     public void dispatchEventToApplication(Event evt)
     {
         if (evt instanceof SetApplicationActiveEvent)
         {
-            setApplicationActive(evt.getDestinationAppId(), ((SetApplicationActiveEvent) evt).isActive());
+            setApplicationActive(evt.getSourceApplication(), ((SetApplicationActiveEvent) evt).isActive());
         }
         else
         {
             handleEvent(evt);
-        }
-    }
-
-    private void handleEvent(Event evt)
-    {
-        UUID appId = evt.getDestinationAppId();
-        if (isApplicationActive(appId))
-        {
-            CopyOnWriteArrayList<WeakReference<EventListener>> list = upstreamListener.get(evt.getDestinationAppId());
-            if (list != null)
-            {
-                for (WeakReference<EventListener> ref : list)
-                {
-                    EventListener listener = ref.get();
-                    if (listener != null)
-                    {
-                        listener.handleEvent(evt);
-                    }
-                    else
-                    {
-                        list.remove(ref);
-                    }
-                }
-            }
         }
     }
 
@@ -98,6 +81,39 @@ public class EventBridge
         if (list != null)
         {
             list.remove(l);
+        }
+    }
+
+    private void handleEvent(Event evt)
+    {
+        UUID targetApplication = evt.getTargetApplication();
+
+        if (targetApplication == null)
+        {
+            return;
+        }
+        if (!isApplicationActive(targetApplication))
+        {
+            return;
+        }
+
+        List<WeakReference<EventListener>> list = upstreamListener.get(targetApplication);
+        if (list == null)
+        {
+            return;
+        }
+
+        for (WeakReference<EventListener> ref : list)
+        {
+            EventListener listener = ref.get();
+            if (listener != null)
+            {
+                listener.handleEvent(evt);
+            }
+            else
+            {
+                list.remove(ref);
+            }
         }
     }
 

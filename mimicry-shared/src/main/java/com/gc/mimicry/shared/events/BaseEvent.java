@@ -2,45 +2,43 @@ package com.gc.mimicry.shared.events;
 
 import java.util.UUID;
 
-
 public class BaseEvent implements Event
 {
-    public BaseEvent(UUID appId, UUID controlFlowId)
-    {
-        this.appId = appId;
-        this.controlFlowId = controlFlowId;
-    }
+	public void setControlFlowId( UUID controlFlowId )
+	{
+		this.controlFlowId = controlFlowId;
+	}
 
-    public BaseEvent(UUID appId)
-    {
-        this.appId = appId;
-    }
+	public void setTargetApp( UUID targetApp )
+	{
+		this.targetApp = targetApp;
+	}
 
-    @Override
-    public UUID getControlFlowId()
-    {
-        return controlFlowId;
-    }
+	public void setSourceApp( UUID sourceApp )
+	{
+		this.sourceApp = sourceApp;
+	}
 
-    @Override
-    public UUID getDestinationAppId()
-    {
-        return appId;
-    }
+	@Override
+	public UUID getAssociatedControlFlow()
+	{
+		return controlFlowId;
+	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.append("BaseEvent [controlFlowId=");
-        builder.append(controlFlowId);
-        builder.append(", appId=");
-        builder.append(appId);
-        builder.append("]");
-        return builder.toString();
-    }
+	@Override
+	public UUID getSourceApplication()
+	{
+		return sourceApp;
+	}
 
-    private static final long serialVersionUID = 1656650145236686849L;
-    private UUID controlFlowId;
-    private final UUID appId;
+	@Override
+	public UUID getTargetApplication()
+	{
+		return targetApp;
+	}
+
+	private static final long	serialVersionUID	= 1656650145236686849L;
+	private UUID				controlFlowId;
+	private UUID				sourceApp;
+	private UUID				targetApp;
 }

@@ -13,11 +13,10 @@ import java.net.SocketImpl;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
-import com.gc.mimicry.bridge.Bridge;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
-import com.gc.mimicry.core.event.EventBridge;
+import com.gc.mimicry.shared.events.BaseEvent;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.SetSocketOptionEvent;
 import com.gc.mimicry.shared.net.events.SocketAcceptedEvent;
@@ -35,10 +34,6 @@ import com.gc.mimicry.shared.net.events.SocketOption;
  */
 public class ManagedSocket extends Socket
 {
-    private final CFlowManager cflowMgr = new CFlowManager(Bridge.appId(), SimulatorBridge.getEventBridge());
-    private boolean bound;
-    private boolean connected;
-    private boolean closed;
 
     /**
      * Overrides the original constructor that might be invoked by subclasses or via reflection. This implementation
@@ -202,11 +197,10 @@ public class ManagedSocket extends Socket
             epoint = new InetSocketAddress(0);
         }
 
-        ControlFlow cflow = cflowMgr.createControlFlow();
-        Bridge.emitEvent(new SocketBindRequestEvent(Bridge.appId(), cflow.getId(), epoint, reuseAddress));
-        cflow.awaitTermination();
+        SocketBindRequestEvent evt = new SocketBindRequestEvent(epoint, reuseAddress);
 
-        Event event = cflow.getTerminationCause();
+        Event event = processEvent(evt);
+
         if (event instanceof SocketBoundEvent)
         {
             localAddress = ((SocketBoundEvent) event).getAddress();
@@ -325,7 +319,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.OOB_INLINE, on));
+        emitEvent(new SetSocketOptionEvent(SocketOption.OOB_INLINE, on));
         oobInline = on;
     }
 
@@ -351,7 +345,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.RECEIVE_BUFFER_SIZE, size));
+        emitEvent(new SetSocketOptionEvent(SocketOption.RECEIVE_BUFFER_SIZE, size));
         receiveBufferSize = size;
     }
 
@@ -366,7 +360,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.REUSE_ADDRESS, on));
+        emitEvent(new SetSocketOptionEvent(SocketOption.REUSE_ADDRESS, on));
         reuseAddress = on;
     }
 
@@ -385,7 +379,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.SEND_BUFFER_SIZE, size));
+        emitEvent(new SetSocketOptionEvent(SocketOption.SEND_BUFFER_SIZE, size));
         sendBufferSize = size;
     }
 
@@ -411,7 +405,7 @@ public class ManagedSocket extends Socket
             }
 
         }
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.SO_LINGER, linger, on));
+        emitEvent(new SetSocketOptionEvent(SocketOption.SO_LINGER, linger, on));
         soLinger = linger;
     }
 
@@ -430,7 +424,7 @@ public class ManagedSocket extends Socket
             throw new IllegalArgumentException("timeout can't be negative");
         }
 
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.SO_TIMEOUT, timeout));
+        emitEvent(new SetSocketOptionEvent(SocketOption.SO_TIMEOUT, timeout));
         soTimeout = timeout;
     }
 
@@ -444,7 +438,7 @@ public class ManagedSocket extends Socket
         {
             throw new SocketException("Socket is closed");
         }
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.TCP_NO_DELAY, on));
+        emitEvent(new SetSocketOptionEvent(SocketOption.TCP_NO_DELAY, on));
         tcpNoDelay = on;
     }
 
@@ -463,7 +457,7 @@ public class ManagedSocket extends Socket
         {
             throw new SocketException("Socket is closed");
         }
-        Bridge.emitEvent(new SetSocketOptionEvent(Bridge.appId(), SocketOption.TRAFFIC_CLASS, tc));
+        emitEvent(new SetSocketOptionEvent(SocketOption.TRAFFIC_CLASS, tc));
         trafficClass = tc;
     }
 
@@ -539,14 +533,9 @@ public class ManagedSocket extends Socket
 
         InetSocketAddress epoint = (InetSocketAddress) endpoint;
 
-        ControlFlow cflow = cflowMgr.createControlFlow();
+        Event response = processEvent(new SocketConnectionRequest(localAddress, epoint));
 
-        Bridge.emitEvent(new SocketConnectionRequest(Bridge.appId(), cflow.getId(), localAddress, epoint));
-
-        cflow.awaitTermination();
-
-        Event cause = cflow.getTerminationCause();
-        if (cause instanceof SocketAcceptedEvent)
+        if (response instanceof SocketAcceptedEvent)
         {
             remoteAddress = epoint;
             connected = true;
@@ -558,7 +547,7 @@ public class ManagedSocket extends Socket
         }
         else
         {
-            SocketErrorEvent error = (SocketErrorEvent) cause;
+            SocketErrorEvent error = (SocketErrorEvent) response;
             throw new SocketException(error.getMessage());
         }
     }
@@ -576,21 +565,8 @@ public class ManagedSocket extends Socket
         {
             throw new SocketException("Socket is closed");
         }
-        ControlFlow cflow = new ControlFlow();
-
-        EventBridge bridge = SimulatorBridge.getEventBridge();
-        // bridge.emit( new SetSocketOptionEvent( cflow.getId(),
-        // SocketOption.KEEP_ALIVE, on ) );
-
-        // cflow.getFuture().awaitUninterruptibly(Long.MAX_VALUE);
-        // if (cflow.getFuture().isSuccess())
-        // {
-        // keepAlive = on;
-        // }
-        // else
-        // {
-        // // throw new IOException( "Failed to set socket option.", cflow.getFuture().getCause() );
-        // }
+        emitEvent(new SetSocketOptionEvent(SocketOption.KEEP_ALIVE, on));
+        keepAlive = on;
     }
 
     @Override
@@ -606,26 +582,13 @@ public class ManagedSocket extends Socket
     @Override
     public InetAddress getLocalAddress()
     {
-        // // This is for backward compatibility
-        // if (!isBound())
-        // {
-        // return InetAddress.anyLocalAddress();
-        // }
-        // InetAddress in = null;
-        // try
-        // {
-        // in = (InetAddress) getImpl().getOption(SocketOptions.SO_BINDADDR);
-        // if (in.isAnyLocalAddress())
-        // {
-        // in = InetAddress.anyLocalAddress();
-        // }
-        // }
-        // catch (Exception e)
-        // {
-        // in = InetAddress.anyLocalAddress(); // "0.0.0.0"
-        // }
-        // return localAdress.getAddress();
-        return null;
+        // This is for backward compatibility
+        if (!isBound())
+        {
+            return null;
+            // FIXME: only available in JDK 7 return InetAddress.anyLocalAddress();
+        }
+        return localAddress.getAddress();
     }
 
     @Override
@@ -761,6 +724,24 @@ public class ManagedSocket extends Socket
         return trafficClass;
     }
 
+    private Event processEvent(BaseEvent evt)
+    {
+        ControlFlow controlFlow = cflowMgr.createControlFlow(evt);
+        Event event = controlFlow.awaitTermination();
+        return event;
+    }
+
+    private void emitEvent(BaseEvent evt)
+    {
+        evt.setSourceApp(SimulatorBridge.getApplicationId());
+        SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
+    }
+
+    private final CFlowManager cflowMgr = new CFlowManager(SimulatorBridge.getApplicationId(),
+            SimulatorBridge.getEventBridge());
+    private boolean bound;
+    private boolean connected;
+    private boolean closed;
     private InetSocketAddress remoteAddress;
     private InetSocketAddress localAddress;
     private boolean keepAlive;

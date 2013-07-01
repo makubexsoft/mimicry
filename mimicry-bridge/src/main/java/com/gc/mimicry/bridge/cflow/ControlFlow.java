@@ -16,9 +16,10 @@ public class ControlFlow
         id = UUID.randomUUID();
     }
 
-    public void awaitTermination()
+    public Event awaitTermination()
     {
         future.awaitUninterruptibly(Long.MAX_VALUE);
+        return getTerminationCause();
     }
 
     public void awaitTermination(long timeoutMillis)

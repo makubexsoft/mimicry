@@ -16,7 +16,8 @@ import com.gc.mimicry.shared.net.events.SocketBoundEvent;
 import com.gc.mimicry.shared.net.events.SocketErrorEvent;
 
 /**
- * Simulates the port management of the operating system.
+ * Simulates the port management of the operating system for UDP and TCP
+ * sockets.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -89,12 +90,15 @@ public class PortManager extends EventHandlerBase
 		if ( port == -1 )
 		{
 			// no port available at the moment
-			ctx.sendUpstream( new SocketErrorEvent( "No port available at the moment.", bindRequest
-					.getDestinationAppId(), bindRequest.getControlFlowId() ) );
+			SocketErrorEvent evt = new SocketErrorEvent( "No port available at the moment." );
+			evt.setTargetApp( bindRequest.getSourceApplication() );
+			evt.setControlFlowId( bindRequest.getAssociatedControlFlow() );
+			ctx.sendUpstream( evt );
 			return;
 		}
 
-		tryAllocatePort( bindRequest.getDestinationAppId(), bindRequest.getControlFlowId(), ctx, port, reusable );
+		tryAllocatePort( bindRequest.getSourceApplication(), bindRequest.getAssociatedControlFlow(), ctx, port,
+				reusable );
 	}
 
 	private void tryAllocatePort( UUID app, UUID cflow, EventHandlerContext ctx, int port, boolean reusable )
@@ -106,7 +110,10 @@ public class PortManager extends EventHandlerBase
 		else
 		{
 			allocatePort( port, reusable );
-			ctx.sendUpstream( new SocketBoundEvent( app, cflow, new InetSocketAddress( port ) ) );
+			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
+			evt.setTargetApp( app );
+			evt.setControlFlowId( cflow );
+			ctx.sendUpstream( evt );
 		}
 	}
 
@@ -115,12 +122,18 @@ public class PortManager extends EventHandlerBase
 		if ( reusable && isPortReusable( port ) )
 		{
 			allocatePort( port, REUSABLE );
-			ctx.sendUpstream( new SocketBoundEvent( app, cflow, new InetSocketAddress( port ) ) );
+			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
+			evt.setTargetApp( app );
+			evt.setControlFlowId( cflow );
+			ctx.sendUpstream( evt );
 		}
 		else
 		{
 			// port already in use
-			ctx.sendUpstream( new SocketErrorEvent( "Port " + port + " already in use.", app, cflow ) );
+			SocketErrorEvent evt = new SocketErrorEvent( "Port " + port + " already in use." );
+			evt.setTargetApp( app );
+			evt.setControlFlowId( cflow );
+			ctx.sendUpstream( evt );
 		}
 	}
 

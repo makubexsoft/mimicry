@@ -1,24 +1,34 @@
 package com.gc.mimicry.shared.net.events;
 
-import java.util.UUID;
+import java.net.InetSocketAddress;
 
 import com.gc.mimicry.shared.events.BaseEvent;
-import com.gc.mimicry.shared.events.Event;
+import com.google.common.base.Preconditions;
 
 public class SocketAwaitingConnectionEvent extends BaseEvent
 {
+	private static final long		serialVersionUID	= -6221348876965913875L;
+	private final InetSocketAddress	localAddress;
 
-	public SocketAwaitingConnectionEvent(UUID appId, UUID controlFlowId)
+	public SocketAwaitingConnectionEvent(InetSocketAddress localAddress)
 	{
-		super( appId, controlFlowId );
+		Preconditions.checkNotNull( localAddress );
+
+		this.localAddress = localAddress;
+	}
+
+	public InetSocketAddress getLocalAddress()
+	{
+		return localAddress;
 	}
 
 	@Override
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append( "SocketAwaitingConnectionEvent []" );
+		builder.append( "SocketAwaitingConnectionEvent [localAddress=" );
+		builder.append( localAddress );
+		builder.append( "]" );
 		return builder.toString();
 	}
-	
 }

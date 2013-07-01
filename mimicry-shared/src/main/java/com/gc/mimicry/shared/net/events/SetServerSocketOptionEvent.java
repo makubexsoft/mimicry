@@ -1,36 +1,43 @@
 package com.gc.mimicry.shared.net.events;
 
-import java.util.UUID;
+import com.gc.mimicry.shared.events.BaseEvent;
+import com.google.common.base.Preconditions;
 
-import com.gc.mimicry.shared.events.Event;
-
-public class SetServerSocketOptionEvent implements Event
+public class SetServerSocketOptionEvent extends BaseEvent
 {
-    private ServerSocketOption option;
-    private int intValue;
-    private boolean boolValue;
+	private static final long			serialVersionUID	= 2424920756699509261L;
+	private final ServerSocketOption	option;
+	private int							intValue;
+	private boolean						boolValue;
 
-    public SetServerSocketOptionEvent(ServerSocketOption option, int value)
-    {
+	public SetServerSocketOptionEvent(ServerSocketOption option, int value)
+	{
+		Preconditions.checkNotNull( option );
 
-    }
+		this.option = option;
+		intValue = value;
+	}
 
-    public SetServerSocketOptionEvent(ServerSocketOption option, boolean value)
-    {
+	public SetServerSocketOptionEvent(ServerSocketOption option, boolean value)
+	{
+		Preconditions.checkNotNull( option );
 
-    }
+		this.option = option;
+		boolValue = value;
+	}
 
-    @Override
-    public UUID getControlFlowId()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	public ServerSocketOption getOption()
+	{
+		return option;
+	}
 
-    @Override
-    public UUID getDestinationAppId()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	public int getIntValue()
+	{
+		return intValue;
+	}
+
+	public boolean isBoolValue()
+	{
+		return boolValue;
+	}
 }

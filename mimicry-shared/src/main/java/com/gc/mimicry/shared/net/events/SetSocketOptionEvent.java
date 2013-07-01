@@ -1,33 +1,36 @@
 package com.gc.mimicry.shared.net.events;
 
-import java.util.UUID;
-
 import com.gc.mimicry.shared.events.BaseEvent;
+import com.google.common.base.Preconditions;
 
 public class SetSocketOptionEvent extends BaseEvent
 {
 	private static final long	serialVersionUID	= 421837596215880294L;
-	private SocketOption option;
-	private int intValue;
-	private boolean boolValue;
+	private final SocketOption	option;
+	private int					intValue;
+	private boolean				boolValue;
 
-	public SetSocketOptionEvent(UUID appId,  SocketOption option, int value)
+	public SetSocketOptionEvent(SocketOption option, int value)
 	{
-		super( appId );
+		Preconditions.checkNotNull( option );
+
 		this.option = option;
 		intValue = value;
 	}
-	public SetSocketOptionEvent(UUID appId,  SocketOption option, int intValue, boolean boolValue)
+
+	public SetSocketOptionEvent(SocketOption option, int intValue, boolean boolValue)
 	{
-		super( appId );
+		Preconditions.checkNotNull( option );
+
 		this.option = option;
 		this.intValue = intValue;
 		this.boolValue = boolValue;
 	}
-	
-	public SetSocketOptionEvent(UUID appId,  SocketOption option, boolean value)
+
+	public SetSocketOptionEvent(SocketOption option, boolean value)
 	{
-		super( appId );
+		Preconditions.checkNotNull( option );
+
 		this.option = option;
 		boolValue = value;
 	}

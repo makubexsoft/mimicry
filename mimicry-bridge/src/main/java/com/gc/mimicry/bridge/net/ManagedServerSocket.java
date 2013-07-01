@@ -9,11 +9,11 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.ServerSocketChannel;
 
-import com.gc.mimicry.bridge.Bridge;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
 import com.gc.mimicry.core.event.EventListener;
+import com.gc.mimicry.shared.events.BaseEvent;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.ServerSocketOption;
 import com.gc.mimicry.shared.net.events.SetPerformancePreferencesEvent;
@@ -136,11 +136,10 @@ public class ManagedServerSocket extends ServerSocket
             throw new SocketException("Socket is not bound yet");
         }
 
-        ControlFlow controlFlow = cflowMgr.createControlFlow();
-        Bridge.emitEvent(new SocketAwaitingConnectionEvent(Bridge.appId(), controlFlow.getId()));
-        controlFlow.awaitTermination();
+        SocketAwaitingConnectionEvent evt = new SocketAwaitingConnectionEvent(localAddress);
 
-        Event event = controlFlow.getTerminationCause();
+        Event event = processEvent(evt);
+
         if (event instanceof SocketClosedEvent)
         {
             throw new SocketException("Socket has been closed.");
@@ -196,15 +195,10 @@ public class ManagedServerSocket extends ServerSocket
             backlog = DEFAULT_BACKLOG;
         }
 
-        ControlFlow controlFlow = cflowMgr.createControlFlow();
+        SocketBindRequestEvent evt = new SocketBindRequestEvent(epoint, reusePort);
 
-        SocketBindRequestEvent evt;
-        evt = new SocketBindRequestEvent(SimulatorBridge.getApplicationId(), controlFlow.getId(), epoint, reusePort);
-        Bridge.emitEvent(evt);
+        Event event = processEvent(evt);
 
-        controlFlow.awaitTermination();
-
-        Event event = controlFlow.getTerminationCause();
         if (event instanceof SocketBoundEvent)
         {
             localAddress = ((SocketBoundEvent) event).getAddress();
@@ -304,8 +298,7 @@ public class ManagedServerSocket extends ServerSocket
     @Override
     public void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
     {
-        Bridge.emitEvent(new SetPerformancePreferencesEvent(SimulatorBridge.getApplicationId(), connectionTime,
-                latency, bandwidth));
+        emitEvent(new SetPerformancePreferencesEvent(connectionTime, latency, bandwidth));
     }
 
     /**
@@ -322,7 +315,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        Bridge.emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.RECEIVE_BUFFER_SIZE, size));
+        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.RECEIVE_BUFFER_SIZE, size));
         receiveBufferSize = size;
     }
 
@@ -336,7 +329,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        Bridge.emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.REUSE_ADDRESS, on));
+        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.REUSE_ADDRESS, on));
         reusePort = on;
     }
 
@@ -351,15 +344,15 @@ public class ManagedServerSocket extends ServerSocket
             throw new SocketException("Socket is closed");
         }
 
-        Bridge.emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.SOCKET_TIMEOUT, timeout));
+        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.SOCKET_TIMEOUT, timeout));
         socketTimeout = timeout;
     }
 
     @Override
     public void close() throws IOException
     {
-        Event closeEvent = new SocketClosedEvent();
-        Bridge.emitEvent(closeEvent);
+        BaseEvent closeEvent = new SocketClosedEvent();
+        emitEvent(closeEvent);
         cflowMgr.terminateAll(closeEvent);
         closed = true;
     }
@@ -384,6 +377,19 @@ public class ManagedServerSocket extends ServerSocket
         builder.append(localAddress);
         builder.append("]");
         return builder.toString();
+    }
+
+    private Event processEvent(BaseEvent evt)
+    {
+        ControlFlow controlFlow = cflowMgr.createControlFlow(evt);
+        Event event = controlFlow.awaitTermination();
+        return event;
+    }
+
+    private void emitEvent(BaseEvent evt)
+    {
+        evt.setSourceApp(SimulatorBridge.getApplicationId());
+        SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
     }
 
     private boolean bound;
