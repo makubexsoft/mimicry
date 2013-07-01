@@ -25,4 +25,16 @@ public class ConnectionEstablishedEvent extends BaseEvent
 	{
 		return serverAddress;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "ConnectionEstablishedEvent [clientAddress=" );
+		builder.append( clientAddress );
+		builder.append( ", serverAddress=" );
+		builder.append( serverAddress );
+		builder.append( "]" );
+		return builder.toString();
+	}
 }

@@ -19,12 +19,14 @@ import com.gc.mimicry.bridge.cflow.ControlFlow;
 import com.gc.mimicry.shared.events.BaseEvent;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.ConnectionEstablishedEvent;
+import com.gc.mimicry.shared.net.events.SetPerformancePreferencesEvent;
 import com.gc.mimicry.shared.net.events.SetSocketOptionEvent;
 import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.shared.net.events.SocketBoundEvent;
 import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
 import com.gc.mimicry.shared.net.events.SocketErrorEvent;
 import com.gc.mimicry.shared.net.events.SocketOption;
+import com.gc.mimicry.shared.util.ByteBuffer;
 
 /**
  * Stub implementation of the {@link Socket} that translates all interactions into events and vice-versa.
@@ -249,8 +251,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket input is shutdown");
         }
 
-        // TODO:
-        return null;
+        return in;
     }
 
     @Override
@@ -269,8 +270,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket output is shutdown");
         }
 
-        // TODO:
-        return null;
+        return out;
     }
 
     @Override
@@ -323,13 +323,14 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        emitEvent(new SetSocketOptionEvent(SocketOption.OOB_INLINE, on));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.OOB_INLINE, on));
         oobInline = on;
     }
 
     @Override
     public void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
     {
+        emitEvent(new SetPerformancePreferencesEvent(localAddress, connectionTime, latency, bandwidth));
         // TODO Auto-generated method stub
         super.setPerformancePreferences(connectionTime, latency, bandwidth);
     }
@@ -349,7 +350,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        emitEvent(new SetSocketOptionEvent(SocketOption.RECEIVE_BUFFER_SIZE, size));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.RECEIVE_BUFFER_SIZE, size));
         receiveBufferSize = size;
     }
 
@@ -364,7 +365,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        emitEvent(new SetSocketOptionEvent(SocketOption.REUSE_ADDRESS, on));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.REUSE_ADDRESS, on));
         reuseAddress = on;
     }
 
@@ -383,7 +384,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket is closed");
         }
 
-        emitEvent(new SetSocketOptionEvent(SocketOption.SEND_BUFFER_SIZE, size));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.SEND_BUFFER_SIZE, size));
         sendBufferSize = size;
     }
 
@@ -409,7 +410,7 @@ public class ManagedSocket extends Socket
             }
 
         }
-        emitEvent(new SetSocketOptionEvent(SocketOption.SO_LINGER, linger, on));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.SO_LINGER, linger, on));
         soLinger = linger;
     }
 
@@ -428,7 +429,7 @@ public class ManagedSocket extends Socket
             throw new IllegalArgumentException("timeout can't be negative");
         }
 
-        emitEvent(new SetSocketOptionEvent(SocketOption.SO_TIMEOUT, timeout));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.SO_TIMEOUT, timeout));
         soTimeout = timeout;
     }
 
@@ -442,7 +443,7 @@ public class ManagedSocket extends Socket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetSocketOptionEvent(SocketOption.TCP_NO_DELAY, on));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.TCP_NO_DELAY, on));
         tcpNoDelay = on;
     }
 
@@ -461,7 +462,7 @@ public class ManagedSocket extends Socket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetSocketOptionEvent(SocketOption.TRAFFIC_CLASS, tc));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.TRAFFIC_CLASS, tc));
         trafficClass = tc;
     }
 
@@ -575,7 +576,7 @@ public class ManagedSocket extends Socket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetSocketOptionEvent(SocketOption.KEEP_ALIVE, on));
+        emitEvent(new SetSocketOptionEvent(localAddress, SocketOption.KEEP_ALIVE, on));
         keepAlive = on;
     }
 
@@ -763,4 +764,31 @@ public class ManagedSocket extends Socket
     private int soTimeout;
     private boolean tcpNoDelay;
     private int trafficClass;
+    private final MSOutputStream out = new MSOutputStream();
+    private final MSInputStream in = new MSInputStream();
+    private final ByteBuffer receiveBuffer = new ByteBuffer();
+
+    private class MSOutputStream extends OutputStream
+    {
+
+        @Override
+        public void write(int b) throws IOException
+        {
+            System.out.println("Write: " + b);
+
+            receiveBuffer.write(new byte[] { (byte) (b & 0xFF) });
+        }
+
+    }
+
+    private class MSInputStream extends InputStream
+    {
+        @Override
+        public int read() throws IOException
+        {
+            int read = receiveBuffer.read();
+            System.out.println("Read: " + read);
+            return read;
+        }
+    }
 }

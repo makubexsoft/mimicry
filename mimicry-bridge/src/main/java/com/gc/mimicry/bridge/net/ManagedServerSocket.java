@@ -298,7 +298,7 @@ public class ManagedServerSocket extends ServerSocket
     @Override
     public void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
     {
-        emitEvent(new SetPerformancePreferencesEvent(connectionTime, latency, bandwidth));
+        emitEvent(new SetPerformancePreferencesEvent(localAddress, connectionTime, latency, bandwidth));
     }
 
     /**
@@ -315,7 +315,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.RECEIVE_BUFFER_SIZE, size));
+        emitEvent(new SetServerSocketOptionEvent(localAddress, ServerSocketOption.RECEIVE_BUFFER_SIZE, size));
         receiveBufferSize = size;
     }
 
@@ -329,7 +329,7 @@ public class ManagedServerSocket extends ServerSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.REUSE_ADDRESS, on));
+        emitEvent(new SetServerSocketOptionEvent(localAddress, ServerSocketOption.REUSE_ADDRESS, on));
         reusePort = on;
     }
 
@@ -344,7 +344,7 @@ public class ManagedServerSocket extends ServerSocket
             throw new SocketException("Socket is closed");
         }
 
-        emitEvent(new SetServerSocketOptionEvent(ServerSocketOption.SOCKET_TIMEOUT, timeout));
+        emitEvent(new SetServerSocketOptionEvent(localAddress, ServerSocketOption.SOCKET_TIMEOUT, timeout));
         socketTimeout = timeout;
     }
 

@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
 import com.gc.mimicry.core.timing.Clock;
-import com.gc.mimicry.core.timing.RealtimeClock;
 import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
 
@@ -24,8 +23,8 @@ public class Application implements Closeable
 
         this.node = node;
         this.bridge = bridge;
+        this.clock = node.getClock();
         id = UUID.randomUUID();
-        clock = new RealtimeClock(0);
 
         bridge.setApplicationId(id);
         bridge.setClock(clock);
