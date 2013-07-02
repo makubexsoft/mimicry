@@ -1,15 +1,17 @@
 package com.gc.mimicry.plugin.tcp;
 
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gc.mimicry.core.event.EventHandlerBase;
-import com.gc.mimicry.core.event.EventHandlerContext;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.shared.net.events.SocketBoundEvent;
@@ -29,36 +31,142 @@ public class PortManager extends EventHandlerBase
 {
 	public PortManager()
 	{
-		allocatedPorts = new HashMap<Integer, Boolean>();
+		allocatedPorts = new HashMap<Integer, PortInfo>();
 	}
 
 	@Override
-	public void handleDownstream( EventHandlerContext ctx, Event evt )
+	public void handleDownstream( Event evt )
 	{
 		if ( evt instanceof SocketBindRequestEvent )
 		{
 			SocketBindRequestEvent bindRequest = (SocketBindRequestEvent) evt;
-			handleBindRequest( ctx, bindRequest );
+			handleBindRequest( bindRequest );
 		}
 		else
 		{
-			super.handleDownstream( ctx, evt );
+			sendDownstream( evt );
 		}
 	}
 
-	private boolean isPortAllocated( int port )
+	private void handleBindRequest( SocketBindRequestEvent bindRequest )
 	{
-		return allocatedPorts.get( port ) != null;
+		int port = bindRequest.getEndPoint().getPort();
+		boolean reusable = bindRequest.isReusePort();
+
+		if ( port == 0 )
+		{
+			port = findFreePort( reusable );
+		}
+		if ( port == -1 )
+		{
+			// no port available at the moment
+			SocketErrorEvent evt = new SocketErrorEvent( "No port available at the moment." );
+			evt.setTargetApp( bindRequest.getSourceApplication() );
+			evt.setControlFlowId( bindRequest.getAssociatedControlFlow() );
+			sendUpstream( evt );
+			return;
+		}
+
+		tryAllocatePort( bindRequest.getSourceApplication(), bindRequest.getAssociatedControlFlow(), port, reusable );
 	}
 
-	private boolean isPortReusable( int port )
+	private void tryAllocatePort( UUID app, UUID cflow, int port, boolean reusable )
 	{
-		return allocatedPorts.get( port );
+		if ( isPortAllocated( port ) )
+		{
+			tryReusePort( app, cflow, port, reusable );
+		}
+		else
+		{
+			allocatePort( app, port, reusable );
+			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
+			evt.setTargetApp( app );
+			evt.setControlFlowId( cflow );
+			sendUpstream( evt );
+		}
 	}
 
-	private void allocatePort( int port, boolean reusable )
+	private void tryReusePort( UUID app, UUID cflow, int port, boolean reusable )
 	{
-		allocatedPorts.put( port, reusable );
+		if ( reusable && isPortReusable( port ) )
+		{
+			allocatePort( app, port, REUSABLE );
+			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
+			evt.setTargetApp( app );
+			evt.setControlFlowId( cflow );
+			sendUpstream( evt );
+		}
+		else
+		{
+			// port already in use
+			SocketErrorEvent evt = new SocketErrorEvent( "Port " + port + " already in use." );
+			evt.setTargetApp( app );
+			evt.setControlFlowId( cflow );
+			sendUpstream( evt );
+		}
+	}
+
+	/**
+	 * Returns whether the given port has been allocated by any application.
+	 * 
+	 * @param port
+	 * @return
+	 */
+	public boolean isPortAllocated( int port )
+	{
+		PortInfo portInfo = allocatedPorts.get( port );
+		if ( portInfo == null )
+		{
+			return false;
+		}
+		return portInfo.applications.size() > 0;
+	}
+
+	/**
+	 * Returns whether the given port is reusable by sockets having the
+	 * SO_REUSEADDR option enabled.
+	 * 
+	 * @param port
+	 * @return
+	 */
+	public boolean isPortReusable( int port )
+	{
+		if ( !isPortAllocated( port ) )
+		{
+			return true;
+		}
+		return allocatedPorts.get( port ).reusable;
+	}
+
+	/**
+	 * Returns a set of ids of the applications which allocated the given port;
+	 * or an empty set if no at all.
+	 * 
+	 * @param port
+	 * @return
+	 */
+	public Set<UUID> getApplicationOnPort( int port )
+	{
+		PortInfo portInfo = allocatedPorts.get( port );
+		if ( portInfo != null )
+		{
+			return portInfo.applications;
+		}
+		return Collections.emptySet();
+	}
+
+	private void allocatePort( UUID appId, int port, boolean reusable )
+	{
+		PortInfo portInfo = allocatedPorts.get( port );
+		if ( portInfo == null )
+		{
+			portInfo = new PortInfo( appId, reusable );
+			allocatedPorts.put( port, portInfo );
+		}
+		else
+		{
+			portInfo.applications.add( appId );
+		}
 		logger.info( "Allocated port=" + port + ", reusable=" + reusable );
 	}
 
@@ -78,73 +186,25 @@ public class PortManager extends EventHandlerBase
 		return -1;
 	}
 
-	private void handleBindRequest( EventHandlerContext ctx, SocketBindRequestEvent bindRequest )
-	{
-		int port = bindRequest.getEndPoint().getPort();
-		boolean reusable = bindRequest.isReusePort();
-
-		if ( port == 0 )
-		{
-			port = findFreePort( reusable );
-		}
-		if ( port == -1 )
-		{
-			// no port available at the moment
-			SocketErrorEvent evt = new SocketErrorEvent( "No port available at the moment." );
-			evt.setTargetApp( bindRequest.getSourceApplication() );
-			evt.setControlFlowId( bindRequest.getAssociatedControlFlow() );
-			ctx.sendUpstream( evt );
-			return;
-		}
-
-		tryAllocatePort( bindRequest.getSourceApplication(), bindRequest.getAssociatedControlFlow(), ctx, port,
-				reusable );
-	}
-
-	private void tryAllocatePort( UUID app, UUID cflow, EventHandlerContext ctx, int port, boolean reusable )
-	{
-		if ( isPortAllocated( port ) )
-		{
-			tryReusePort( app, cflow, ctx, port, reusable );
-		}
-		else
-		{
-			allocatePort( port, reusable );
-			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
-			evt.setTargetApp( app );
-			evt.setControlFlowId( cflow );
-			ctx.sendUpstream( evt );
-		}
-	}
-
-	private void tryReusePort( UUID app, UUID cflow, EventHandlerContext ctx, int port, boolean reusable )
-	{
-		if ( reusable && isPortReusable( port ) )
-		{
-			allocatePort( port, REUSABLE );
-			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
-			evt.setTargetApp( app );
-			evt.setControlFlowId( cflow );
-			ctx.sendUpstream( evt );
-		}
-		else
-		{
-			// port already in use
-			SocketErrorEvent evt = new SocketErrorEvent( "Port " + port + " already in use." );
-			evt.setTargetApp( app );
-			evt.setControlFlowId( cflow );
-			ctx.sendUpstream( evt );
-		}
-	}
-
-	private static final Logger			logger;
 	static
 	{
 		logger = LoggerFactory.getLogger( PortManager.class );
 	}
-	private static final int			MIN_PORT	= 1;
-	private static final int			MAX_PORT	= 65535;
-	private static final boolean		REUSABLE	= true;
+	private static final Logger				logger;
+	private static final int				MIN_PORT	= 1;
+	private static final int				MAX_PORT	= 65535;
+	private static final boolean			REUSABLE	= true;
+	private final Map<Integer, PortInfo>	allocatedPorts;
 
-	private final Map<Integer, Boolean>	allocatedPorts;
+	private static final class PortInfo
+	{
+		public PortInfo(UUID appId, boolean reusable)
+		{
+			applications.add( appId );
+			this.reusable = reusable;
+		}
+
+		public boolean		reusable;
+		public Set<UUID>	applications	= new HashSet<UUID>();
+	}
 }

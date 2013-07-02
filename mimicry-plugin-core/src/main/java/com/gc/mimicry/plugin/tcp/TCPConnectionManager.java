@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.gc.mimicry.core.event.EventHandlerBase;
-import com.gc.mimicry.core.event.EventHandlerContext;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.ConnectionEstablishedEvent;
 import com.gc.mimicry.shared.net.events.SocketAwaitingConnectionEvent;
@@ -21,76 +20,90 @@ import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
  */
 public class TCPConnectionManager extends EventHandlerBase
 {
-	private final Map<Integer, CFlowRef>	localWaitingSockets;
+	private final Map<Integer, CFlowRef>	serverSocketsWaiting;
 
 	public TCPConnectionManager()
 	{
-		localWaitingSockets = new HashMap<Integer, CFlowRef>();
+		serverSocketsWaiting = new HashMap<Integer, CFlowRef>();
 	}
 
 	@Override
-	public void handleDownstream( EventHandlerContext ctx, Event evt )
+	public void handleDownstream( Event evt )
 	{
 		if ( evt instanceof SocketAwaitingConnectionEvent )
 		{
+			SocketAwaitingConnectionEvent waitEvent = (SocketAwaitingConnectionEvent) evt;
+
 			// local socket awaits connection
 			// application called ServerSocket#accept()
-			CFlowRef ref = new CFlowRef();
-			ref.appId = evt.getSourceApplication();
-			ref.cflow = evt.getAssociatedControlFlow();
-
-			int port = ((SocketAwaitingConnectionEvent) evt).getLocalAddress().getPort();
-			localWaitingSockets.put( port, ref );
-		}
-		else if ( evt instanceof SocketConnectionRequest )
-		{
-			// outgoing connection request
-			super.handleDownstream( ctx, evt );
+			storeSocketInformation( waitEvent );
 		}
 		else
 		{
-			super.handleDownstream( ctx, evt );
+			sendDownstream( evt );
 		}
 	}
 
 	@Override
-	public void handleUpstream( EventHandlerContext ctx, Event evt )
+	public void handleUpstream( Event evt )
 	{
 		if ( evt instanceof SocketConnectionRequest )
 		{
-			// incoming connection
-			int port = ((SocketConnectionRequest) evt).getDestination().getPort();
-			CFlowRef ref = localWaitingSockets.remove( port );
-			if ( ref != null )
-			{
-				// bingo - there is a socket listening
-				// 1. Inform the application
-				ConnectionEstablishedEvent commit = new ConnectionEstablishedEvent(
-						((SocketConnectionRequest) evt).getSource(), new InetSocketAddress( port ) );
-				commit.setTargetApp( ref.appId );
-				commit.setControlFlowId( ref.cflow );
-				ctx.sendUpstream( commit );
-				// 2. Inform the caller
-				ConnectionEstablishedEvent response = new ConnectionEstablishedEvent(
-						((SocketConnectionRequest) evt).getSource(), new InetSocketAddress( port ) );
-				response.setTargetApp( evt.getSourceApplication() );
-				response.setControlFlowId( evt.getAssociatedControlFlow() );
-				ctx.sendDownstream( response );
-			}
-			else
-			{
-				// sorry - nobody here to pick up the connection
-			}
-		}
-		else if ( evt instanceof ConnectionEstablishedEvent )
-		{
-			// connection accepted on other side
-			super.handleUpstream( ctx, evt );
+			SocketConnectionRequest request = (SocketConnectionRequest) evt;
+			handleIncomingConnection( request );
 		}
 		else
 		{
-			super.handleUpstream( ctx, evt );
+			sendUpstream( evt );
 		}
+	}
+
+	private void handleIncomingConnection( SocketConnectionRequest request )
+	{
+		int port = request.getDestination().getPort();
+		CFlowRef ref = serverSocketsWaiting.remove( port );
+		if ( ref != null )
+		{
+			// bingo - there is a socket listening
+			informApplication( request, port, ref );
+			informCaller( request, port );
+		}
+		else
+		{
+			// sorry - nobody here to pick up the connection
+		}
+	}
+
+	private void storeSocketInformation( SocketAwaitingConnectionEvent waitEvent )
+	{
+		CFlowRef ref = new CFlowRef();
+		ref.appId = waitEvent.getSourceApplication();
+		ref.cflow = waitEvent.getAssociatedControlFlow();
+
+		int port = waitEvent.getLocalAddress().getPort();
+		serverSocketsWaiting.put( port, ref );
+	}
+
+	private void informApplication( SocketConnectionRequest request, int port, CFlowRef ref )
+	{
+		ConnectionEstablishedEvent commit;
+		commit = new ConnectionEstablishedEvent( request.getSource(), new InetSocketAddress( port ) );
+
+		commit.setTargetApp( ref.appId );
+		commit.setControlFlowId( ref.cflow );
+
+		sendUpstream( commit );
+	}
+
+	private void informCaller( SocketConnectionRequest request, int port )
+	{
+		ConnectionEstablishedEvent response;
+		response = new ConnectionEstablishedEvent( request.getSource(), new InetSocketAddress( port ) );
+
+		response.setTargetApp( request.getSourceApplication() );
+		response.setControlFlowId( request.getAssociatedControlFlow() );
+
+		sendDownstream( response );
 	}
 
 	private static class CFlowRef

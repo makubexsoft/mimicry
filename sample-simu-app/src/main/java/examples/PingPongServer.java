@@ -15,17 +15,19 @@ public class PingPongServer
 	{
 		try
 		{
-			System.out.println( "PingPongServer starting..." );
+			System.out.println( "PingPong-SERVER starting..." );
 
 			ServerSocket ss = new ServerSocket( Integer.parseInt( args[0] ) );
-			System.out.println( "Server: socket = " + ss );
+
 			Socket s = ss.accept();
-			System.out.println( "Server: accepted " + s.getRemoteSocketAddress() );
+
 			BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( s.getOutputStream() ) );
 			BufferedReader reader = new BufferedReader( new InputStreamReader( s.getInputStream() ) );
 			for ( ;; )
 			{
+				System.out.println("Server: waiting...");
 				String received = reader.readLine();
+				System.out.println("Server: received(" + received + ")");
 				if ( received == null )
 				{
 					System.out.println( "Terminating VM." );

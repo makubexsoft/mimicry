@@ -12,7 +12,6 @@ import com.gc.mimicry.core.event.EventBroker;
 import com.gc.mimicry.core.event.EventHandler;
 import com.gc.mimicry.core.event.EventStack;
 import com.gc.mimicry.core.timing.Clock;
-import com.gc.mimicry.core.timing.ClockBasedScheduler;
 import com.google.common.base.Preconditions;
 
 /**
@@ -56,19 +55,16 @@ public class NodeManager
         return nodes.get(id);
     }
 
-    public Node createNode(NodeConfiguration nodeDesc)
+    public Node createNode(NodeConfiguration descriptor)
     {
-        Node node = createNode2(nodeDesc);
+        Node node = new Node(ctx, descriptor.getNodeName(), eventBroker, clock);
+        initEventStack(node, descriptor);
         nodes.put(node.getId(), node);
         return node;
     }
 
-    private Node createNode2(NodeConfiguration descriptor)
+    private void initEventStack(Node node, NodeConfiguration descriptor)
     {
-        Preconditions.checkNotNull(descriptor);
-
-        Node node = new Node(ctx, descriptor.getNodeName(), eventBroker, clock);
-
         EventStack eventStack = node.getEventStack();
         for (EventHandlerConfiguration handlerConfig : descriptor.getEventStack())
         {
@@ -80,15 +76,10 @@ public class NodeManager
                     Configurable configurable = (Configurable) handler;
                     configurable.configure(handlerConfig.getConfiguration());
                 }
-
-                // Jobs of a single event handler are executed in a single thread.
-                // Event passing to the handler should be done through the scheduler
-                // by doing so the event handler is not forced to be concerned about multi-threading issues.
-                handler.init(new ClockBasedScheduler(clock), clock);
                 eventStack.addHandler(handler);
             }
         }
-        return node;
+        eventStack.init(clock);
     }
 
     private EventHandler createHandler(String name)

@@ -28,7 +28,7 @@ public interface EventHandler
      *            A clock to obtain the current time of the simulation. Note that this clock is not necessarily
      *            synchronized with the real-time.
      */
-    public void init(Scheduler scheduler, Clock clock);
+    public void init(EventHandlerContext ctx, Scheduler scheduler, Clock clock);
 
     public Scheduler getScheduler();
 
@@ -39,12 +39,10 @@ public interface EventHandler
      * {@link EventHandlerContext#sendDownstream(Event)} and {@link EventHandlerContext#sendUpstream(Event)} methods.
      * This method is only invoked from within the EHT.
      * 
-     * @param ctx
-     *            The event context which provides access to the {@link EventStack}.
      * @param evt
      *            The event passed downstream.
      */
-    public void handleDownstream(EventHandlerContext ctx, Event evt);
+    public void handleDownstream(Event evt);
 
     /**
      * Gets invoked when an event is passed up in the {@link EventStack} which means it's an incoming event to the
@@ -53,10 +51,8 @@ public interface EventHandler
      * {@link EventHandlerContext#sendUpstream(Event)} and {@link EventHandlerContext#sendDownstream(Event)} methods.
      * This method is only invoked from within the EHT.
      * 
-     * @param ctx
-     *            The event context which provides access to the {@link EventStack}.
      * @param evt
      *            The event passed upstream.
      */
-    public void handleUpstream(EventHandlerContext ctx, Event evt);
+    public void handleUpstream(Event evt);
 }

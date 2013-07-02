@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gc.mimicry.core.event.EventHandlerBase;
-import com.gc.mimicry.core.event.EventHandlerContext;
 import com.gc.mimicry.shared.events.Event;
 
 public class EventLogger extends EventHandlerBase
@@ -16,16 +15,18 @@ public class EventLogger extends EventHandlerBase
 	}
 
 	@Override
-	public void handleDownstream( EventHandlerContext ctx, Event evt )
+	public void handleDownstream( Event evt )
 	{
 		logger.info( "downstream event: " + evt );
-		ctx.sendDownstream( evt );
+
+		sendDownstream( evt );
 	}
 
 	@Override
-	public void handleUpstream( EventHandlerContext ctx, Event evt )
+	public void handleUpstream( Event evt )
 	{
 		logger.info( "upstream event: " + evt );
-		ctx.sendUpstream( evt );
+
+		sendUpstream( evt );
 	}
 }

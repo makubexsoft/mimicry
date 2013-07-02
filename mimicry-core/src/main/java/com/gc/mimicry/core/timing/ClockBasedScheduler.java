@@ -2,9 +2,12 @@ package com.gc.mimicry.core.timing;
 
 import java.io.Closeable;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import com.gc.mimicry.util.concurrent.DefaultValueFuture;
+import com.gc.mimicry.util.concurrent.ValueFuture;
 import com.google.common.base.Preconditions;
 
 /**
@@ -18,8 +21,8 @@ public class ClockBasedScheduler implements Scheduler, Closeable
 
     private static final int JOB_CHECKING_DELAY_MILLIS = 100;
     private volatile boolean shouldRun = true;
-    private Thread thread;
-    private Clock clock;
+    private final Thread thread;
+    private final Clock clock;
     private final List<ScheduledJob> jobs;
 
     public ClockBasedScheduler(Clock clock)
@@ -32,6 +35,7 @@ public class ClockBasedScheduler implements Scheduler, Closeable
         thread.start();
     }
 
+    @Override
     public void schedule(Runnable job, long delay, TimeUnit unit)
     {
         synchronized (jobs)
@@ -41,6 +45,19 @@ public class ClockBasedScheduler implements Scheduler, Closeable
         }
     }
 
+    @Override
+    public <T> ValueFuture<T> schedule(Callable<T> job, long delay, TimeUnit unit)
+    {
+        synchronized (jobs)
+        {
+            ScheduledCallableJob<T> e = new ScheduledCallableJob<T>(clock.currentMillis() + unit.toMillis(delay), job);
+            jobs.add(e);
+            jobs.notify();
+            return e.getFuture();
+        }
+    }
+
+    @Override
     public void close()
     {
         shouldRun = false;
@@ -56,11 +73,52 @@ public class ClockBasedScheduler implements Scheduler, Closeable
             this.timeInMillis = timeInMillis;
             this.runnable = job;
         }
+
+        public ScheduledJob(long timeInMillis)
+        {
+            this.timeInMillis = timeInMillis;
+        }
+
+        protected void setJob(Runnable job)
+        {
+            runnable = job;
+        }
+    }
+
+    private static class ScheduledCallableJob<T> extends ScheduledJob
+    {
+        private final DefaultValueFuture<T> future = new DefaultValueFuture<T>();
+
+        public ScheduledCallableJob(long timeInMillis, final Callable<T> job)
+        {
+            super(timeInMillis);
+            setJob(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        future.setValue(job.call());
+                    }
+                    catch (Throwable th)
+                    {
+                        future.setFailure(th);
+                    }
+                }
+            });
+        }
+
+        public ValueFuture<T> getFuture()
+        {
+            return future;
+        }
     }
 
     private class JobExecutor implements Runnable
     {
 
+        @Override
         public void run()
         {
             while (shouldRun)
@@ -107,8 +165,10 @@ public class ClockBasedScheduler implements Scheduler, Closeable
     private static class NoOperation implements Runnable
     {
 
+        @Override
         public void run()
         {
         }
     }
+
 }

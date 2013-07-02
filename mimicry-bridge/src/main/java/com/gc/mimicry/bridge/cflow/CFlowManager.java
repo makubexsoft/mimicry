@@ -1,7 +1,9 @@
 package com.gc.mimicry.bridge.cflow;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -15,11 +17,14 @@ public class CFlowManager implements EventListener
     private final Map<UUID, ControlFlow> controlFlows;
     private final UUID appId;
     private final EventBridge bridge;
+    private final Map<Class<? extends Event>, List<EventListener>> listener;
 
     public CFlowManager(UUID appId, EventBridge bridge)
     {
         this.appId = appId;
         this.bridge = bridge;
+
+        listener = new HashMap<Class<? extends Event>, List<EventListener>>();
 
         controlFlows = new HashMap<UUID, ControlFlow>();
         bridge.addUpstreamEventListener(appId, this);
@@ -35,6 +40,14 @@ public class CFlowManager implements EventListener
             if (controlFlow != null)
             {
                 controlFlow.terminate(evt);
+            }
+        }
+        List<EventListener> list = listener.get(evt.getClass());
+        if (list != null)
+        {
+            for (EventListener l : list)
+            {
+                l.handleEvent(evt);
             }
         }
     }
@@ -61,6 +74,12 @@ public class CFlowManager implements EventListener
 
     public void addHandler(Class<? extends Event> eventClass, EventListener l)
     {
-
+        List<EventListener> eventListener = listener.get(eventClass);
+        if (eventListener == null)
+        {
+            eventListener = new ArrayList<EventListener>();
+        }
+        eventListener.add(l);
+        listener.put(eventClass, eventListener);
     }
 }

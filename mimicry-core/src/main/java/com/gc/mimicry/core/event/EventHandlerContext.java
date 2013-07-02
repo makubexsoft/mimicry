@@ -5,8 +5,8 @@ import com.google.common.base.Preconditions;
 
 public class EventHandlerContext
 {
-    private EventStack stack;
-    private int handlerIndex;
+    private final EventStack stack;
+    private final int handlerIndex;
 
     EventHandlerContext(EventStack stack, int handlerIndex)
     {
@@ -15,9 +15,9 @@ public class EventHandlerContext
         this.handlerIndex = handlerIndex;
     }
 
-    public EventStack getEventStack()
+    public <T extends EventHandler> T findHandler(Class<T> handlerClass)
     {
-        return stack;
+        return stack.findHandler(handlerClass);
     }
 
     public void sendDownstream(Event evt)

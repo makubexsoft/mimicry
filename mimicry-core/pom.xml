@@ -17,6 +17,22 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<!-- Proxy generation -->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-util</artifactId>
+			<version>4.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>

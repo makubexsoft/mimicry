@@ -1,5 +1,7 @@
 package com.gc.mimicry.shared.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 
 public class ByteBuffer
@@ -18,6 +20,11 @@ public class ByteBuffer
 	public int available()
 	{
 		return currentBuffer.length - cursor;
+	}
+
+	public InputStream createStream()
+	{
+		return new MSInputStream();
 	}
 
 	public int read()
@@ -50,6 +57,47 @@ public class ByteBuffer
 		{
 			buffers.add( buffer );
 			lock.notify();
+		}
+	}
+
+	private class MSInputStream extends InputStream
+	{
+		@Override
+		public int read() throws IOException
+		{
+			return ByteBuffer.this.read();
+		}
+
+		@Override
+		public int read( byte[] b, int off, int len ) throws IOException
+		{
+			int av = available();
+			if ( av == 0 )
+			{
+				av = 1;
+			}
+			if ( av > len )
+			{
+				av = len;
+			}
+			int i;
+			for ( i = 0; i < av; i++ )
+			{
+				b[off + i] = (byte) (read() & 0xFF);
+			}
+			return i;
+		}
+
+		@Override
+		public int read( byte[] b ) throws IOException
+		{
+			return read( b, 0, b.length );
+		}
+
+		@Override
+		public int available() throws IOException
+		{
+			return ByteBuffer.this.available();
 		}
 	}
 }

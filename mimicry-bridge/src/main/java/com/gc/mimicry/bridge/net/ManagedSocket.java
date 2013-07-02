@@ -17,6 +17,7 @@ import java.util.Arrays;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
+import com.gc.mimicry.core.event.EventListener;
 import com.gc.mimicry.shared.events.BaseEvent;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.ConnectionEstablishedEvent;
@@ -27,6 +28,8 @@ import com.gc.mimicry.shared.net.events.SocketBoundEvent;
 import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
 import com.gc.mimicry.shared.net.events.SocketErrorEvent;
 import com.gc.mimicry.shared.net.events.SocketOption;
+import com.gc.mimicry.shared.net.events.TCPReceivedDataEvent;
+import com.gc.mimicry.shared.net.events.TCPSendDataEvent;
 import com.gc.mimicry.shared.util.ByteBuffer;
 
 /**
@@ -143,6 +146,7 @@ public class ManagedSocket extends Socket
         localAddress = event.getServerAddress();
         remoteAddress = event.getClientAddress();
 
+        closed = false;
         connected = true;
         bound = true;
     }
@@ -252,7 +256,7 @@ public class ManagedSocket extends Socket
             throw new SocketException("Socket input is shutdown");
         }
 
-        return in;
+        return receiveBuffer.createStream();
     }
 
     @Override
@@ -749,8 +753,9 @@ public class ManagedSocket extends Socket
         SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
     }
 
-    private final CFlowManager cflowMgr = new CFlowManager(SimulatorBridge.getApplicationId(),
-            SimulatorBridge.getEventBridge());
+    private final CFlowManager cflowMgr;
+    private final MSOutputStream out;
+    private final ByteBuffer receiveBuffer;
     private boolean bound;
     private boolean connected;
     private boolean closed;
@@ -765,17 +770,35 @@ public class ManagedSocket extends Socket
     private int soTimeout;
     private boolean tcpNoDelay;
     private int trafficClass;
-    private final MSOutputStream out = new MSOutputStream();
-    private final MSInputStream in = new MSInputStream();
-    private final ByteBuffer receiveBuffer = new ByteBuffer();
+
+    // default construction
+    {
+        cflowMgr = new CFlowManager(SimulatorBridge.getApplicationId(), SimulatorBridge.getEventBridge());
+        cflowMgr.addHandler(TCPReceivedDataEvent.class, new EventListener()
+        {
+
+            @Override
+            public void handleEvent(Event evt)
+            {
+                TCPReceivedDataEvent data = (TCPReceivedDataEvent) evt;
+
+                if (data.getDestinationSocket().getPort() == localAddress.getPort())
+                {
+                    receiveBuffer.write(data.getData());
+                }
+            }
+        });
+        out = new MSOutputStream();
+        receiveBuffer = new ByteBuffer();
+    }
 
     private class MSOutputStream extends OutputStream
     {
-
         @Override
         public void write(int b) throws IOException
         {
-            receiveBuffer.write(new byte[] { (byte) b });
+            byte[] buffer = new byte[] { (byte) b };
+            write(buffer, 0, 1);
         }
 
         @Override
@@ -788,49 +811,8 @@ public class ManagedSocket extends Socket
         public void write(byte[] b, int off, int len) throws IOException
         {
             byte[] buffer = Arrays.copyOfRange(b, off, off + len);
-            receiveBuffer.write(buffer);
-        }
 
-    }
-
-    private class MSInputStream extends InputStream
-    {
-        @Override
-        public int read() throws IOException
-        {
-            return receiveBuffer.read();
-        }
-
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException
-        {
-            int av = available();
-            if (av == 0)
-            {
-                av = 1;
-            }
-            if (av > len)
-            {
-                av = len;
-            }
-            int i;
-            for (i = 0; i < av; i++)
-            {
-                b[off + i] = (byte) (read() & 0xFF);
-            }
-            return i;
-        }
-
-        @Override
-        public int read(byte[] b) throws IOException
-        {
-            return read(b, 0, b.length);
-        }
-
-        @Override
-        public int available() throws IOException
-        {
-            return receiveBuffer.available();
+            emitEvent(new TCPSendDataEvent(localAddress, remoteAddress, buffer));
         }
     }
 }
