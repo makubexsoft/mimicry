@@ -1,5 +1,13 @@
 package com.gc.mimicry.util.concurrent;
 
+/**
+ * An obseravable future that results on completion in a value.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ * @param <T>
+ *            The type of value.
+ */
 public interface ValueFuture<T> extends Future<ValueFuture<T>>
 {
 

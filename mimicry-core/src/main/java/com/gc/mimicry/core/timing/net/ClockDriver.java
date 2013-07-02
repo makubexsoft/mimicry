@@ -2,11 +2,11 @@ package com.gc.mimicry.core.timing.net;
 
 import java.io.Closeable;
 
+import com.gc.mimicry.core.event.Node;
 import com.gc.mimicry.core.messaging.Message;
 import com.gc.mimicry.core.messaging.MessageReceiver;
 import com.gc.mimicry.core.messaging.MessagingSystem;
 import com.gc.mimicry.core.messaging.Topic;
-import com.gc.mimicry.core.runtime.Node;
 import com.google.common.base.Preconditions;
 
 public class ClockDriver implements Closeable, MessageReceiver

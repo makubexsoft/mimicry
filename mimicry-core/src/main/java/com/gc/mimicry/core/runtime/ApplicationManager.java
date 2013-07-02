@@ -16,12 +16,19 @@ import com.gc.mimicry.core.BaseResourceManager;
 import com.gc.mimicry.core.ChildFirstURLClassLoader;
 import com.gc.mimicry.core.ClassLoadingContext;
 import com.gc.mimicry.core.deployment.ApplicationDescriptor;
+import com.gc.mimicry.core.event.Node;
 import com.gc.mimicry.util.ClassPathUtil;
 import com.google.common.base.Preconditions;
 
+/**
+ * The application manager is part of a {@link Node} and is responsible for loading new applications and managing their
+ * references.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class ApplicationManager extends BaseResourceManager
 {
-
     public ApplicationManager(ClassLoadingContext context, Node node)
     {
         Preconditions.checkNotNull(context);
@@ -33,11 +40,22 @@ public class ApplicationManager extends BaseResourceManager
         applications = new HashSet<Application>();
     }
 
+    /**
+     * Returns references to all launched applications.
+     * 
+     * @return
+     */
     public Set<Application> getApplications()
     {
         return applications;
     }
 
+    /**
+     * Returns the application identified by the given id if it is managed by this instance; otherwise null.
+     * 
+     * @param id
+     * @return
+     */
     public Application getApplication(UUID id)
     {
         for (Application app : applications)
@@ -50,6 +68,13 @@ public class ApplicationManager extends BaseResourceManager
         return null;
     }
 
+    /**
+     * Launches a new application instance. This might take a moment.
+     * 
+     * @param appDesc
+     * @return
+     * @throws IOException
+     */
     public Application launchApplication(ApplicationDescriptor appDesc) throws IOException
     {
         ChildFirstURLClassLoader outerClassLoader;

@@ -6,10 +6,9 @@ import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.util.concurrent.Future;
 
 /**
- * 
+ * Basic interface for controlling a simulated network.
  * 
  * @author Marc-Christian Schulze
- * 
  */
 public interface SimulatedNetwork
 {

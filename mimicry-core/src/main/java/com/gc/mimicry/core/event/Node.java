@@ -1,12 +1,10 @@
-package com.gc.mimicry.core.runtime;
+package com.gc.mimicry.core.event;
 
 import java.util.UUID;
 
 import com.gc.mimicry.core.BaseResourceManager;
 import com.gc.mimicry.core.ClassLoadingContext;
-import com.gc.mimicry.core.event.EventBridge;
-import com.gc.mimicry.core.event.EventBroker;
-import com.gc.mimicry.core.event.EventStack;
+import com.gc.mimicry.core.runtime.ApplicationManager;
 import com.gc.mimicry.core.timing.Clock;
 import com.google.common.base.Preconditions;
 

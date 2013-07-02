@@ -2,6 +2,12 @@ package com.gc.mimicry.util.concurrent;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Default implementation of a {@link Future}.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class DefaultFuture extends AbstractFuture<DefaultFuture> implements Future<DefaultFuture>
 {
 
@@ -12,11 +18,13 @@ public class DefaultFuture extends AbstractFuture<DefaultFuture> implements Futu
         listener = new CopyOnWriteArrayList<FutureListener<? super DefaultFuture>>();
     }
 
+    @Override
     public void addFutureListener(final FutureListener<? super DefaultFuture> l)
     {
         doSynchronized(new Runnable()
         {
 
+            @Override
             public void run()
             {
                 listener.add(l);
@@ -28,6 +36,7 @@ public class DefaultFuture extends AbstractFuture<DefaultFuture> implements Futu
         });
     }
 
+    @Override
     public void removeFutureListener(FutureListener<? super DefaultFuture> l)
     {
         listener.remove(l);
@@ -42,6 +51,11 @@ public class DefaultFuture extends AbstractFuture<DefaultFuture> implements Futu
         }
     }
 
+    /**
+     * Override to perform your custom cancellation.
+     * 
+     * @return whether the cancellation was successful or not.
+     */
     @Override
     protected boolean performCancellation()
     {

@@ -1,21 +1,34 @@
 package com.gc.mimicry.core.event;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.gc.mimicry.core.runtime.Node;
+import com.gc.mimicry.core.runtime.Application;
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.ClockBasedScheduler;
+import com.gc.mimicry.core.timing.Scheduler;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.util.ProxyFactory;
 import com.gc.mimicry.util.concurrent.ValueFuture;
 import com.google.common.base.Preconditions;
 
+/**
+ * This is a stack of {@link EventHandler} which define the actual behaviour of the simulated infrastructure.
+ * Information is passing the {@link EventStack} as so-called {@link Event}s. When events are passed down in the stack,
+ * e.g. from the application to the {@link EventBroker}, they are called downstream events. {@link Event}s that are
+ * passed up in the stack, e.g. from the {@link EventBroker} to the {@link Application}, are called upstream events.
+ * Each handler within the stack is able to forward, suppress, multiple or demultiplex events. On top of each
+ * {@link EventStack} a so-called {@link EventBridge} is located which filters and dispatches events for the
+ * {@link Application}s running on the {@link Node}. Events that are not targeted for an application are discarded by
+ * the event bridge.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class EventStack implements EventListener
 {
     private final Node node;
@@ -24,6 +37,17 @@ public class EventStack implements EventListener
     private final EventBridge eventBridge;
     private final EventListener brokerListener;
 
+    /**
+     * Constructs an empty event stack associated to the given {@link Node} and {@link EventBridge}. This instance will
+     * itself register as listener to and passes all downstream events finally to the given {@link EventBroker}.
+     * 
+     * @param node
+     *            The node to associate the event stack with.
+     * @param eventBroker
+     *            The broker to use for receiving and dispatching downstream events.
+     * @param eventBridge
+     *            The event bridge to use for dispatching upstream events towards the applications.
+     */
     public EventStack(Node node, EventBroker eventBroker, EventBridge eventBridge)
     {
         Preconditions.checkNotNull(node);
@@ -49,6 +73,11 @@ public class EventStack implements EventListener
         handlerList = new CopyOnWriteArrayList<EventHandler>();
     }
 
+    /**
+     * Returns the associated node of this stack.
+     * 
+     * @return The associated node of this stack.
+     */
     public Node getNode()
     {
         return node;
@@ -102,22 +131,36 @@ public class EventStack implements EventListener
 
     <T extends EventHandler> T findHandler(Class<T> handlerClass)
     {
-        EventHandler h = null;
+        EventHandler foundHandler = null;
         for (EventHandler handler : handlerList)
         {
             if (handlerClass.isInstance(handler))
             {
-                h = handler;
+                foundHandler = handler;
                 break;
             }
         }
-        if (h == null)
+        if (foundHandler == null)
         {
             return null;
         }
 
-        final EventHandler handler = h;
+        return createProxyHandler(handlerClass, foundHandler);
+    }
 
+    /**
+     * Creates a proxy around the given handler that executes all method using the {@link Scheduler} of the given
+     * {@link EventHandler}.
+     * 
+     * @param handlerClass
+     *            The publicly visible class or interface of the proxy.
+     * @param handler
+     *            The original handler
+     * @return A proxy that executes all method invocations using the {@link Scheduler} of the original
+     *         {@link EventHandler}.
+     */
+    private <T extends EventHandler> T createProxyHandler(Class<T> handlerClass, final EventHandler handler)
+    {
         return handlerClass.cast(ProxyFactory.createProxy(handlerClass.getClassLoader(), handlerClass,
                 new InvocationHandler()
                 {
@@ -128,28 +171,9 @@ public class EventStack implements EventListener
                         ValueFuture<Object> future = handler.getScheduler().schedule(new Callable<Object>()
                         {
                             @Override
-                            public Object call()
+                            public Object call() throws Exception
                             {
-                                try
-                                {
-                                    return method.invoke(handler, args);
-                                }
-                                catch (IllegalAccessException e)
-                                {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                                catch (IllegalArgumentException e)
-                                {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                                catch (InvocationTargetException e)
-                                {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                                return null;
+                                return method.invoke(handler, args);
                             }
                         }, 0, TimeUnit.MILLISECONDS);
 
@@ -163,37 +187,9 @@ public class EventStack implements EventListener
                 }));
     }
 
-    public void addHandler(EventHandler handler)
+    void addHandler(EventHandler handler)
     {
         handlerList.add(handler);
-    }
-
-    public void insertHandler(int index, EventHandler handler)
-    {
-        handlerList.add(index, handler);
-    }
-
-    public void removeHandler(EventHandler handler)
-    {
-        handlerList.remove(handler);
-    }
-
-    public EventHandler removeHandler(Class<EventHandler> handlerClass)
-    {
-        EventHandler h = null;
-        for (EventHandler handler : handlerList)
-        {
-            if (handlerClass.isInstance(handler))
-            {
-                h = handler;
-                break;
-            }
-        }
-        if (h != null)
-        {
-            handlerList.remove(h);
-        }
-        return h;
     }
 
     @Override
@@ -202,6 +198,11 @@ public class EventStack implements EventListener
         sendDownstream(-1, evt);
     }
 
+    /**
+     * Initializes all {@link EventHandler}s within this stack.
+     * 
+     * @param clock
+     */
     public void init(Clock clock)
     {
         int index = 0;

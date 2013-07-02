@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import com.gc.mimicry.core.ClassLoadingContext;
 import com.gc.mimicry.core.deployment.ApplicationDescriptor;
 import com.gc.mimicry.core.event.EventBroker;
+import com.gc.mimicry.core.event.Node;
+import com.gc.mimicry.core.event.NodeManager;
 import com.gc.mimicry.core.event.SimpleEventBroker;
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.DiscreteClock;
@@ -16,19 +18,14 @@ import com.gc.mimicry.util.concurrent.DefaultFuture;
 import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
 
+/**
+ * Simple implementation of a simulated network that is used in standalone and unit-test setups.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class SimpleSimulatedNetwork implements SimulatedNetwork
 {
-    private boolean initialized;
-    private final Future<?> endFuture;
-    private final EventBroker eventBroker;
-    private NodeManager nodeMgr;
-    private Clock clock;
-    private final ClassLoadingContext ctx;
-    private static final Logger logger;
-    static
-    {
-        logger = LoggerFactory.getLogger(SimpleSimulatedNetwork.class);
-    }
 
     public SimpleSimulatedNetwork(ClassLoadingContext ctx)
     {
@@ -124,7 +121,7 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     {
         checkInitialized();
         logger.info("Shutting simulation down...");
-        // TODO Auto-generated method stub
+        // TODO shutdown all applications
         return endFuture;
     }
 
@@ -154,5 +151,17 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
         {
             throw new IllegalStateException("Network not initialized. Did you miss to invoke init?");
         }
+    }
+
+    private boolean initialized;
+    private NodeManager nodeMgr;
+    private Clock clock;
+    private final Future<?> endFuture;
+    private final EventBroker eventBroker;
+    private final ClassLoadingContext ctx;
+    private static final Logger logger;
+    static
+    {
+        logger = LoggerFactory.getLogger(SimpleSimulatedNetwork.class);
     }
 }

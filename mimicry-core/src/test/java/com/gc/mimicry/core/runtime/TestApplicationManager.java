@@ -18,6 +18,7 @@ import com.gc.mimicry.core.ClassLoadingContext;
 import com.gc.mimicry.core.deployment.ApplicationDescriptor;
 import com.gc.mimicry.core.deployment.ApplicationDescriptorBuilder;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
+import com.gc.mimicry.core.event.Node;
 import com.gc.mimicry.core.timing.RealtimeClock;
 import com.gc.mimicry.util.concurrent.Future;
 

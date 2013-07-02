@@ -2,6 +2,7 @@ package com.gc.mimicry.core.runtime;
 
 import java.util.UUID;
 
+import com.gc.mimicry.core.event.Node;
 import com.google.common.base.Preconditions;
 
 public class LocalNodeRef implements NodeRef

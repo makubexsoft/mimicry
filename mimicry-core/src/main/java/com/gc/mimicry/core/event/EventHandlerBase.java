@@ -1,7 +1,6 @@
 package com.gc.mimicry.core.event;
 
 import com.gc.mimicry.core.runtime.Application;
-import com.gc.mimicry.core.runtime.Node;
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.Scheduler;
 import com.gc.mimicry.shared.events.Event;

@@ -3,6 +3,14 @@ package com.gc.mimicry.util.concurrent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Base implementation of all futures.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ * @param <T>
+ *            The concrete type of future.
+ */
 public abstract class AbstractFuture<T extends Future<T>>
 {
 

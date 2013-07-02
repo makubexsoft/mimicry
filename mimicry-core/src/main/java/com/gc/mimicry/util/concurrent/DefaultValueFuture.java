@@ -2,6 +2,13 @@ package com.gc.mimicry.util.concurrent;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Default implementation of a {@link ValueFuture}.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ * @param <T>
+ */
 public class DefaultValueFuture<T> extends AbstractFuture<ValueFuture<T>> implements ValueFuture<T>
 {
 
@@ -20,11 +27,13 @@ public class DefaultValueFuture<T> extends AbstractFuture<ValueFuture<T>> implem
         setSuccess();
     }
 
+    @Override
     public void addFutureListener(final FutureListener<? super ValueFuture<T>> l)
     {
         doSynchronized(new Runnable()
         {
 
+            @Override
             public void run()
             {
                 listener.add(l);
@@ -36,6 +45,7 @@ public class DefaultValueFuture<T> extends AbstractFuture<ValueFuture<T>> implem
         });
     }
 
+    @Override
     public void removeFutureListener(FutureListener<? super ValueFuture<T>> l)
     {
         listener.remove(l);
@@ -50,6 +60,7 @@ public class DefaultValueFuture<T> extends AbstractFuture<ValueFuture<T>> implem
         }
     }
 
+    @Override
     public T getValue()
     {
         awaitUninterruptibly(Long.MAX_VALUE);
@@ -67,6 +78,11 @@ public class DefaultValueFuture<T> extends AbstractFuture<ValueFuture<T>> implem
         setSuccess();
     }
 
+    /**
+     * Override to perform your custom cancellation.
+     * 
+     * @return whether the cancellation was successful or not.
+     */
     @Override
     protected boolean performCancellation()
     {

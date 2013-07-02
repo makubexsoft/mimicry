@@ -10,21 +10,29 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+/**
+ * Utility class for extracting zip files onto the hard drive.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class ZipFileExtractor implements Closeable
 {
 
     public static final String EVERTHING_PATTERN = "";
-    private ZipFile zipFile;
+    private final ZipFile zipFile;
 
     public ZipFileExtractor(File file) throws ZipException, IOException
     {
         zipFile = new ZipFile(file);
     }
 
+    @Override
     public void close()
     {
         IOUtils.closeSilently(new Closeable()
         {
+            @Override
             public void close() throws IOException
             {
                 zipFile.close();

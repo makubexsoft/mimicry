@@ -11,9 +11,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * IO related utility functionality.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class IOUtils
 {
-
+    /**
+     * Closed the given closeable and suppress any {@link IOException} silently.
+     * 
+     * @param c
+     *            The closeable to close.
+     */
     public static void closeSilently(Closeable c)
     {
         if (c != null)
@@ -29,6 +40,17 @@ public class IOUtils
         }
     }
 
+    /**
+     * Creates a temporary directory.
+     * 
+     * @param prefix
+     *            The prefix to use for the directory name
+     * @param suffix
+     *            The suffix to use for the directory name.
+     * @return A file instance that refers to the newly created directory.
+     * @throws IOException
+     *             If any io operation fails and the directory couldn't be created.
+     */
     public static File createTempDir(String prefix, String suffix) throws IOException
     {
         File tempFile = File.createTempFile(prefix, suffix);
@@ -37,6 +59,16 @@ public class IOUtils
         return tempFile;
     }
 
+    /**
+     * Writes all data within the given stream into the destination file.
+     * 
+     * @param stream
+     *            The stream to read the content from.
+     * @param destination
+     *            The file to save the content in.
+     * @throws IOException
+     *             If the write operation fails.
+     */
     public static void writeToFile(InputStream stream, File destination) throws IOException
     {
         if (!destination.exists())
@@ -60,6 +92,16 @@ public class IOUtils
         }
     }
 
+    /**
+     * Writes all data within the given byte array into the destination file.
+     * 
+     * @param data
+     *            The data to write to the file.
+     * @param destination
+     *            The file to write to.
+     * @throws IOException
+     *             If the write fails
+     */
     public static void writeToFile(byte[] data, File destination) throws IOException
     {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
@@ -73,6 +115,13 @@ public class IOUtils
         }
     }
 
+    /**
+     * Reads the whole file content into a byte array and returns it.
+     * 
+     * @param file
+     *            The file to read from.
+     * @return The byte array containing the content; otherwise an empty byte array.
+     */
     public static byte[] readIntoByteArray(File file)
     {
         ByteArrayOutputStream out = null;

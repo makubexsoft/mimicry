@@ -3,6 +3,14 @@ package com.gc.mimicry.core.event;
 import com.gc.mimicry.shared.events.Event;
 import com.google.common.base.Preconditions;
 
+/**
+ * The context object is used to act as mediator between the {@link EventHandler} and the {@link EventStack}. It
+ * contains some meta-information about the position of the {@link EventHandler} within the {@link EventStack} that is
+ * used to determine which the next higher and lower handler are.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class EventHandlerContext
 {
     private final EventStack stack;
@@ -11,6 +19,7 @@ public class EventHandlerContext
     EventHandlerContext(EventStack stack, int handlerIndex)
     {
         Preconditions.checkNotNull(stack);
+
         this.stack = stack;
         this.handlerIndex = handlerIndex;
     }

@@ -2,6 +2,14 @@ package com.gc.mimicry.util.concurrent;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * An obseravable future that unlike the one of the JDK allows to register listener to it.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ * @param <T>
+ *            The concrete subtype of {@link Future}.
+ */
 public interface Future<T extends Future<T>>
 {
 
