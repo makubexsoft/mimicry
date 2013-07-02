@@ -15,11 +15,16 @@ public class ByteBuffer
 		buffers = new LinkedList<byte[]>();
 	}
 
+	public int available()
+	{
+		return currentBuffer.length - cursor;
+	}
+
 	public int read()
 	{
 		if ( cursor < currentBuffer.length )
 		{
-			return currentBuffer[cursor++];
+			return currentBuffer[cursor++] & 0xFF;
 		}
 		synchronized ( lock )
 		{
@@ -36,7 +41,7 @@ public class ByteBuffer
 			currentBuffer = buffers.poll();
 		}
 		cursor = 0;
-		return currentBuffer[cursor++];
+		return currentBuffer[cursor++] & 0xFF;
 	}
 
 	public void write( byte[] buffer )

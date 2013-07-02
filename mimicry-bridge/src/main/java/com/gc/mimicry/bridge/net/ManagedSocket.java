@@ -12,6 +12,7 @@ import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
@@ -774,9 +775,20 @@ public class ManagedSocket extends Socket
         @Override
         public void write(int b) throws IOException
         {
-            System.out.println("Write: " + b);
+            receiveBuffer.write(new byte[] { (byte) b });
+        }
 
-            receiveBuffer.write(new byte[] { (byte) (b & 0xFF) });
+        @Override
+        public void write(byte[] b) throws IOException
+        {
+            write(b, 0, b.length);
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException
+        {
+            byte[] buffer = Arrays.copyOfRange(b, off, off + len);
+            receiveBuffer.write(buffer);
         }
 
     }
@@ -786,9 +798,39 @@ public class ManagedSocket extends Socket
         @Override
         public int read() throws IOException
         {
-            int read = receiveBuffer.read();
-            System.out.println("Read: " + read);
-            return read;
+            return receiveBuffer.read();
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException
+        {
+            int av = available();
+            if (av == 0)
+            {
+                av = 1;
+            }
+            if (av > len)
+            {
+                av = len;
+            }
+            int i;
+            for (i = 0; i < av; i++)
+            {
+                b[off + i] = (byte) (read() & 0xFF);
+            }
+            return i;
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException
+        {
+            return read(b, 0, b.length);
+        }
+
+        @Override
+        public int available() throws IOException
+        {
+            return receiveBuffer.available();
         }
     }
 }

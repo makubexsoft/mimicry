@@ -30,7 +30,7 @@ appBuilder = new ApplicationDescriptorBuilder("example-app")
 appBuilder.with {
 	withMainClass( "examples.PingPongServer" )
 	withCommandLine( "8000" )
-	withClassPath( "../mimicry-core/sample-app.jar" )
+	withClassPath( "../sample-simu-app/target/classes" )
 }
 serverAppDesc = appBuilder.build()
 
@@ -38,7 +38,7 @@ appBuilder = new ApplicationDescriptorBuilder("example-app")
 appBuilder.with {
 	withMainClass( "examples.PingPongClient" )
 	withCommandLine( "127.0.0.1 8000" )
-	withClassPath( "../mimicry-core/sample-app.jar" )
+	withClassPath( "../sample-simu-app/target/classes" )
 }
 clientAppDesc = appBuilder.build()
 
