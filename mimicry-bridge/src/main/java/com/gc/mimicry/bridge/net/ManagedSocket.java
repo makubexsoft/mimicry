@@ -28,6 +28,7 @@ import com.gc.mimicry.shared.net.events.SocketBoundEvent;
 import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
 import com.gc.mimicry.shared.net.events.SocketErrorEvent;
 import com.gc.mimicry.shared.net.events.SocketOption;
+import com.gc.mimicry.shared.net.events.SocketType;
 import com.gc.mimicry.shared.net.events.TCPReceivedDataEvent;
 import com.gc.mimicry.shared.net.events.TCPSendDataEvent;
 import com.gc.mimicry.shared.util.ByteBuffer;
@@ -208,7 +209,7 @@ public class ManagedSocket extends Socket
             epoint = new InetSocketAddress(0);
         }
 
-        SocketBindRequestEvent evt = new SocketBindRequestEvent(epoint, reuseAddress);
+        SocketBindRequestEvent evt = new SocketBindRequestEvent(epoint, SocketType.TCP, reuseAddress);
 
         Event event = processEvent(evt);
 
@@ -782,6 +783,7 @@ public class ManagedSocket extends Socket
             {
                 TCPReceivedDataEvent data = (TCPReceivedDataEvent) evt;
 
+                // filtering by IP must be done in event handler
                 if (data.getDestinationSocket().getPort() == localAddress.getPort())
                 {
                     receiveBuffer.write(data.getData());

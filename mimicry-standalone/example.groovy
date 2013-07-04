@@ -85,4 +85,9 @@ network.init(netCfg)
 //
 // Start the timeline
 //
+network.getClock().start(2.0)
+
+Thread.currentThread().sleep(5000);
+network.getClock().stop()
+Thread.currentThread().sleep(2000);
 network.getClock().start(1.0)

@@ -1,8 +1,19 @@
 package com.gc.mimicry.bridge.net;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.SocketAddress;
+import java.net.SocketException;
+
+import com.gc.mimicry.shared.net.events.JoinMulticastGroupEvent;
+import com.gc.mimicry.shared.net.events.LeaveMulticastGroupEvent;
+import com.gc.mimicry.shared.net.events.MulticastSocketOption;
+import com.gc.mimicry.shared.net.events.SetMulticastSocketOptionEvent;
+import com.gc.mimicry.shared.net.events.UDPPacketEvent;
 
 /**
  * Stub implementation of a {@link MulticastSocket} that translates all interactions into events and vice-versa.
@@ -10,36 +21,329 @@ import java.net.SocketAddress;
  * @author Marc-Christian Schulze
  * 
  */
-public class ManagedMulticastSocket extends MulticastSocket
+public class ManagedMulticastSocket extends ManagedDatagramSocket
 {
     /**
-     * Overrides the original constructor that might be invoked by subclasses or via reflection. This implementation
-     * doesn't initialize the underlying socket and therefore doesn't perform any network communication.
+     * Used on some platforms to record if an outgoing interface has been set for this socket.
      */
+    private boolean interfaceSet;
+
     public ManagedMulticastSocket() throws IOException
     {
-        super();
-        // TODO Auto-generated constructor stub
+        this(new InetSocketAddress(0));
     }
 
-    /**
-     * Overrides the original constructor that might be invoked by subclasses or via reflection. This implementation
-     * doesn't initialize the underlying socket and therefore doesn't perform any network communication.
-     */
     public ManagedMulticastSocket(int port) throws IOException
     {
-        super();
-        // TODO Auto-generated constructor stub
+        this(new InetSocketAddress(port));
+    }
+
+    public ManagedMulticastSocket(SocketAddress bindaddr) throws IOException
+    {
+        super(null);
+
+        // Enable SO_REUSEADDR before binding
+        setReuseAddress(true);
+
+        if (bindaddr != null)
+        {
+            bind(bindaddr);
+        }
     }
 
     /**
-     * Overrides the original constructor that might be invoked by subclasses or via reflection. This implementation
-     * doesn't initialize the underlying socket and therefore doesn't perform any network communication.
+     * The lock on the socket's interface - used by setInterface and getInterface
      */
-    public ManagedMulticastSocket(SocketAddress bindaddr) throws IOException
+    private final Object infLock = new Object();
+
+    /**
+     * The "last" interface set by setInterface on this MulticastSocket
+     */
+    private InetAddress infAddress = null;
+
+    private int ttl;
+
+    @Deprecated
+    public void setTTL(byte ttl) throws IOException
     {
-        super();
-        // TODO Auto-generated constructor stub
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(), MulticastSocketOption.TTL, (int) ttl));
+        this.ttl = ttl & 0xFF;
     }
 
+    public void setTimeToLive(int ttl) throws IOException
+    {
+        if (ttl < 0 || ttl > 255)
+        {
+            throw new IllegalArgumentException("ttl out of range");
+        }
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(), MulticastSocketOption.TTL, ttl));
+        this.ttl = ttl;
+    }
+
+    @Deprecated
+    public byte getTTL() throws IOException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        return (byte) ttl;
+    }
+
+    public int getTimeToLive() throws IOException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        return ttl;
+    }
+
+    public void joinGroup(InetAddress mcastaddr) throws IOException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        checkAddress(mcastaddr, "joinGroup");
+
+        if (!mcastaddr.isMulticastAddress())
+        {
+            throw new SocketException("Not a multicast address");
+        }
+
+        // /**
+        // * required for some platforms where it's not possible to join a group without setting the interface first.
+        // */
+        // NetworkInterface defaultInterface = NetworkInterface.getDefault();
+        //
+        // if (!interfaceSet && defaultInterface != null)
+        // {
+        // setNetworkInterface(defaultInterface);
+        // }
+
+        emitEvent(new JoinMulticastGroupEvent(getLocalInetSocketAddress(), mcastaddr));
+    }
+
+    public void leaveGroup(InetAddress mcastaddr) throws IOException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        checkAddress(mcastaddr, "leaveGroup");
+
+        if (!mcastaddr.isMulticastAddress())
+        {
+            throw new SocketException("Not a multicast address");
+        }
+
+        emitEvent(new LeaveMulticastGroupEvent(getLocalInetSocketAddress(), mcastaddr));
+    }
+
+    public void joinGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        if (mcastaddr == null || !(mcastaddr instanceof InetSocketAddress))
+        {
+            throw new IllegalArgumentException("Unsupported address type");
+        }
+
+        checkAddress(((InetSocketAddress) mcastaddr).getAddress(), "joinGroup");
+
+        if (!((InetSocketAddress) mcastaddr).getAddress().isMulticastAddress())
+        {
+            throw new SocketException("Not a multicast address");
+        }
+
+        emitEvent(new JoinMulticastGroupEvent(getLocalInetSocketAddress(), netIf,
+                ((InetSocketAddress) mcastaddr).getAddress()));
+    }
+
+    public void leaveGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+
+        if (mcastaddr == null || !(mcastaddr instanceof InetSocketAddress))
+        {
+            throw new IllegalArgumentException("Unsupported address type");
+        }
+
+        checkAddress(((InetSocketAddress) mcastaddr).getAddress(), "leaveGroup");
+
+        if (!((InetSocketAddress) mcastaddr).getAddress().isMulticastAddress())
+        {
+            throw new SocketException("Not a multicast address");
+        }
+
+        emitEvent(new LeaveMulticastGroupEvent(getLocalInetSocketAddress(), netIf,
+                ((InetSocketAddress) mcastaddr).getAddress()));
+    }
+
+    public void setInterface(InetAddress inf) throws SocketException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        checkAddress(inf, "setInterface");
+        synchronized (infLock)
+        {
+            emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(),
+                    MulticastSocketOption.IFC_BY_INET_ADDRESS, inf));
+            infAddress = inf;
+            interfaceSet = true;
+        }
+    }
+
+    // public InetAddress getInterface() throws SocketException
+    // {
+    // if (isClosed())
+    // {
+    // throw new SocketException("Socket is closed");
+    // }
+    // synchronized (infLock)
+    // {
+    // InetAddress ia = (InetAddress) getImpl().getOption(SocketOptions.IP_MULTICAST_IF);
+    //
+    // /**
+    // * No previous setInterface or interface can be set using setNetworkInterface
+    // */
+    // if (infAddress == null)
+    // {
+    // return ia;
+    // }
+    //
+    // /**
+    // * Same interface set with setInterface?
+    // */
+    // if (ia.equals(infAddress))
+    // {
+    // return ia;
+    // }
+    //
+    // /**
+    // * Different InetAddress from what we set with setInterface so enumerate the current interface to see if the
+    // * address set by setInterface is bound to this interface.
+    // */
+    // try
+    // {
+    // NetworkInterface ni = NetworkInterface.getByInetAddress(ia);
+    // Enumeration addrs = ni.getInetAddresses();
+    // while (addrs.hasMoreElements())
+    // {
+    // InetAddress addr = (InetAddress) (addrs.nextElement());
+    // if (addr.equals(infAddress))
+    // {
+    // return infAddress;
+    // }
+    // }
+    //
+    // /**
+    // * No match so reset infAddress to indicate that the interface has changed via means
+    // */
+    // infAddress = null;
+    // return ia;
+    // }
+    // catch (Exception e)
+    // {
+    // return ia;
+    // }
+    // }
+    // }
+
+    private NetworkInterface netIf;
+
+    public void setNetworkInterface(NetworkInterface netIf) throws SocketException
+    {
+        synchronized (infLock)
+        {
+            emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(),
+                    MulticastSocketOption.IFC_BY_NETWORK_INTERFACE, netIf));
+            infAddress = null;
+            interfaceSet = true;
+            this.netIf = netIf;
+        }
+    }
+
+    // public NetworkInterface getNetworkInterface() throws SocketException
+    // {
+    // NetworkInterface ni = (NetworkInterface) getImpl().getOption(SocketOptions.IP_MULTICAST_IF2);
+    // if (ni.getIndex() == 0)
+    // {
+    // InetAddress[] addrs = new InetAddress[1];
+    // addrs[0] = InetAddress.anyLocalAddress();
+    // return new NetworkInterface(addrs[0].getHostName(), 0, addrs);
+    // }
+    // else
+    // {
+    // return ni;
+    // }
+    // }
+
+    private boolean loopbackMode;
+
+    public void setLoopbackMode(boolean disable) throws SocketException
+    {
+        emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(),
+                MulticastSocketOption.IP_MULTICAST_LOOP, disable));
+        loopbackMode = disable;
+    }
+
+    private InetSocketAddress getLocalInetSocketAddress()
+    {
+        return (InetSocketAddress) getLocalSocketAddress();
+    }
+
+    public boolean getLoopbackMode() throws SocketException
+    {
+        return loopbackMode;
+    }
+
+    @Deprecated
+    public void send(DatagramPacket p, byte ttl) throws IOException
+    {
+        if (isClosed())
+        {
+            throw new SocketException("Socket is closed");
+        }
+        checkAddress(p.getAddress(), "send");
+        synchronized (p)
+        {
+            if (isConnected())
+            {
+                InetAddress packetAddress = p.getAddress();
+                if (packetAddress == null)
+                {
+                    p.setAddress(getConnectedAddress().getAddress());
+                    p.setPort(getConnectedAddress().getPort());
+                }
+                else if ((!packetAddress.equals(getConnectedAddress().getAddress()))
+                        || p.getPort() != getConnectedAddress().getPort())
+                {
+                    throw new SecurityException("connected address and packet address differ");
+                }
+            }
+
+            emitEvent(new UDPPacketEvent(getLocalInetSocketAddress(), (InetSocketAddress) p.getSocketAddress(),
+                    p.getData(), ttl));
+        }
+    }
 }

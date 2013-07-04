@@ -24,6 +24,7 @@ import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.shared.net.events.SocketBoundEvent;
 import com.gc.mimicry.shared.net.events.SocketClosedEvent;
 import com.gc.mimicry.shared.net.events.SocketErrorEvent;
+import com.gc.mimicry.shared.net.events.SocketType;
 
 /**
  * Stub implementation of the {@link ServerSocket} that translates all interactions into events and vice-versa.
@@ -195,7 +196,7 @@ public class ManagedServerSocket extends ServerSocket
             backlog = DEFAULT_BACKLOG;
         }
 
-        SocketBindRequestEvent evt = new SocketBindRequestEvent(epoint, reusePort);
+        SocketBindRequestEvent evt = new SocketBindRequestEvent(epoint, SocketType.TCP, reusePort);
 
         Event event = processEvent(evt);
 
