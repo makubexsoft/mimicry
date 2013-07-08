@@ -1,11 +1,12 @@
 \documentclass[a4paper,oneside]{book}
-\title{The Mimicry Framework}
+\title{\includegraphics[width=375px,height=100px]{Logo.jpg}}
 \author{Marc-Christian Schulze}
 
 \usepackage{listings}
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage[utf8]{inputenc}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -29,7 +30,6 @@
 
 \begin{document}
 \maketitle
-
 
 \tableofcontents
 
@@ -132,6 +132,17 @@ The aspects woven into the simulated applications transform various API interact
 \label{fig:EventEngine}
 \end{center}
 \end{figure}
+
+
+\section{Application Lifecycle}
+One important functionality of a simulator is to shutdown simulated application instances when desired. And indeed Mimicry is able to shutdown any application even if they run in infinite loops or are blocked due to synchronization. This is basically realized introducing aspects which cover thread instantiation, synchronization as well as loop interception. At the moment AspectJ is not capable of weaving loops but Harbulot and Gurd already proposed a possible extension in \cite{Harbulot:2006:JPL:1119655.1119666} and created a prototype implementation LoopsAJ (http://cnc.cs.man.ac.uk/projects/loopsaj/) which is based on top of abc (http://www.sable.mcgill.ca/abc/) and Soot (http://www.sable.mcgill.ca/soot/). 
+However, using the soot framework Mimicry is already intercepting loop headers and checking each iteration whether the current managed thread is in shutdown phase. If so it throws a ThreadShouldTerminateException which is basically the same mechanism the JDK uses when \textit{Thread::destroy} is invoked. Furthermore the user code is prevented from catching this exception accidentally but intercepting all catch clauses and re-throwing that particular type of exception.
+Finally, all timing related reason for blocking a control flow are handled with the actual clock implementation that works closely together with all threading aspects.
+
+
+\section{Cluster Event Processing}
+In order to allow Mimicry to scale to thousands of simulated nodes and applications the framework provides support for running Mimicry on a cluster of JVMs. This feature is currently not fully implemented.
+
 
 \chapter{Extending the Mimicry Framework}
 The Mimicry framework is meant to be extended by user simulations. A common case is to write custom event handler that implement special handling of TCP connection, e.g. simulation of bandwidth, jitter models, etc. Therefore this chapter shows how the most common extension points of Mimicry can be used. All extensions can be used without recompiling Mimicry itself. For this purpose several directories are used to create the framework's classpath:
@@ -262,5 +273,9 @@ Emitted by MulticastSockets if the leaveGroup method is invoked.
 \item[UDPPacketEvent] \hfill \\
 Either emitted by a DatagramSocket, a MulticastSocket or an event handler.
 \end{description}
+
+
+\bibliographystyle{alpha}
+\bibliography{references}
 
 \end{document}

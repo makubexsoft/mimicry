@@ -5,10 +5,12 @@
 \contentsline {chapter}{\numberline {2}Framework Architecture}{5}{chapter.2}
 \contentsline {section}{\numberline {2.1}Class Loading and Byte-Code Manipulation}{5}{section.2.1}
 \contentsline {section}{\numberline {2.2}Event Processing}{7}{section.2.2}
-\contentsline {chapter}{\numberline {3}Extending the Mimicry Framework}{8}{chapter.3}
-\contentsline {section}{\numberline {3.1}Event Handler}{9}{section.3.1}
-\contentsline {section}{\numberline {3.2}Event Listener}{14}{section.3.2}
-\contentsline {section}{\numberline {3.3}Custom Event Types}{15}{section.3.3}
-\contentsline {section}{\numberline {3.4}Built-In Event Types}{16}{section.3.4}
-\contentsline {subsection}{\numberline {3.4.1}Console Events}{16}{subsection.3.4.1}
-\contentsline {subsection}{\numberline {3.4.2}Networking Events}{16}{subsection.3.4.2}
+\contentsline {section}{\numberline {2.3}Application Lifecycle}{7}{section.2.3}
+\contentsline {section}{\numberline {2.4}Cluster Event Processing}{8}{section.2.4}
+\contentsline {chapter}{\numberline {3}Extending the Mimicry Framework}{9}{chapter.3}
+\contentsline {section}{\numberline {3.1}Event Handler}{10}{section.3.1}
+\contentsline {section}{\numberline {3.2}Event Listener}{15}{section.3.2}
+\contentsline {section}{\numberline {3.3}Custom Event Types}{16}{section.3.3}
+\contentsline {section}{\numberline {3.4}Built-In Event Types}{17}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Console Events}{17}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}Networking Events}{17}{subsection.3.4.2}

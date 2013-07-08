@@ -5,6 +5,8 @@
 \BOOKMARK [0][-]{chapter.2}{Framework Architecture}{}
 \BOOKMARK [1][-]{section.2.1}{Class Loading and Byte-Code Manipulation}{chapter.2}
 \BOOKMARK [1][-]{section.2.2}{Event Processing}{chapter.2}
+\BOOKMARK [1][-]{section.2.3}{Application Lifecycle}{chapter.2}
+\BOOKMARK [1][-]{section.2.4}{Cluster Event Processing}{chapter.2}
 \BOOKMARK [0][-]{chapter.3}{Extending the Mimicry Framework}{}
 \BOOKMARK [1][-]{section.3.1}{Event Handler}{chapter.3}
 \BOOKMARK [1][-]{section.3.2}{Event Listener}{chapter.3}
