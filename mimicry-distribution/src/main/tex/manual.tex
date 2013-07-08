@@ -5,6 +5,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{graphicx}
+\usepackage{hyperref}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -108,7 +109,7 @@ The actual class files are read from the hard drive using the Soot framework whi
 
 The second phase is realized using AspectJ to intercept the Java API. A specialized derivate of the \textit{WeavingURLClassLoader} is used to pass the modified byte-code to AspectJ which applies all aspects of Mimicry to the application's code.
 \end{enumerate}
-Both above-mentioned phases are implemented in a single class loader which is instantiated per simulated application instance. This isolates the instances from each other and allows to load classes multiple times (for each application) at the same time into the JVM. This approach is comparable to the one used in OSGi. The entire hierarchy of the class loaders used is depicted in Figure~\ref{fig:ClassloaderHierarchy}.
+Both above-mentioned phases are implemented in a single class loader which is instantiated per simulated application instance. This isolates the instances from each other and allows to load classes multiple times (for each application) at the same time into the JVM. This approach is comparable to the one used in OSGi. The entire hierarchy of the class loaders used is depicted in Figure \ref{fig:ClassloaderHierarchy}.
 
 \begin{figure}
 \begin{center}
@@ -133,7 +134,24 @@ The aspects woven into the simulated applications transform various API interact
 \end{figure}
 
 \chapter{Extending the Mimicry Framework}
-The Mimicry framework is meant to be extended by user simulations. A common case is to write custom event handler that implement special handling of TCP connection, e.g. simulation of bandwidth, jitter models, etc. Therefore this chapter shows how the most common extension points of Mimicry can be used.
+The Mimicry framework is meant to be extended by user simulations. A common case is to write custom event handler that implement special handling of TCP connection, e.g. simulation of bandwidth, jitter models, etc. Therefore this chapter shows how the most common extension points of Mimicry can be used. All extensions can be used without recompiling Mimicry itself. For this purpose several directories are used to create the framework's classpath:
+\begin{itemize}
+\item plugins/
+
+This directory contains all event handler classes as well as dependencies of themselves. You can also refer to this code from within the simulation script.
+\item lib/aspects/
+
+Contains all compiled aspects that are applied to the application code. While this could be used to create new extension points within an application it's not recommended to do so without reading the existing aspects to avoid interferences.
+\item lib/bridge
+
+This directory contains all code that is loaded into the address space (class loader) of each application instance. This code is typically referenced by the aspects to generate events.
+\item lib/shared/
+
+Contains all classes shared between the bridge and the core framework. You would typically place your custom event classes within it.
+\item lib/core/
+
+This directory is not meant to contain custom user code.
+\end{itemize}
 
 \section{Event Handler}
 The most common extensions are event handler that are necessary for each simulation. Therefore great care has been taken to create a simple but still powerful as well as robust API.
@@ -169,6 +187,80 @@ EventHandlerConfiguration[] eventStack =
 \end{lstlisting}
 
 
+\section{Event Listener}
+Event listener allow you to write code that receives events without being part of any event stack. They can directly be registered at the \textit{EventBroker}. Unlike event handler they are not able to suppress events. They can only monitor the event stream and inject events asynchronously.
+\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/event/EventListener.java}
+They are typically used to write plug-ins that are not located within an event stack but directly instantiated in the simulation script. An example of such a plug-in is the \textit{ConsoleWindowPlugin} that can be attached to an application in order to interaction with the command line of that particular instance.
+\begin{lstlisting}
+import com.gc.mimicry.plugin.ConsoleWindowPlugin;
+// ...
+ConsoleWindowPlugin.attach(network.getEventBroker(), appRef);
+\end{lstlisting}
 
+
+\section{Custom Event Types}
+All events must implement the \textit{Event} interface in order to processable by the event engine.
+\lstinputlisting{../../../../mimicry-shared/src/main/java/com/gc/mimicry/shared/events/Event.java}
+In the current implementation the events don't make use of the VectorClock implemented in the Mimicry core which can later on be used to establish happened-before relations among recorded events.
+
+\section{Built-In Event Types}
+This section describes the existing event types and how they are raised and consumed by the application.
+
+\subsection{Console Events}
+The console of each application instance currently provides the following event types:
+\begin{description}
+\item[ConsoleInputEvent] \hfill \\
+Can be emitted either by the simulation script or a plugin, e.g. the ConsoleWindowPlugin does exactly this when entering some text in the window.
+
+\item[ConsoleOutputEvent] \hfill \\
+Those events are emitted by the applications when it is writing something to stdout or stderr. Currently both streams are aggregated in the same event and no differentiation is possible.
+\end{description}
+
+
+\subsection{Networking Events}
+The networking aspects currently provide the following event types:
+\begin{description}
+\item[SocketBindRequestEvent] \hfill \\
+Is emitted by \textit{java.net.Socket}s that try to bind to a certain port. This event typically has a control flow associated that is blocked. You can respond to this event either with a SocketClosedEvent or a SocketBoundEvent.
+
+\item[SocketClosedEvent] \hfill \\
+Is either raised by the application when the \textit{java.net.Socket} has been closed or by an event handler when he decides to asynchronously close the socket. This event type does not require a control flow to be set. It's automatically picked up using the endpoint address.
+
+\item[SocketConnectionRequest] \hfill \\
+Raised by the application when a \textit{java.net.Socket} tries to connect to a certain address. You can either respond with a SocketClosedEvent or a ConnectionEstablishedEvent.
+
+\item[ConnectionEstablishedEvent] \hfill \\
+Raised by the event handler to indicate that a TCP/IP connection was successfully established.
+
+\item[SetSocketOptionEvent] \hfill \\
+Emitted by the application when a socket option has been changed.
+
+\item[SetPerformancePreferencesEvent] \hfill \\
+Raised by the application when the QoS parameters of the socket have been changed.
+
+\item[TCPSendDataEvent] \hfill \\
+Emitted by the application when someone writes something into the OutputStream associated with the socket.
+
+\item[TCPReceivedDataEvent] \hfill \\
+Emitted by the event handler to store data into the receive buffer of a TCP/IP socket which is picked up by the application using the socket's associated InputStream.
+
+\item[SocketAwaitingConnectionEvent] \hfill \\
+Emitted by a ServerSocket when its accept method is invoked by an application. Can be either responded to by a SocketClosedEvent or a ConnectionEstablishedEvent.
+
+\item[SetDatagramSocketOptionEvent] \hfill \\
+Emitted by DatagramSockets when the socket options are changed.
+
+\item[SetMulticastSocketOptionEvent] \hfill \\
+Emitted by MulticastSockets when the socket options are changed. Note that the common options with a DatagramSockets are indicated by a SetDatagramSocketOptionEvent.
+
+\item[JoinMulticastGroupEvent] \hfill \\
+Emitted by MulticastSockets if the joinGroup method is invoked.
+
+\item[LeaveMulticastGroupEvent] \hfill \\
+Emitted by MulticastSockets if the leaveGroup method is invoked.
+
+\item[UDPPacketEvent] \hfill \\
+Either emitted by a DatagramSocket, a MulticastSocket or an event handler.
+\end{description}
 
 \end{document}

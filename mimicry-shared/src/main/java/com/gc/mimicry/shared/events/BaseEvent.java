@@ -2,6 +2,12 @@ package com.gc.mimicry.shared.events;
 
 import java.util.UUID;
 
+/**
+ * Base class for events for convenience.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class BaseEvent implements Event
 {
 	public void setControlFlowId( UUID controlFlowId )
