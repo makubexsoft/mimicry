@@ -74,7 +74,7 @@ privileged aspect ThreadingAspect
 	//
 	Object around() : ctor()  
 	{
-		return AspectUtils.invokeConstructor( ManagedSocket.class, thisJoinPoint.getArgs() );
+		return AspectUtils.invokeConstructor( ManagedThread.class, thisJoinPoint.getArgs() );
 	}
 
 	@SuppressWarnings("rawtypes")

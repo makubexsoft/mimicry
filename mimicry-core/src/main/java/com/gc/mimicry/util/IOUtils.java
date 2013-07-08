@@ -8,8 +8,11 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * IO related utility functionality.
@@ -90,6 +93,24 @@ public class IOUtils
         {
             closeSilently(out);
         }
+    }
+
+    public static List<File> collectFiles(File path, FilenameFilter filter)
+    {
+        List<File> result = new ArrayList<File>();
+        File[] files = path.listFiles();
+        for (File f : files)
+        {
+            if (f.isFile() && filter.accept(path, f.getName()))
+            {
+                result.add(f);
+            }
+            else
+            {
+                result.addAll(collectFiles(f, filter));
+            }
+        }
+        return result;
     }
 
     /**

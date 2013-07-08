@@ -48,7 +48,7 @@
 							<XnoInline>true</XnoInline>
 			                <target>${java.version}</target>
 			                <complianceLevel>${java.version}</complianceLevel>
-			                <Xlint>false</Xlint>
+			                <Xlint>ignore</Xlint>
 						</configuration>
 					</execution>
 				</executions>

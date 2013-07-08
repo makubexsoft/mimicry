@@ -93,12 +93,12 @@ public aspect TimingAspect
 		SimulatorBridge.getClock().waitOn( target );
 	}
 
-	void around( Object target ) throws InterruptedException : notifyP(target) 
+	void around( Object target ) : notifyP(target) 
 	{
 		SimulatorBridge.getClock().notifyOnTarget( target );
 	}
 
-	void around( Object target ) throws InterruptedException : notifyAllP(target)  
+	void around( Object target ) : notifyAllP(target)  
 	{
 		SimulatorBridge.getClock().notifyAllOnTarget( target );
 	}

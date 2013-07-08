@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gc.mimicry.bridge.ApplicationBridge;
 import com.gc.mimicry.bridge.LoopInterceptingByteCodeLoader;
 import com.gc.mimicry.bridge.WeavingClassLoader;
@@ -120,6 +123,11 @@ public class ApplicationManager extends BaseResourceManager
         return codeLoader;
     }
 
+    private static final Logger logger;
+    static
+    {
+        logger = LoggerFactory.getLogger(ApplicationManager.class);
+    }
     private final Set<Application> applications;
     private final Node node;
     private final ClassLoadingContext context;

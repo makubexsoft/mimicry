@@ -17,6 +17,7 @@
 		<module>../mimicry-ui</module>
 		<module>../mimicry-standalone</module>
 		<module>../sample-simu-app</module>
+		<module>../mimicry-distribution</module>
 	</modules>
 
 	<properties>
@@ -26,6 +27,12 @@
 	</properties>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<pluginManagement>
 			<plugins>
 				<plugin>

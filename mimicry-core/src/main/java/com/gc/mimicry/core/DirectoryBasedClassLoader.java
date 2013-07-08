@@ -6,6 +6,8 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import com.gc.mimicry.util.FileNameExtensionFilter;
+
 public class DirectoryBasedClassLoader extends URLClassLoader
 {
     public DirectoryBasedClassLoader(File pluginDirectory)

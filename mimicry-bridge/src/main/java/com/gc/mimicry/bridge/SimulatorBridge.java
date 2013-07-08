@@ -28,6 +28,7 @@ public final class SimulatorBridge
     private static ThreadManager threadManager;
     private static String mainClassName;
     private static Set<String> commandArgs;
+    private static ClassLoader systemClassLoader;
 
     /**
      * Avoids instantiation.
@@ -35,6 +36,11 @@ public final class SimulatorBridge
     private SimulatorBridge()
     {
         throw new UnsupportedOperationException();
+    }
+
+    public static ClassLoader getSystemClassLoader()
+    {
+        return systemClassLoader;
     }
 
     public static void setMainClass(String mainClassName)
@@ -132,6 +138,8 @@ public final class SimulatorBridge
             throw new IllegalStateException("Application already running.");
         }
 
+        systemClassLoader = applicationLoader;
+
         Class<?> mainClass = applicationLoader.loadClass(mainClassName);
         final Method mainMethod = mainClass.getMethod("main", String[].class);
         ManagedThread thread = new ManagedThread(new Runnable()
@@ -169,6 +177,7 @@ public final class SimulatorBridge
 
             }
         }, "Application[id=" + getApplicationId() + "] main");
+        thread.setContextClassLoader(applicationLoader);
         thread.start();
         started = true;
     }

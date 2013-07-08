@@ -11,7 +11,7 @@ import com.beust.jcommander.Parameter;
 public class Arguments
 {
 	@Parameter(names = "-scriptPath", description = "Path to the simulation scripts.")
-	public String	scriptPath	= ".";
+	public String	scriptPath	= PropertyHelper.getValue( PropertyHelper.MIMICRY_SCRIPT_PATH, "." );
 
 	@Parameter(names = "-mainScript", description = "Name of the main script file.", required = true)
 	public String	mainScript;

@@ -7,10 +7,16 @@ import groovy.util.ScriptException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
@@ -19,10 +25,20 @@ import com.gc.mimicry.core.deployment.ApplicationRepository;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
 import com.gc.mimicry.core.runtime.SimpleSimulatedNetwork;
 import com.gc.mimicry.core.runtime.SimulatedNetwork;
+import com.gc.mimicry.util.FileNameExtensionFilter;
+import com.gc.mimicry.util.IOUtils;
 import com.gc.mimicry.util.concurrent.Future;
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 public class Main
 {
+	private static final Logger	logger;
+	static
+	{
+		logger = LoggerFactory.getLogger( Main.class );
+	}
+
 	public static void main( String[] argv ) throws IOException, ResourceException, ScriptException
 	{
 		Arguments args = parseCmdArguments( argv );
@@ -31,28 +47,71 @@ public class Main
 			return;
 		}
 
+		logger.info( String.format( "Mimicry v.%s starting...",
+				PropertyHelper.getValue( PropertyHelper.MIMICRY_VERSION, "<unknown>" ) ) );
+
 		ApplicationRepository appRepo = new LocalApplicationRepository();
 
-		String BRIDGE_PATH = "../mimicry-bridge/target/classes";
-		String ASPECTS_PATH = "../mimicry-aspects/target/classes";
-		String SHARED_PATH = "../mimicry-shared/target/classes";
-		String CORE_PATH = "../mimicry-plugin-core/target/classes";
+		File bridgeDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_BRIDGE_PATH, "." ) );
+		List<File> bridgeJarFiles = IOUtils.collectFiles( bridgeDir, new FileNameExtensionFilter( ".jar" ) );
 
-		URLClassLoader eventHandlerCL = new URLClassLoader( new URL[] {
-				new File( CORE_PATH ).toURI().toURL(),
-				new File( SHARED_PATH ).toURI().toURL() }, Main.class.getClassLoader() );
+		File aspectDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_ASPECT_PATH, "." ) );
+		List<File> aspectJarFiles = IOUtils.collectFiles( aspectDir, new FileNameExtensionFilter( ".jar" ) );
 
-		// 1. Setup loopback event communication
+		File sharedDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_SHARED_PATH, "." ) );
+		List<File> sharedJarFiles = IOUtils.collectFiles( sharedDir, new FileNameExtensionFilter( ".jar" ) );
+
+		File coreDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_CORE_PATH, "." ) );
+		List<File> coreJarFiles = IOUtils.collectFiles( coreDir, new FileNameExtensionFilter( ".jar" ) );
+
+		File pluginDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_PLUGIN_PATH, "." ) );
+		List<File> pluginJarFiles = IOUtils.collectFiles( pluginDir, new FileNameExtensionFilter( ".jar" ) );
+
+		List<File> tmp = new ArrayList<File>();
+		tmp.addAll( sharedJarFiles );
+		tmp.addAll( coreJarFiles );
+		tmp.addAll( pluginJarFiles );
+		Collection<URL> urls = Collections2.transform( tmp, new Function<File, URL>()
+		{
+			@Override
+			public URL apply( File f )
+			{
+				try
+				{
+					return f.toURI().toURL();
+				}
+				catch ( MalformedURLException e )
+				{
+					return null;
+				}
+			}
+		} );
+
+		URLClassLoader eventHandlerCL = new URLClassLoader( urls.toArray( new URL[0] ), Main.class.getClassLoader() );
+
 		ClassLoadingContext ctx;
 		ctx = new ClassLoadingContext( eventHandlerCL );
-		ctx.addAspectClassPath( new File( ASPECTS_PATH ).toURI().toURL() );
-
-		ctx.addBridgeClassPath( new File( ASPECTS_PATH ).toURI().toURL() );
-		ctx.addBridgeClassPath( new File( BRIDGE_PATH ).toURI().toURL() );
+		for ( File jarFile : aspectJarFiles )
+		{
+			ctx.addAspectClassPath( jarFile.toURI().toURL() );
+			ctx.addBridgeClassPath( jarFile.toURI().toURL() );
+		}
+		for ( File jarFile : bridgeJarFiles )
+		{
+			ctx.addBridgeClassPath( jarFile.toURI().toURL() );
+		}
 
 		SimulatedNetwork network = new SimpleSimulatedNetwork( ctx );
 
-		// 2. Setup Bindings
+		runSimulationScript( args, appRepo, network );
+
+		Future<?> endFuture = network.getSimulationEndFuture();
+		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
+	}
+
+	private static void runSimulationScript( Arguments args, ApplicationRepository appRepo, SimulatedNetwork network )
+			throws IOException, ResourceException, ScriptException
+	{
 		Binding binding = new Binding();
 		binding.setVariable( "network", network );
 		binding.setVariable( "repository", appRepo );
@@ -62,15 +121,10 @@ public class Main
 		importCust.addStarImports( "com.gc.mimicry.core.runtime" );
 		importCust.addStarImports( "com.gc.mimicry.core.timing" );
 
-		// 3. Read infrastructure / script file
 		String[] roots = new String[] { args.scriptPath };
 		GroovyScriptEngine gse = new GroovyScriptEngine( roots, Main.class.getClassLoader() );
 		gse.getConfig().addCompilationCustomizers( importCust );
 		gse.run( args.mainScript, binding );
-
-		// 4. Run until all applications are shutdown
-		Future<?> endFuture = network.getSimulationEndFuture();
-		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
 	}
 
 	private static Arguments parseCmdArguments( String[] argv )

@@ -14,9 +14,9 @@ public aspect LoggingAspect {
 
 	public pointcut getErrStream() : get(PrintStream System.err);
 
-	public pointcut setOutStream() : call(void System.setOut(..));
+	public pointcut setOutStream() : call(void System.setOut(..)) && !within(com.gc.mimicry..*);
 
-	public pointcut setErrStream() : call(void System.setErr(..));
+	public pointcut setErrStream() : call(void System.setErr(..)) && !within(com.gc.mimicry..*);
 
 	Object around() : getOutStream() {
 		if (out == null) {
