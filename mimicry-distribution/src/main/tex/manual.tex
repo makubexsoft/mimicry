@@ -1,0 +1,174 @@
+\documentclass[a4paper,oneside]{book}
+\title{The Mimicry Framework}
+\author{Marc-Christian Schulze}
+
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
+\begin{document}
+\maketitle
+
+
+\tableofcontents
+
+\chapter{Introduction}
+Mimicry is a non-intrusive network simulation framework for Java applications. Various other frameworks are currently available such as Tiny Sim, JNS, DSSim, Java Network Simulator, Peerfect and ns2. Typically these frameworks provide APIs which can be used to write prototype implementations of network protocols which then can be tested within a controlled environment. These kind of simulators typically provide a discrete behavior of the simulation. However, they are actually simulating prototypes.
+
+The Mimicry framework does not require to compile the simulated applications to any part of the simulator's API. Instead it uses byte-code manipulation to load the application under test and intercepts all interactions with the JVM. This enables us to run the actual production ready code within the simulator.
+
+
+\section{Download and Compile Mimicry}
+Mimicry is currently only available via the Git repository so you need to download and compile the sources on your machine. In order to do so you first need to check that you've installed all prerequisites:
+\begin{itemize}
+\item JDK 7
+\item Maven
+\item Git
+\end{itemize}
+To check the latest source code out of git you need to run the following command in a shell:
+\begin{verbatim}
+git clone https://code.google.com/p/mimicry
+\end{verbatim}
+Now you can compile the Mimicry sources using Maven:
+\begin{verbatim}
+cd mimicry/parent
+mvn clean install -DskipTests
+\end{verbatim}
+\textit{Note: You need to skip the unit tests since some of them are currently failing due to a bug.}
+After the successful compilation a zip will be created in the target directory of the distribution project:
+\begin{verbatim}
+mimicry/mimicry-distribution/target
+\end{verbatim}
+Extract this archive to any location of your hard drive and make the \textit{mimicry.sh} shell script executable:
+\begin{verbatim}
+chmod +x mimicry.sh
+\end{verbatim}
+
+
+\section{Prepare an Application for Simulation}
+In order to run your application Mimicry needs some information about where your binaries are located, how the classpath has to look like, how your main class is named, etc. This information is internally managed in a so-called \textit{ApplicationDescriptor}. Once you've setup such a descriptor Mimicry will be able to load and run your application.
+In addition to the applications you also to setup the network itself, e.g. create nodes, define event stacks, etc. This is done in a Groovy-Script that is used to bootstrap and control the simulation.
+A simple script for setting up a network with a single node and application could look like this:
+
+\lstinputlisting{simple-script.groovy}
+
+As you can see in the listing above the simulation setup consists of the following basic steps:
+\begin{itemize}
+\item Initialize the Network
+\item Define EventStack and ApplicationDescriptors
+\item Create Nodes and spawn Applications
+\item Start the Timeline
+\end{itemize}
+
+
+\section{Run the first Simulation}
+Mimicry ships with some predefined applications and simulation scripts. You can download them from
+\begin{verbatim}
+https://code.google.com/p/mimicry/downloads
+\end{verbatim}
+For illustration we'll use the PingPong-Example which runs two application instances sending each other messages using a TCP/IP connection.
+After you've downloaded the \textit{example-PingPong.zip} you need to extract its content into the installation directory (where you did extract the compiled mimicry zip file).
+Open a shell in that directory and run the following command:
+\begin{verbatim}
+./mimicry.sh -mainScript pingpong.groovy
+\end{verbatim}
+This should bring up two console windows where in the first the server and in the second the client is writing its stdout to.
+
+
+\chapter{Framework Architecture}
+This chapter explains the architecture of the Mimicry framework showing how all the parts work together.
+
+\section{Class Loading and Byte-Code Manipulation}
+The core of the Mimicry framework is build by the internal used class loading mechanism in combination with byte-code manipulation at load-time. Using the custom class loading mechanism Mimicry isolates each simulated application from others and the actual framework. The byte-code manipulation is used to intercept all interactions of the simulated applications with the JVM. The application's byte-code is loaded in two phases:
+\begin{enumerate}
+\item Code Loading and Loop Interception
+
+The actual class files are read from the hard drive using the Soot framework which transforms the byte-code into an intermediate representation that can be analyzed and modified. Leveraging the capabilities of Soot, loops are detected within the byte-code and a static method invocation added which is used for the life-cycle management later on. The resulting intermediate model is then transformed back to Java byte-code which is finally passed to the second phase.
+\item Java API Interception
+
+The second phase is realized using AspectJ to intercept the Java API. A specialized derivate of the \textit{WeavingURLClassLoader} is used to pass the modified byte-code to AspectJ which applies all aspects of Mimicry to the application's code.
+\end{enumerate}
+Both above-mentioned phases are implemented in a single class loader which is instantiated per simulated application instance. This isolates the instances from each other and allows to load classes multiple times (for each application) at the same time into the JVM. This approach is comparable to the one used in OSGi. The entire hierarchy of the class loaders used is depicted in Figure~\ref{fig:ClassloaderHierarchy}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{ClassloaderHierarchy.png}
+\caption{The hierarchy of the ClassLoaders}
+\label{fig:ClassloaderHierarchy}
+\end{center}
+\end{figure}
+
+Each \textit{WeavingClassLoader} is responsibly for loading all application code and weaving it using Mimicry's aspects. On the next higher level a child-first or parent-last class loader is placed which prevents the \textit{WeavingClassLoader} from requesting application classes from the parent, which might also be able to load for instance the Guava library (since it's used internally). Those class loader instances are the actual border among the applications and the framework. A special package, called the Simulator Bridge, is located. This bridge is used by Mimicry's aspects to communicate with the simulation engine placed in the \textit{SharedChainClassLoader}.
+Using the class loader of an application instance and reflection the \textit{SharedChainClassLoader} is able to access over the so-called Application Bridge the simulator bridge of each application individually.
+
+
+\section{Event Processing}
+The aspects woven into the simulated applications transform various API interactions into events which are then dispatched to Mimicry's event engine (cf. Figure ~\ref{fig:EventEngine}). This dispatching is done by the so-called \textit{Event Bridge} that furthermore manages all blocked control flows of the applications. The generated events are tagged with the application and control flow id and then passed to the underlying event stack. This stack can be configured per node in the simulation script. The event handler are responsible for implementing the actual simulation model you want to apply. Depending on the direction events are passed through the event stack they are called downstream or upstream events. An event handler is allowed to suppress events as well as generating new ones (even asynchronous). Event that reach the bottom of the event stack are dispatched to the event broker that notifies all other nodes as well as further listeners.
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{EventStack.png}
+\caption{Architecture of the Event Engine}
+\label{fig:EventEngine}
+\end{center}
+\end{figure}
+
+\chapter{Extending the Mimicry Framework}
+The Mimicry framework is meant to be extended by user simulations. A common case is to write custom event handler that implement special handling of TCP connection, e.g. simulation of bandwidth, jitter models, etc. Therefore this chapter shows how the most common extension points of Mimicry can be used.
+
+\section{Event Handler}
+The most common extensions are event handler that are necessary for each simulation. Therefore great care has been taken to create a simple but still powerful as well as robust API.
+All event handler need to implement the interface \textit{com.gc.mimicry.core.event.EventHandler} and must provide a publicly visible default constructor (since instantiation is done by Mimicry internally when required).
+\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/event/EventHandler.java}
+The two primary methods are handleUpstream and handleDownstream which are invoked by the event stack when events are passed up or down. You can also use a more abstract base class named \textit{EventHandlerBase}.
+\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/event/EventHandlerBase.java}
+The use of the base class is recommended if you either are only processing upstream or downstream events; or you don't have to subclass anything else.
+It's important to note that the event handler are entirely thread-safe as long as you don't spawn your own thread within. Instead use the given Scheduler instance which is synchronized with all other thread access to your handler instance. Furthermore you shouldn't create any UI elements such as frames or dialogs within your handler because it's not always the case that they are instantiated within your local JVM.
+Sometimes you want to separate your handling code into different layers like in the ISO OSI model but still access the state of the other handler. Mimicry therefore has a built-in feature to obtain references to event handler within the same event stack. The \textit{EventHandlerContext} provides a method named \textit{findHandler} that takes a class and returns a proxy to the handler instance.
+\begin{lstlisting}
+MyHandler handler = getContext().findHandler(MyHandler.class);
+\end{lstlisting}
+The returned proxy can be safely invoked and the access is serialized on the thread responsible for the event handler. Note that obtaining the proxy is quite expensive and should therefore be done in the initialization method.
+You can create proxies from interfaces which internally uses JDK's dynamic proxies as well as of classes which in that case uses CGLib.
+
+Finally you might want to make your handler configurable by the simulation script. This can easily be achieved by implementing another interface called \textit{Configurable}.
+\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/runtime/Configurable.java}
+Once you've implemented that interface the framework will automatically inject the configuration provided in the simulation script into your event handler. The definition of the configuration might look like this:
+\begin{lstlisting}
+EventHandlerConfiguration[] eventStack = 
+[
+	[
+		className: "org.example.MyHandler",
+		configuration: 
+		[
+			key1: "value1",
+			key2: "value2"
+		]
+	],
+	...
+]
+\end{lstlisting}
+
+
+
+
+\end{document}
