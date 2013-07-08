@@ -1,5 +1,6 @@
 package com.gc.mimicry.bridge;
 
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -9,7 +10,11 @@ import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.bridge.threading.ThreadShouldTerminateException;
 import com.gc.mimicry.core.event.EventBridge;
+import com.gc.mimicry.core.event.EventListener;
 import com.gc.mimicry.core.timing.Clock;
+import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.events.console.ConsoleInputEvent;
+import com.gc.mimicry.shared.util.ByteBuffer;
 import com.gc.mimicry.util.concurrent.Future;
 
 /**
@@ -29,6 +34,25 @@ public final class SimulatorBridge
     private static String mainClassName;
     private static Set<String> commandArgs;
     private static ClassLoader systemClassLoader;
+    private static ByteBuffer inputBuffer;
+    private static InputStream systemInputStream;
+    private static EventListener inputHandler;
+
+    static
+    {
+        inputBuffer = new ByteBuffer();
+        systemInputStream = inputBuffer.createStream();
+    }
+
+    public static void setSystemInputStream(InputStream stream)
+    {
+        systemInputStream = stream;
+    }
+
+    public static InputStream getSystemInputStream()
+    {
+        return systemInputStream;
+    }
 
     /**
      * Avoids instantiation.
@@ -139,6 +163,21 @@ public final class SimulatorBridge
         }
 
         systemClassLoader = applicationLoader;
+
+        inputHandler = new EventListener()
+        {
+
+            @Override
+            public void handleEvent(Event evt)
+            {
+                if (evt instanceof ConsoleInputEvent)
+                {
+                    ConsoleInputEvent cie = (ConsoleInputEvent) evt;
+                    inputBuffer.write(cie.getData());
+                }
+            }
+        };
+        eventBridge.addUpstreamEventListener(getApplicationId(), inputHandler);
 
         Class<?> mainClass = applicationLoader.loadClass(mainClassName);
         final Method mainMethod = mainClass.getMethod("main", String[].class);

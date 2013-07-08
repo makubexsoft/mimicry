@@ -20,16 +20,14 @@ public aspect LoggingAspect {
 
 	Object around() : getOutStream() {
 		if (out == null) {
-			out = new LoggingPrintStream("com.gc.mimicry.application.out."
-					+ SimulatorBridge.getApplicationId());
+			out = new EventGeneratingPrintStream();
 		}
 		return out;
 	}
 
 	Object around() : getErrStream() {
 		if (err == null) {
-			err = new LoggingPrintStream("com.gc.mimicry.application.err."
-					+ SimulatorBridge.getApplicationId());
+			err = new EventGeneratingPrintStream();
 		}
 		return err;
 	}
