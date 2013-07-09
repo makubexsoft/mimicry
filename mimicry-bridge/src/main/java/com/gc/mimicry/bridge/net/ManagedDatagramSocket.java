@@ -36,9 +36,10 @@ import com.gc.mimicry.shared.net.events.UDPPacketEvent;
  */
 public class ManagedDatagramSocket extends DatagramSocket
 {
-
     public ManagedDatagramSocket() throws SocketException
     {
+        parentInstantiated = true;
+        assureInit();
         bind(new InetSocketAddress(0));
     }
 
@@ -49,6 +50,8 @@ public class ManagedDatagramSocket extends DatagramSocket
 
     public ManagedDatagramSocket(SocketAddress bindaddr) throws SocketException
     {
+        parentInstantiated = true;
+        assureInit();
         if (bindaddr != null)
         {
             bind(bindaddr);
@@ -67,6 +70,7 @@ public class ManagedDatagramSocket extends DatagramSocket
 
     void checkAddress(InetAddress addr, String op)
     {
+        assureInit();
         if (addr == null)
         {
             return;
@@ -79,6 +83,7 @@ public class ManagedDatagramSocket extends DatagramSocket
 
     private synchronized void connectInternal(InetAddress address, int port) throws SocketException
     {
+        assureInit();
         if (port < 0 || port > 0xFFFF)
         {
             throw new IllegalArgumentException("connect: " + port);
@@ -105,6 +110,11 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized void bind(SocketAddress addr) throws SocketException
     {
+        if (!parentInstantiated)
+        {
+            return;
+        }
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -148,6 +158,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public void connect(InetAddress address, int port)
     {
+        assureInit();
         try
         {
             connectInternal(address, port);
@@ -161,6 +172,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public void connect(SocketAddress addr) throws SocketException
     {
+        assureInit();
         if (addr == null)
         {
             throw new IllegalArgumentException("Address can't be null");
@@ -180,6 +192,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public void disconnect()
     {
+        assureInit();
         synchronized (this)
         {
             if (isClosed())
@@ -195,30 +208,35 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public boolean isBound()
     {
+        assureInit();
         return bound;
     }
 
     @Override
     public boolean isConnected()
     {
+        assureInit();
         return connected;
     }
 
     @Override
     public InetAddress getInetAddress()
     {
+        assureInit();
         return connectedAddress.getAddress();
     }
 
     @Override
     public int getPort()
     {
+        assureInit();
         return connectedAddress.getPort();
     }
 
     @Override
     public SocketAddress getRemoteSocketAddress()
     {
+        assureInit();
         if (!isConnected())
         {
             return null;
@@ -229,6 +247,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public SocketAddress getLocalSocketAddress()
     {
+        assureInit();
         if (isClosed())
         {
             return null;
@@ -243,6 +262,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public void send(DatagramPacket p) throws IOException
     {
+        assureInit();
         InetAddress packetAddress = null;
         synchronized (p)
         {
@@ -297,7 +317,12 @@ public class ManagedDatagramSocket extends DatagramSocket
                 }
                 DatagramPacket packet = receiveBuffer.remove(0);
                 p.setSocketAddress(packet.getSocketAddress());
-                p.setData(packet.getData());
+                int maxLen = Math.min(p.getData().length, packet.getData().length);
+                for (int i = 0; i < maxLen; ++i)
+                {
+                    p.getData()[i] = packet.getData()[i];
+                }
+                p.setLength(maxLen);
             }
         }
     }
@@ -305,6 +330,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public InetAddress getLocalAddress()
     {
+        assureInit();
         if (isClosed())
         {
             return null;
@@ -315,6 +341,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public int getLocalPort()
     {
+        assureInit();
         if (isClosed())
         {
             return -1;
@@ -325,6 +352,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized void setSoTimeout(int timeout) throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -336,6 +364,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized int getSoTimeout() throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -346,6 +375,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized void setSendBufferSize(int size) throws SocketException
     {
+        assureInit();
         if (!(size > 0))
         {
             throw new IllegalArgumentException("negative send size");
@@ -361,6 +391,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized int getSendBufferSize() throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -371,6 +402,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized void setReceiveBufferSize(int size) throws SocketException
     {
+        assureInit();
         if (size <= 0)
         {
             throw new IllegalArgumentException("invalid receive size");
@@ -386,6 +418,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized int getReceiveBufferSize() throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -396,6 +429,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized void setReuseAddress(boolean on) throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -408,6 +442,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized boolean getReuseAddress() throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -418,6 +453,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized void setBroadcast(boolean on) throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -429,6 +465,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized boolean getBroadcast() throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -439,6 +476,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized void setTrafficClass(int tc) throws SocketException
     {
+        assureInit();
         if (tc < 0 || tc > 255)
         {
             throw new IllegalArgumentException("tc is not in range 0 -- 255");
@@ -455,6 +493,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public synchronized int getTrafficClass() throws SocketException
     {
+        assureInit();
         if (isClosed())
         {
             throw new SocketException("Socket is closed");
@@ -465,6 +504,7 @@ public class ManagedDatagramSocket extends DatagramSocket
     @Override
     public void close()
     {
+        assureInit();
         if (isClosed())
         {
             return;
@@ -489,6 +529,7 @@ public class ManagedDatagramSocket extends DatagramSocket
 
     protected Event processEvent(BaseEvent evt)
     {
+        assureInit();
         ControlFlow controlFlow = cflowMgr.createControlFlow(evt);
         Event event = controlFlow.awaitTermination();
         return event;
@@ -496,17 +537,22 @@ public class ManagedDatagramSocket extends DatagramSocket
 
     protected void emitEvent(BaseEvent evt)
     {
+        assureInit();
         evt.setSourceApp(SimulatorBridge.getApplicationId());
         SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
     }
 
     protected InetSocketAddress getConnectedAddress()
     {
+        assureInit();
         return connectedAddress;
     }
 
-    private boolean bound = false;
-    private boolean closed = false;
+    // used to prevent double-binding
+    private final boolean parentInstantiated;
+
+    private boolean bound;
+    private boolean closed;
     private InetSocketAddress connectedAddress;
     private InetSocketAddress localAddress;
     private boolean connected;
@@ -516,11 +562,17 @@ public class ManagedDatagramSocket extends DatagramSocket
     private boolean reuseAddress;
     private boolean broadcast;
     private int trafficClass;
-    private final CFlowManager cflowMgr;
+    private CFlowManager cflowMgr;
     private final Object receiveBufferLock = new Object();
     private final List<DatagramPacket> receiveBuffer = new ArrayList<DatagramPacket>();
+
     // default construction
+    private void assureInit()
     {
+        if (cflowMgr != null)
+        {
+            return;
+        }
         cflowMgr = new CFlowManager(SimulatorBridge.getApplicationId(), SimulatorBridge.getEventBridge());
         cflowMgr.addHandler(UDPPacketEvent.class, new EventListener()
         {

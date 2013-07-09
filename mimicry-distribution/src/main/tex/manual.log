@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.7.8)  9 JUL 2013 01:06
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.7.8)  9 JUL 2013 17:15
 entering extended mode
  %&-line parsing enabled.
 **manual.tex
@@ -415,23 +415,26 @@ Now handling font encoding PD1 ...
 ))
 (/usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2004/09/05 1.3 listings language file
-) (./manual.aux)
+)
+Package color Info: Redefining color blue on input line 31.
+Package hyperref Info: Option `colorlinks' set `true' on input line 35.
+ (./manual.aux)
 \openout1 = `manual.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 31.
-LaTeX Font Info:    ... okay on input line 31.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 37.
+LaTeX Font Info:    ... okay on input line 37.
 \c@lstlisting=\count104
 
 (/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
@@ -447,7 +450,7 @@ LaTeX Font Info:    ... okay on input line 31.
 \MPnumerator=\count109
 \everyMPtoPDFconversion=\toks20
 )
-Package hyperref Info: Link coloring OFF on input line 31.
+Package hyperref Info: Link coloring ON on input line 37.
  (/usr/share/texmf-texlive/tex/latex/hyperref/nameref.sty
 Package: nameref 2007/05/29 v2.31 Cross-referencing by name of section
 
@@ -456,27 +459,27 @@ Package: refcount 2008/08/11 v3.1 Data extraction from references (HO)
 )
 \c@section@level=\count110
 )
-LaTeX Info: Redefining \ref on input line 31.
-LaTeX Info: Redefining \pageref on input line 31.
+LaTeX Info: Redefining \ref on input line 37.
+LaTeX Info: Redefining \pageref on input line 37.
  (./manual.out)
 (./manual.out)
 \@outlinefile=\write3
 \openout3 = `manual.out'.
 
 \AtBeginShipoutBox=\box29
- <Logo.jpg, id=71, 90.3375pt x 24.09pt>
+ <Logo.jpg, id=119, 90.3375pt x 24.09pt>
 File: Logo.jpg Graphic file (type jpg)
  <use Logo.jpg>
-Overfull \hbox (31.51048pt too wide) in paragraph at lines 33--33
+Overfull \hbox (31.51048pt too wide) in paragraph at lines 39--39
  [] 
  []
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 33.
+(Font)              <12> on input line 39.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 33.
+(Font)              <8> on input line 39.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 33.
+(Font)              <6> on input line 39.
 [1
 
 
@@ -494,40 +497,44 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.36 \chapter
+l.42 \chapter
              {Introduction} [1
 
 ]
 Chapter 1.
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 45.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 51.
 (/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 45.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 51.
  [2
 
 ] (./simple-script.groovy [3]) [4]
 Chapter 2.
-<ClassloaderHierarchy.png, id=168, 646.415pt x 1137.24875pt>
+<ClassloaderHierarchy.png, id=228, 646.415pt x 1137.24875pt>
 File: ClassloaderHierarchy.png Graphic file (type png)
 
 <use ClassloaderHierarchy.png>
 
-LaTeX Warning: Float too large for page by 42.90019pt on input line 120.
+LaTeX Warning: Float too large for page by 42.90019pt on input line 126.
 
 [5
 
 ] [6 <./ClassloaderHierarchy.png (PNG copy)>]
-<EventStack.png, id=182, 716.6775pt x 395.4775pt>
+<EventStack.png, id=242, 716.6775pt x 395.4775pt>
 File: EventStack.png Graphic file (type png)
  <use EventStack.png>
-Overfull \hbox (6.55635pt too wide) in paragraph at lines 138--141
+Overfull \hbox (6.55635pt too wide) in paragraph at lines 144--147
 \OT1/cmr/m/n/10 (http://www.sable.mcgill.ca/abc/) and Soot (http://www.sable.mc
 gill.ca/soot/).
  []
 
-[7 <./EventStack.png (PNG copy)>] [8]
+[7 <./EventStack.png (PNG copy)>]
+<mimicry_showcase_03.png, id=250, 1123.94907pt x 698.61pt>
+File: mimicry_showcase_03.png Graphic file (type png)
+
+<use mimicry_showcase_03.png> [8 <./mimicry_showcase_03.png (PNG copy)>]
 Chapter 3.
 [9
 
@@ -541,32 +548,41 @@ e.java) [14]
 (../../../../mimicry-core/src/main/java/com/gc/mimicry/core/event/EventListener
 .java) [15]
 (../../../../mimicry-shared/src/main/java/com/gc/mimicry/shared/events/Event.ja
-va) [16] [17] (./manual.bbl [18]) [19
+va) [16] [17] [18]
+Chapter 4.
+[19
+
+]
+Chapter 5.
+[20
+
+]
+Chapter 6.
+(./manual.bbl [21
+
+]) [22
 
 ] (./manual.aux) ) 
 Here is how much of TeX's memory you used:
- 6632 strings out of 495061
- 93504 string characters out of 1182622
+ 6676 strings out of 495061
+ 94108 string characters out of 1182622
  300008 words of memory out of 3000000
- 9340 multiletter control sequences out of 15000+50000
+ 9363 multiletter control sequences out of 15000+50000
  10440 words of font info for 37 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  38i,7n,40p,992b,1838s stack positions out of 5000i,500n,10000p,200000b,50000s
-pdfTeX warning (dest): name{section.1.4} has been referenced 
-but does not exist, replaced by a fixed one
-
-</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share
-/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texl
-ive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/ty
-pe1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/a
-msfonts/cm/cmr5.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cm
-sl10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
-usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/t
-exmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texmf-texliv
-e/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on manual.pdf (20 pages, 340434 bytes).
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx
+10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></us
+r/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texm
+f-texlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fo
+nts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texmf-texlive/fonts/type1/pub
+lic/amsfonts/cm/cmsl10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfont
+s/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10
+.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/
+share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
+Output written on manual.pdf (23 pages, 455328 bytes).
 PDF statistics:
- 624 PDF objects out of 1000 (max. 8388607)
- 365 named destinations out of 1000 (max. 500000)
- 152 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 707 PDF objects out of 1000 (max. 8388607)
+ 385 named destinations out of 1000 (max. 500000)
+ 253 words of extra memory for PDF output out of 10000 (max. 10000000)
 

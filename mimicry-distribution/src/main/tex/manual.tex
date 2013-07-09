@@ -28,6 +28,12 @@
   tabsize=2
 }
 
+\definecolor{blue}{rgb}{0,0,1}
+\hypersetup{
+    colorlinks, linkcolor={blue},
+    citecolor={blue}, urlcolor={blue}
+}
+
 \begin{document}
 \maketitle
 
@@ -141,7 +147,15 @@ Finally, all timing related reason for blocking a control flow are handled with 
 
 
 \section{Cluster Event Processing}
-In order to allow Mimicry to scale to thousands of simulated nodes and applications the framework provides support for running Mimicry on a cluster of JVMs. This feature is currently not fully implemented.
+In order to allow Mimicry to scale to thousands of simulated nodes and applications the framework provides support for running Mimicry on a cluster of JVMs. This feature is currently not fully implemented but a preview can be seen in Figure \ref{clusterShowcase}.
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{mimicry_showcase_03.png}
+\caption{Preview of Mimicry's Cluster Support}
+\label{clusterShowcase}
+\end{center}
+\end{figure}
+
 
 
 \chapter{Extending the Mimicry Framework}
@@ -274,6 +288,52 @@ Emitted by MulticastSockets if the leaveGroup method is invoked.
 Either emitted by a DatagramSocket, a MulticastSocket or an event handler.
 \end{description}
 
+
+\chapter{Using Mimicry}
+This chapter shows the different ways on how to use Mimicry to run simulations.
+
+\section{Standalone Setup}
+coming soon...
+
+\section{Cluster Setup}
+coming soon...
+
+\section{Unit-Test Setup}
+coming soon...
+
+
+\chapter{Built-In Extensions}
+This chapter illustrates the usage of the built-in extensions of the Mimicry framework.
+
+\section{EventHandler - PortManager}
+The PortManager is an event handler that simulates the behavior of the operating system with respect to UDP and TCP port management. It keeps track of which application have bound a socket to a certain port and in which mode (exclusive or reusable). Furthermore it allows to query for this information using its public API. To detect which applications currently have sockets bound to a certain point you could obtain a handler proxy and read the current state.
+\begin{lstlisting}
+int somePort = ...;
+PortManager portMgr = getContext().findHandler(PortManager.class);
+Set<UUID> appIds = portMgr.getApplicationOnPort(somePort);
+\end{lstlisting}
+This information is for instance used in the SimpleTCPDataTransport to determine to which application a certain TCP connection belongs.
+
+\section{EventHandler - TCPConnectionManager}
+coming soon...
+
+\section{EventHandler - SimpleTCPDataTransport}
+coming soon...
+
+\section{Plugin - ConsoleWindowPlugin}
+coming soon...
+
+\chapter{Possible Extensions}
+In this chapter some possible extensions to the Mimicry framework are documented which might be implemented in future releases.
+
+\section{TCP/IP Connection Visualization}
+Using the JUNG framework (http://jung.sourceforge.net/) it would be possible to display all TCP/IP connections in a directed cyclic graph using JUNG. This might be useful when debugging Peer-to-Peer applications such as Chord.
+
+\section{JMX Proxy Generation}
+It might be useful to implement a new aspect which automatically exposes Java objects after creation based on some filtering criteria. Using this feature the simulation script as well as other applications might be able to control the simulated applications in more detail.
+
+\section{FileSystem Simulation}
+Depending on the kind of simulated application it might be necessary to run them in a chrooted environment. Therefore intercepting all file system accesses would help in isolating.
 
 \bibliographystyle{alpha}
 \bibliography{references}

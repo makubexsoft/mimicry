@@ -167,7 +167,7 @@ public class PortManager extends EventHandlerBase
 		{
 			portInfo.applications.add( appId );
 		}
-		logger.info( "Allocated port=" + port + ", reusable=" + reusable );
+		logger.info( "Allocated port=" + port + ", reusable=" + reusable + ", app=" + appId );
 	}
 
 	private int findFreePort( boolean canBeReusable )

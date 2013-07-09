@@ -14,3 +14,16 @@
 \BOOKMARK [1][-]{section.3.4}{Built-In Event Types}{chapter.3}
 \BOOKMARK [2][-]{subsection.3.4.1}{Console Events}{section.3.4}
 \BOOKMARK [2][-]{subsection.3.4.2}{Networking Events}{section.3.4}
+\BOOKMARK [0][-]{chapter.4}{Using Mimicry}{}
+\BOOKMARK [1][-]{section.4.1}{Standalone Setup}{chapter.4}
+\BOOKMARK [1][-]{section.4.2}{Cluster Setup}{chapter.4}
+\BOOKMARK [1][-]{section.4.3}{Unit-Test Setup}{chapter.4}
+\BOOKMARK [0][-]{chapter.5}{Built-In Extensions}{}
+\BOOKMARK [1][-]{section.5.1}{EventHandler - PortManager}{chapter.5}
+\BOOKMARK [1][-]{section.5.2}{EventHandler - TCPConnectionManager}{chapter.5}
+\BOOKMARK [1][-]{section.5.3}{EventHandler - SimpleTCPDataTransport}{chapter.5}
+\BOOKMARK [1][-]{section.5.4}{Plugin - ConsoleWindowPlugin}{chapter.5}
+\BOOKMARK [0][-]{chapter.6}{Possible Extensions}{}
+\BOOKMARK [1][-]{section.6.1}{TCP/IP Connection Visualization}{chapter.6}
+\BOOKMARK [1][-]{section.6.2}{JMX Proxy Generation}{chapter.6}
+\BOOKMARK [1][-]{section.6.3}{FileSystem Simulation}{chapter.6}
