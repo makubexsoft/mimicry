@@ -1,7 +1,7 @@
 package com.gc.mimicry.core.timing;
 
 /**
- * This clock models a discrete time line. To advance the timeline you have to invoke {@link #sample(long)} manually.
+ * This clock models a discrete time line. To advance the timeline you have to invoke {@link #advance(long)} manually.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -31,7 +31,7 @@ public class DiscreteClock extends AbstractClock
      * 
      * @param deltaTMillis
      */
-    public void sample(long deltaTMillis)
+    public void advance(long deltaTMillis)
     {
         if (deltaTMillis < 0)
         {

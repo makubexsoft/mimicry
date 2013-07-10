@@ -14,6 +14,7 @@ import com.gc.mimicry.core.event.SimpleEventBroker;
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.DiscreteClock;
 import com.gc.mimicry.core.timing.RealtimeClock;
+import com.gc.mimicry.core.timing.net.ClockDriver;
 import com.gc.mimicry.util.concurrent.DefaultFuture;
 import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
@@ -26,7 +27,6 @@ import com.google.common.base.Preconditions;
  */
 public class SimpleSimulatedNetwork implements SimulatedNetwork
 {
-
     public SimpleSimulatedNetwork(ClassLoadingContext ctx)
     {
         Preconditions.checkNotNull(ctx);
@@ -41,6 +41,7 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     public void init(NetworkConfiguration config)
     {
         logger.info("Initializing network: " + config);
+        this.config = config;
 
         createClock(config);
         nodeMgr = new NodeManager(ctx, eventBroker, clock);
@@ -63,6 +64,7 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
             default:
                 throw new RuntimeException("Invalid clock type: " + config.getClockType());
         }
+        clockDriver = new ClockDriver(eventBroker, clock);
     }
 
     @Override
@@ -117,6 +119,12 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     }
 
     @Override
+    public NetworkConfiguration getConfig()
+    {
+        return config;
+    }
+
+    @Override
     public Future<?> shutdown()
     {
         checkInitialized();
@@ -134,15 +142,7 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     @Override
     public EventBroker getEventBroker()
     {
-        checkInitialized();
         return eventBroker;
-    }
-
-    @Override
-    public Clock getClock()
-    {
-        checkInitialized();
-        return clock;
     }
 
     private void checkInitialized()
@@ -153,9 +153,11 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
         }
     }
 
+    private ClockDriver clockDriver;
     private boolean initialized;
     private NodeManager nodeMgr;
     private Clock clock;
+    private NetworkConfiguration config;
     private final Future<?> endFuture;
     private final EventBroker eventBroker;
     private final ClassLoadingContext ctx;
@@ -164,4 +166,5 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     {
         logger = LoggerFactory.getLogger(SimpleSimulatedNetwork.class);
     }
+
 }

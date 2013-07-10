@@ -38,7 +38,7 @@ public class TestDiscreteClock
 	public void testSampling()
 	{
 		assertMillis( 0 );
-		clock.sample( 200 );
+		clock.advance( 200 );
 		assertMillis( 200 );
 	}
 
@@ -46,7 +46,7 @@ public class TestDiscreteClock
 	public void testPreventSamplingInThePast()
 	{
 		assertMillis( 0 );
-		clock.sample( -100 );
+		clock.advance( -100 );
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class TestDiscreteClock
 
 		assertEquals( 0, counter.get() );
 
-		clock.sample( 150 );
+		clock.advance( 150 );
 
 		Thread.sleep( 50 );
 
@@ -154,7 +154,7 @@ public class TestDiscreteClock
 
 		assertEquals( 0, counter.get() );
 
-		clock.sample( 150 );
+		clock.advance( 150 );
 
 		Thread.sleep( 50 );
 

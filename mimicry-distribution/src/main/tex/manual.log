@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.7.8)  9 JUL 2013 17:15
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.7.8)  10 JUL 2013 15:46
 entering extended mode
  %&-line parsing enabled.
 **manual.tex
@@ -467,7 +467,7 @@ LaTeX Info: Redefining \pageref on input line 37.
 \openout3 = `manual.out'.
 
 \AtBeginShipoutBox=\box29
- <Logo.jpg, id=119, 90.3375pt x 24.09pt>
+ <Logo.jpg, id=127, 90.3375pt x 24.09pt>
 File: Logo.jpg Graphic file (type jpg)
  <use Logo.jpg>
 Overfull \hbox (31.51048pt too wide) in paragraph at lines 39--39
@@ -512,7 +512,7 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 
 ] (./simple-script.groovy [3]) [4]
 Chapter 2.
-<ClassloaderHierarchy.png, id=228, 646.415pt x 1137.24875pt>
+<ClassloaderHierarchy.png, id=238, 646.415pt x 1137.24875pt>
 File: ClassloaderHierarchy.png Graphic file (type png)
 
 <use ClassloaderHierarchy.png>
@@ -522,7 +522,7 @@ LaTeX Warning: Float too large for page by 42.90019pt on input line 126.
 [5
 
 ] [6 <./ClassloaderHierarchy.png (PNG copy)>]
-<EventStack.png, id=242, 716.6775pt x 395.4775pt>
+<EventStack.png, id=252, 716.6775pt x 395.4775pt>
 File: EventStack.png Graphic file (type png)
  <use EventStack.png>
 Overfull \hbox (6.55635pt too wide) in paragraph at lines 144--147
@@ -531,7 +531,7 @@ gill.ca/soot/).
  []
 
 [7 <./EventStack.png (PNG copy)>]
-<mimicry_showcase_03.png, id=250, 1123.94907pt x 698.61pt>
+<mimicry_showcase_03.png, id=260, 1123.94907pt x 698.61pt>
 File: mimicry_showcase_03.png Graphic file (type png)
 
 <use mimicry_showcase_03.png> [8 <./mimicry_showcase_03.png (PNG copy)>]
@@ -554,20 +554,35 @@ Chapter 4.
 
 ]
 Chapter 5.
+<consolePlugin.png, id=588, 602.25pt x 406.51875pt>
+File: consolePlugin.png Graphic file (type png)
+ <use consolePlugin.png>
 [20
 
-]
-Chapter 6.
-(./manual.bbl [21
+] <timeline-Discrete.png, id=599, 378.41376pt x 177.66376pt>
+File: timeline-Discrete.png Graphic file (type png)
 
-]) [22
+<use timeline-Discrete.png>
+<timeline-Realtime.png, id=600, 378.41376pt x 177.66376pt>
+File: timeline-Realtime.png Graphic file (type png)
+
+<use timeline-Realtime.png>
+Overfull \hbox (2.22221pt too wide) in paragraph at lines 339--341
+[][] [] 
+ []
+
+[21 <./consolePlugin.png> <./timeline-Discrete.png> <./timeline-Realtime.png>]
+Chapter 6.
+(./manual.bbl [22
+
+]) [23
 
 ] (./manual.aux) ) 
 Here is how much of TeX's memory you used:
- 6676 strings out of 495061
- 94108 string characters out of 1182622
+ 6700 strings out of 495061
+ 94582 string characters out of 1182622
  300008 words of memory out of 3000000
- 9363 multiletter control sequences out of 15000+50000
+ 9379 multiletter control sequences out of 15000+50000
  10440 words of font info for 37 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  38i,7n,40p,992b,1838s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -580,9 +595,9 @@ lic/amsfonts/cm/cmsl10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfont
 s/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10
 .pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/
 share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on manual.pdf (23 pages, 455328 bytes).
+Output written on manual.pdf (24 pages, 490352 bytes).
 PDF statistics:
- 707 PDF objects out of 1000 (max. 8388607)
- 385 named destinations out of 1000 (max. 500000)
- 253 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 732 PDF objects out of 1000 (max. 8388607)
+ 390 named destinations out of 1000 (max. 500000)
+ 284 words of extra memory for PDF output out of 10000 (max. 10000000)
 

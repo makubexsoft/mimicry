@@ -25,6 +25,7 @@ import com.gc.mimicry.core.deployment.ApplicationRepository;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
 import com.gc.mimicry.core.runtime.SimpleSimulatedNetwork;
 import com.gc.mimicry.core.runtime.SimulatedNetwork;
+import com.gc.mimicry.core.timing.net.ClockController;
 import com.gc.mimicry.util.FileNameExtensionFilter;
 import com.gc.mimicry.util.IOUtils;
 import com.gc.mimicry.util.concurrent.Future;
@@ -115,6 +116,7 @@ public class Main
 		Binding binding = new Binding();
 		binding.setVariable( "network", network );
 		binding.setVariable( "repository", appRepo );
+		binding.setVariable( "timeline", new ClockController( network.getEventBroker() ) );
 
 		ImportCustomizer importCust = new ImportCustomizer();
 		importCust.addStarImports( "com.gc.mimicry.core.deployment" );

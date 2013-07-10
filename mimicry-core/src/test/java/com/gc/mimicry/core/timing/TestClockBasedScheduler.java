@@ -38,7 +38,7 @@ public class TestClockBasedScheduler
 
 		assertEquals( 0, counter.get() );
 
-		clock.sample( 100 );
+		clock.advance( 100 );
 
 		Thread.sleep( 200 );
 

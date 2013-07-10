@@ -2,38 +2,82 @@ package com.gc.mimicry.core.timing.net;
 
 import java.io.Closeable;
 
-import com.gc.mimicry.core.event.Node;
-import com.gc.mimicry.core.messaging.Message;
-import com.gc.mimicry.core.messaging.MessageReceiver;
-import com.gc.mimicry.core.messaging.MessagingSystem;
-import com.gc.mimicry.core.messaging.Topic;
-import com.google.common.base.Preconditions;
+import com.gc.mimicry.core.event.EventBroker;
+import com.gc.mimicry.core.event.EventListener;
+import com.gc.mimicry.core.timing.Clock;
+import com.gc.mimicry.core.timing.DiscreteClock;
+import com.gc.mimicry.core.timing.RealtimeClock;
+import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.shared.events.clock.ClockAdvanceEvent;
+import com.gc.mimicry.shared.events.clock.ClockEvent;
+import com.gc.mimicry.shared.events.clock.ClockStartEvent;
+import com.gc.mimicry.shared.events.clock.ClockStopEvent;
 
-public class ClockDriver implements Closeable, MessageReceiver
+public class ClockDriver implements Closeable, EventListener
 {
+    private final EventBroker broker;
+    private final Clock clock;
 
-    private final MessagingSystem messaging;
-    private final Node node;
-
-    public ClockDriver(MessagingSystem messaging, Node node)
+    public ClockDriver(EventBroker broker, Clock clock)
     {
-        Preconditions.checkNotNull(messaging);
-        Preconditions.checkNotNull(node);
+        this.broker = broker;
+        this.clock = clock;
 
-        this.messaging = messaging;
-        this.node = node;
+        broker.addEventListener(this);
     }
 
     @Override
     public void close()
     {
-
+        broker.removeEventListener(this);
     }
 
     @Override
-    public void messageReceived(Topic topic, Message msg)
+    public void handleEvent(Event evt)
     {
-        // TODO Auto-generated method stub
-        // set clock of apps running on node as well as for each event handler
+        if (evt instanceof ClockEvent)
+        {
+            handleClockEvent((ClockEvent) evt);
+        }
+    }
+
+    private void handleClockEvent(ClockEvent evt)
+    {
+        if (evt instanceof ClockStartEvent)
+        {
+            tryToStartClock(((ClockStartEvent) evt).getMultiplier());
+        }
+        else if (evt instanceof ClockStopEvent)
+        {
+            tryToStopClock();
+        }
+        else if (evt instanceof ClockAdvanceEvent)
+        {
+            tryToAdvanceClock(((ClockAdvanceEvent) evt).getDeltaMillis());
+        }
+    }
+
+    private void tryToStartClock(double multiplier)
+    {
+        if (clock instanceof RealtimeClock)
+        {
+            ((RealtimeClock) clock).start(multiplier);
+        }
+    }
+
+    private void tryToStopClock()
+    {
+        if (clock instanceof RealtimeClock)
+        {
+            ((RealtimeClock) clock).stop();
+        }
+    }
+
+    private void tryToAdvanceClock(long deltaMillis)
+    {
+        if (clock instanceof DiscreteClock)
+        {
+            ((DiscreteClock) clock).advance(deltaMillis);
+        }
     }
 }

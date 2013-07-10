@@ -1,4 +1,4 @@
-package com.gc.mimicry.core.model;
+package com.gc.mimicry.util.model;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 

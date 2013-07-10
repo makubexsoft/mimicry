@@ -4,8 +4,8 @@ import com.gc.mimicry.core.timing.ClockType;
 
 public class NetworkConfiguration
 {
-    private ClockType clockType;
-    private long initialTimeMillis;
+    private ClockType clockType = ClockType.REALTIME;
+    private long initialTimeMillis = 0;
 
     public ClockType getClockType()
     {
@@ -30,7 +30,12 @@ public class NetworkConfiguration
     @Override
     public String toString()
     {
-        return "NetworkConfiguration [clockType=" + clockType + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("NetworkConfiguration [clockType=");
+        builder.append(clockType);
+        builder.append(", initialTimeMillis=");
+        builder.append(initialTimeMillis);
+        builder.append("]");
+        return builder.toString();
     }
-
 }

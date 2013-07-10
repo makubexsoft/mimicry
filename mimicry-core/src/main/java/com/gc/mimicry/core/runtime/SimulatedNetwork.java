@@ -2,7 +2,6 @@ package com.gc.mimicry.core.runtime;
 
 import com.gc.mimicry.core.deployment.ApplicationDescriptor;
 import com.gc.mimicry.core.event.EventBroker;
-import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.util.concurrent.Future;
 
 /**
@@ -20,6 +19,8 @@ public interface SimulatedNetwork
      */
     public void init(NetworkConfiguration config);
 
+    public NetworkConfiguration getConfig();
+
     /**
      * Returns a reference to the underlying event broker. You can use the reference to emit or subscribe to events of
      * the simulation.
@@ -27,13 +28,6 @@ public interface SimulatedNetwork
      * @return
      */
     public EventBroker getEventBroker();
-
-    /**
-     * Returns a reference to the installed clock.
-     * 
-     * @return
-     */
-    public Clock getClock();
 
     /**
      * Creates a new node and instantiates the configured event stack.

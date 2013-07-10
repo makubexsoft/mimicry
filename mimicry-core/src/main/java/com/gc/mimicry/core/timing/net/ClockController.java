@@ -1,74 +1,31 @@
 package com.gc.mimicry.core.timing.net;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import com.gc.mimicry.core.event.EventBroker;
+import com.gc.mimicry.shared.events.clock.ClockAdvanceEvent;
+import com.gc.mimicry.shared.events.clock.ClockStartEvent;
+import com.gc.mimicry.shared.events.clock.ClockStopEvent;
 
-import com.gc.mimicry.core.BaseResourceManager;
-import com.gc.mimicry.core.messaging.Message;
-import com.gc.mimicry.core.messaging.MessageReceiver;
-import com.gc.mimicry.core.messaging.MessagingSystem;
-import com.gc.mimicry.core.messaging.Publisher;
-import com.gc.mimicry.core.messaging.Subscriber;
-import com.gc.mimicry.core.messaging.Topic;
-import com.gc.mimicry.core.messaging.TopicSession;
-import com.gc.mimicry.core.timing.ClockType;
-import com.gc.mimicry.util.concurrent.DefaultFuture;
-import com.gc.mimicry.util.concurrent.Future;
-
-public class ClockController extends BaseResourceManager implements MessageReceiver
+public class ClockController
 {
+    private final EventBroker broker;
 
-    public ClockController(MessagingSystem messaging, UUID sessionId)
+    public ClockController(EventBroker broker)
     {
-        pendingActions = new HashMap<UUID, Future<?>>();
-        Topic topic = messaging.lookupTopic(SESSION_LOCAL_CHANNEL_NAME);
-        session = messaging.createTopicSession(topic);
-        attachResource(session);
-        subscriber = session.createSubscriber();
-        attachResource(subscriber);
-        publisher = session.createPublisher();
-        attachResource(publisher);
-        subscriber.setMessageReceiver(this);
+        this.broker = broker;
     }
 
-    public Future<?> installClock(ClockType clockType)
+    public void start(double multiplier)
     {
-        Future<?> future = new DefaultFuture();
-        InstallClockMessage msg = new InstallClockMessage(clockType);
-        synchronized (pendingActions)
-        {
-            pendingActions.put(msg.getId(), future);
-        }
-        publisher.send(msg);
-        return future;
+        broker.fireEvent(new ClockStartEvent(multiplier));
     }
 
-    public Future<?> startClock(double multiplier)
+    public void stop()
     {
-        return null;
+        broker.fireEvent(new ClockStopEvent());
     }
 
-    public Future<?> stopClock()
+    public void advance(long deltaMillis)
     {
-        return null;
+        broker.fireEvent(new ClockAdvanceEvent(deltaMillis));
     }
-
-    public Future<?> sampleClock(long deltaMillis)
-    {
-        return null;
-    }
-
-    @Override
-    public void messageReceived(Topic topic, Message msg)
-    {
-        // TODO Auto-generated method stub
-
-    }
-
-    private static final String SESSION_LOCAL_CHANNEL_NAME = "clock";
-    private final TopicSession session;
-    private final Subscriber subscriber;
-    private final Publisher publisher;
-    private final Map<UUID, Future<?>> pendingActions;
 }

@@ -1,7 +1,7 @@
 package com.gc.mimicry.net;
 
 import com.gc.mimicry.core.messaging.Message;
-import com.gc.mimicry.core.model.ListBasedModel;
+import com.gc.mimicry.util.model.ListBasedModel;
 
 public class ClusterModel extends ListBasedModel<NodeInfo> implements ClusterListener
 {
