@@ -63,7 +63,7 @@ public class TestDiscreteClock
 			{
 				try
 				{
-					clock.sleep( 100 );
+					clock.sleepUntil( 100 );
 					counter.incrementAndGet();
 				}
 				catch ( InterruptedException e )
@@ -98,7 +98,7 @@ public class TestDiscreteClock
 			{
 				try
 				{
-					clock.sleep( 100 );
+					clock.sleepUntil( 100 );
 				}
 				catch ( InterruptedException e )
 				{
@@ -139,7 +139,7 @@ public class TestDiscreteClock
 				{
 					synchronized ( lock )
 					{
-						clock.waitOn( lock, 100 );
+						clock.waitOnUntil( lock, 100 );
 						counter.incrementAndGet();
 					}
 				}
@@ -178,7 +178,7 @@ public class TestDiscreteClock
 				{
 					synchronized ( lock )
 					{
-						clock.waitOn( lock, 100 );
+						clock.waitOnUntil( lock, 100 );
 						counter.incrementAndGet();
 					}
 				}
@@ -280,7 +280,7 @@ public class TestDiscreteClock
 				{
 					synchronized ( lock )
 					{
-						clock.waitOn( lock, 100 );
+						clock.waitOnUntil( lock, 100 );
 					}
 				}
 				catch ( InterruptedException e )

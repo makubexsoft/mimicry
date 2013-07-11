@@ -80,12 +80,12 @@ public aspect TimingAspect
 
 	void around( long millis ) throws InterruptedException : sleep(millis)  
 	{
-		SimulatorBridge.getClock().sleep( millis );
+		SimulatorBridge.getClock().sleepUntil( SimulatorBridge.getClock().currentMillis() + millis );
 	}
 
 	void around( Object target, long millis ) throws InterruptedException : waitP(target, millis)  
 	{
-		SimulatorBridge.getClock().waitOn( target, millis );
+		SimulatorBridge.getClock().waitOnUntil( target, SimulatorBridge.getClock().currentMillis() + millis );
 	}
 
 	void around( Object target ) throws InterruptedException : waitP2(target)  

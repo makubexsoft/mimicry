@@ -24,7 +24,7 @@ public interface Clock
      * @throws InterruptedException
      *             If the thread has been interrupted while sleeping.
      */
-    public void sleep(long periodMillis) throws InterruptedException;
+    public void sleepUntil(long untilInMillis) throws InterruptedException;
 
     /**
      * Waits on the monitor of the given target. Requires the calling thread to own the target object's monitor.
@@ -39,10 +39,10 @@ public interface Clock
      * target object's monitor.
      * 
      * @param target
-     * @param periodMillis
+     * @param untilInMillis
      * @throws InterruptedException
      */
-    public void waitOn(Object target, long periodMillis) throws InterruptedException;
+    public void waitOnUntil(Object target, long untilInMillis) throws InterruptedException;
 
     /**
      * Notifies the given target. Requires the calling thread to own the target object's monitor.

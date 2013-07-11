@@ -178,12 +178,12 @@ public class ClockBasedScheduler implements Scheduler, Closeable
             {
                 try
                 {
-                    long waitTimeInMillis = Long.MAX_VALUE;
+                    long waitUntilInMillis = Long.MAX_VALUE;
                     if (!jobs.isEmpty())
                     {
-                        waitTimeInMillis = jobs.first().getTimeInMillis() - clock.currentMillis();
+                        waitUntilInMillis = jobs.first().getTimeInMillis();
                     }
-                    clock.waitOn(jobs, waitTimeInMillis);
+                    clock.waitOnUntil(jobs, waitUntilInMillis);
                 }
                 catch (InterruptedException e)
                 {

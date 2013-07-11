@@ -29,7 +29,7 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
     }
 
     @Override
-    public void sleep(long periodMillis) throws InterruptedException
+    public void sleepUntil(long untilInMillis) throws InterruptedException
     {
         Thread thread = Thread.currentThread();
         if (thread instanceof IManagedThread)
@@ -39,32 +39,26 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
             {
                 managedThread.addThreadShutdownListener(this);
             }
+        }
 
-            long startTime = currentMillis();
-            while (!timePassed(startTime, periodMillis))
+        while (currentMillis() < untilInMillis)
+        {
+            try
             {
-                try
+                Thread.sleep(STATE_CHECKING_DELAY_IN_MILLIS);
+            }
+            finally
+            {
+                if (thread instanceof IManagedThread)
                 {
-                    Thread.sleep(STATE_CHECKING_DELAY_IN_MILLIS);
-                }
-                finally
-                {
-                    if (managedThread.isShuttingDown())
+                    if (((IManagedThread) thread).isShuttingDown())
                     {
                         throw new ThreadShouldTerminateException();
                     }
                 }
             }
-        }
-        else
-        {
-            Thread.sleep(periodMillis);
-        }
-    }
 
-    private boolean timePassed(long startMillis, long periodMillis)
-    {
-        return currentMillis() >= (startMillis + periodMillis);
+        }
     }
 
     @Override
@@ -98,7 +92,7 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
     }
 
     @Override
-    public void waitOn(Object target, long periodMillis) throws InterruptedException
+    public void waitOnUntil(Object target, long untilInMillis) throws InterruptedException
     {
         Thread thread = Thread.currentThread();
         if (thread instanceof IManagedThread)
@@ -109,40 +103,42 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
                 managedThread.addThreadShutdownListener(this);
                 blockedThreads.put(managedThread, target);
             }
-            try
+        }
+
+        try
+        {
+            while (currentMillis() < untilInMillis)
             {
-                long startMillis = currentMillis();
-                while (!timePassed(startMillis, periodMillis))
+                try
                 {
-                    try
+                    target.wait(STATE_CHECKING_DELAY_IN_MILLIS);
+                    if (notifications.contains(target))
                     {
-                        target.wait(STATE_CHECKING_DELAY_IN_MILLIS);
-                        if (notifications.contains(target))
-                        {
-                            notifications.remove(target);
-                            return;
-                        }
+                        notifications.remove(target);
+                        return;
                     }
-                    finally
+                }
+                finally
+                {
+                    if (thread instanceof IManagedThread)
                     {
-                        if (managedThread.isShuttingDown())
+                        if (((IManagedThread) thread).isShuttingDown())
                         {
                             throw new ThreadShouldTerminateException();
                         }
                     }
                 }
             }
-            finally
+        }
+        finally
+        {
+            if (thread instanceof IManagedThread)
             {
                 synchronized (blockedThreads)
                 {
-                    blockedThreads.remove(managedThread);
+                    blockedThreads.remove(thread);
                 }
             }
-        }
-        else
-        {
-            target.wait(periodMillis);
         }
     }
 
@@ -166,10 +162,10 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
     @Override
     public void notifyOnTarget(Object target)
     {
+        notifications.add(target);
         Thread thread = Thread.currentThread();
         if (thread instanceof IManagedThread)
         {
-            notifications.add(target);
             IManagedThread managedThread = (IManagedThread) thread;
             if (managedThread.isShuttingDown())
             {
@@ -189,11 +185,7 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
     @Override
     public void notifyAllOnTarget(Object target)
     {
-        Thread thread = Thread.currentThread();
-        if (thread instanceof IManagedThread)
-        {
-            notifications.add(target);
-        }
+        notifications.add(target);
         target.notifyAll();
     }
 }
