@@ -64,7 +64,7 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
 
     private boolean timePassed(long startMillis, long periodMillis)
     {
-        return currentMillis() > (startMillis + periodMillis);
+        return currentMillis() >= (startMillis + periodMillis);
     }
 
     @Override

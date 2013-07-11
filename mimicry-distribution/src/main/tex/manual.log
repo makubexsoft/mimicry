@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.7.8)  10 JUL 2013 15:46
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.7.8)  10 JUL 2013 16:52
 entering extended mode
  %&-line parsing enabled.
 **manual.tex
@@ -580,7 +580,7 @@ Chapter 6.
 ] (./manual.aux) ) 
 Here is how much of TeX's memory you used:
  6700 strings out of 495061
- 94582 string characters out of 1182622
+ 94583 string characters out of 1182622
  300008 words of memory out of 3000000
  9379 multiletter control sequences out of 15000+50000
  10440 words of font info for 37 fonts, out of 3000000 for 9000
@@ -595,7 +595,7 @@ lic/amsfonts/cm/cmsl10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfont
 s/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10
 .pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/
 share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on manual.pdf (24 pages, 490352 bytes).
+Output written on manual.pdf (24 pages, 490112 bytes).
 PDF statistics:
  732 PDF objects out of 1000 (max. 8388607)
  390 named destinations out of 1000 (max. 500000)

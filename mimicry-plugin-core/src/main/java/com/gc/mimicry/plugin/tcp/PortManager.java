@@ -145,7 +145,7 @@ public class PortManager extends EventHandlerBase
 	 * @param port
 	 * @return
 	 */
-	public Set<UUID> getApplicationOnPort( int port )
+	public Set<UUID> getApplicationsOnPort( int port )
 	{
 		PortInfo portInfo = allocatedPorts.get( port );
 		if ( portInfo != null )

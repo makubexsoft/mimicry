@@ -22,16 +22,31 @@ import com.gc.mimicry.core.timing.DiscreteClock;
 import com.gc.mimicry.core.timing.RealtimeClock;
 import com.gc.mimicry.core.timing.net.ClockController;
 import com.gc.mimicry.core.timing.net.ClockDriver;
+import com.gc.mimicry.shared.events.clock.ClockAdvanceEvent;
+import com.gc.mimicry.shared.events.clock.ClockEvent;
+import com.gc.mimicry.shared.events.clock.ClockStartEvent;
+import com.gc.mimicry.shared.events.clock.ClockStopEvent;
 
+/**
+ * This plugin allows the user to control the timeline using a graphical user
+ * interface.
+ * 
+ * @author Marc-Christian Schulze
+ * @see ClockEvent
+ * @see ClockStartEvent
+ * @see ClockStopEvent
+ * @see ClockAdvanceEvent
+ */
 public class TimelineWindowPlugin extends JDialog
 {
+	private static final long		serialVersionUID	= -4651671250679512290L;
 	private boolean					clockRunning;
 	private Clock					localClock;
 	private final ClockDriver		clockDriver;
-	private final Thread			updateThread;
-
+	private Thread					updateThread;
 	private final SimulatedNetwork	network;
 	private final ClockController	clockCtrl;
+
 	private JTextField				txtMultiplier;
 	private JTextField				txtDeltaT;
 	private JPanel					panRealtime;
@@ -62,12 +77,17 @@ public class TimelineWindowPlugin extends JDialog
 		}
 		clockDriver = new ClockDriver( network.getEventBroker(), localClock );
 
-		updateThread = new Thread( new TimelineUpdateTask() );
-		updateThread.setDaemon( true );
-		updateThread.start();
+		startCurrentTimeUpdateThread();
 
 		setSize( 377, 177 );
 		setVisible( true );
+	}
+
+	private void startCurrentTimeUpdateThread()
+	{
+		updateThread = new Thread( new TimelineUpdateTask() );
+		updateThread.setDaemon( true );
+		updateThread.start();
 	}
 
 	private void setupRealtimeBehaviour()

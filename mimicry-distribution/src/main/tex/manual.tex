@@ -97,7 +97,7 @@ For illustration we'll use the PingPong-Example which runs two application insta
 After you've downloaded the \textit{example-PingPong.zip} you need to extract its content into the installation directory (where you did extract the compiled mimicry zip file).
 Open a shell in that directory and run the following command:
 \begin{verbatim}
-./mimicry.sh -mainScript pingpong.groovy
+./mimicry.sh pingpong.groovy
 \end{verbatim}
 This should bring up two console windows where in the first the server and in the second the client is writing its stdout to.
 
@@ -310,7 +310,7 @@ The PortManager is an event handler that simulates the behavior of the operating
 \begin{lstlisting}
 int somePort = ...;
 PortManager portMgr = getContext().findHandler(PortManager.class);
-Set<UUID> appIds = portMgr.getApplicationOnPort(somePort);
+Set<UUID> appIds = portMgr.getApplicationsOnPort(somePort);
 \end{lstlisting}
 This information is for instance used in the SimpleTCPDataTransport to determine to which application a certain TCP connection belongs.
 

@@ -4,6 +4,12 @@ import java.net.InetSocketAddress;
 
 import com.gc.mimicry.shared.events.BaseEvent;
 
+/**
+ * This event indicates a newly established TCP/IP connection.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class ConnectionEstablishedEvent extends BaseEvent
 {
 	private static final long		serialVersionUID	= 5351265649818558044L;
@@ -16,11 +22,21 @@ public class ConnectionEstablishedEvent extends BaseEvent
 		this.serverAddress = serverAddress;
 	}
 
+	/**
+	 * Returns the address of the peer that initiated the connection.
+	 * 
+	 * @return
+	 */
 	public InetSocketAddress getClientAddress()
 	{
 		return clientAddress;
 	}
 
+	/**
+	 * Returns the address of the peer that accepted the incoming connection.
+	 * 
+	 * @return
+	 */
 	public InetSocketAddress getServerAddress()
 	{
 		return serverAddress;

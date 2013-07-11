@@ -7,6 +7,12 @@ import com.gc.mimicry.core.event.EventHandlerBase;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.UDPPacketEvent;
 
+/**
+ * This handler imitates a simple and reliable UDP/IP packet transport.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class SimpleUDPDataTransport extends EventHandlerBase
 {
 	private PortManager	portMgr;
@@ -27,7 +33,7 @@ public class SimpleUDPDataTransport extends EventHandlerBase
 		if ( evt instanceof UDPPacketEvent )
 		{
 			UDPPacketEvent packetEvt = (UDPPacketEvent) evt;
-			Set<UUID> apps = portMgr.getApplicationOnPort( packetEvt.getDestination().getPort() );
+			Set<UUID> apps = portMgr.getApplicationsOnPort( packetEvt.getDestination().getPort() );
 			for ( UUID appId : apps )
 			{
 				UDPPacketEvent evt2 = new UDPPacketEvent( packetEvt.getSource(), packetEvt.getDestination(),

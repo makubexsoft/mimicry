@@ -18,8 +18,17 @@ import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.events.console.ConsoleInputEvent;
 import com.gc.mimicry.shared.events.console.ConsoleOutputEvent;
 
+/**
+ * This plugin allows the user to interact with the command line of a certain
+ * application using a graphical user interface.
+ * 
+ * @author Marc-Christian Schulze
+ * @see ConsoleInputEvent
+ * @see ConsoleOutputEvent
+ */
 public class ConsoleWindowPlugin extends JFrame implements EventListener
 {
+	private static final long		serialVersionUID	= 120529917436479426L;
 	private final EventBroker		broker;
 	private final ApplicationRef	appRef;
 	private JScrollPane				scrollPane;

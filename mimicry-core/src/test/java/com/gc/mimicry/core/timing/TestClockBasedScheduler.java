@@ -1,47 +1,61 @@
 package com.gc.mimicry.core.timing;
 
-import static org.junit.Assert.*;
-
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestClockBasedScheduler
 {
 
-	private DiscreteClock		clock;
-	private ClockBasedScheduler	scheduler;
+    private DiscreteClock clock;
+    private ClockBasedScheduler scheduler;
 
-	@Before
-	public void setUp()
-	{
-		clock = new DiscreteClock( 0 );
-		scheduler = new ClockBasedScheduler( clock );
-	}
+    @Before
+    public void setUp()
+    {
+        clock = new DiscreteClock(0);
+        scheduler = new ClockBasedScheduler(clock);
+    }
 
-	@Test
-	public void test() throws InterruptedException
-	{
-		final AtomicInteger counter = new AtomicInteger();
-		scheduler.schedule( new Runnable()
-		{
+    @Test
+    public void testExecutionWaitsForClock() throws InterruptedException
+    {
+        Runnable job = Mockito.mock(Runnable.class);
+        scheduler.schedule(job, 100, TimeUnit.MILLISECONDS);
 
-			public void run()
-			{
-				counter.incrementAndGet();
-			}
-		}, 100, TimeUnit.MILLISECONDS );
+        Thread.sleep(200);
 
-		Thread.sleep( 200 );
+        Mockito.verifyZeroInteractions(job);
 
-		assertEquals( 0, counter.get() );
+        clock.advance(100);
 
-		clock.advance( 100 );
+        Thread.sleep(200);
 
-		Thread.sleep( 200 );
+        Mockito.verify(job).run();
+    }
 
-		assertEquals( 1, counter.get() );
-	}
+    @Test
+    public void testJobsAreScheduledInCorrectOrder() throws InterruptedException
+    {
+        Runnable firstJob = Mockito.mock(Runnable.class);
+        Runnable secondJob = Mockito.mock(Runnable.class);
+        scheduler.schedule(firstJob, 100, TimeUnit.MILLISECONDS);
+        scheduler.schedule(secondJob, 500, TimeUnit.MILLISECONDS);
+
+        clock.advance(200);
+
+        Thread.sleep(200);
+
+        Mockito.verify(firstJob).run();
+        Mockito.verifyZeroInteractions(secondJob);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testForNonNegativeTimeouts() throws InterruptedException
+    {
+        Runnable job = Mockito.mock(Runnable.class);
+        scheduler.schedule(job, -100, TimeUnit.MILLISECONDS);
+    }
 }

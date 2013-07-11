@@ -9,6 +9,12 @@ import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.TCPReceivedDataEvent;
 import com.gc.mimicry.shared.net.events.TCPSendDataEvent;
 
+/**
+ * This handler imitates a simple TCP/IP packet transport.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class SimpleTCPDataTransport extends EventHandlerBase
 {
 	private PortManager	portMgr;
@@ -41,7 +47,7 @@ public class SimpleTCPDataTransport extends EventHandlerBase
 	private void dispatchDataToApplications( TCPSendDataEvent dataEvent )
 	{
 		int port = dataEvent.getDestinationSocket().getPort();
-		Set<UUID> applications = portMgr.getApplicationOnPort( port );
+		Set<UUID> applications = portMgr.getApplicationsOnPort( port );
 		for ( UUID appId : applications )
 		{
 			TCPReceivedDataEvent receiveEvt = createReceiveEvent( dataEvent );

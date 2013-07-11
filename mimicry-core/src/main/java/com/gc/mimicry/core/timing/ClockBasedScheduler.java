@@ -1,9 +1,9 @@
 package com.gc.mimicry.core.timing;
 
 import java.io.Closeable;
-import java.util.List;
+import java.util.Comparator;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import com.gc.mimicry.util.concurrent.DefaultValueFuture;
@@ -18,18 +18,16 @@ import com.google.common.base.Preconditions;
  */
 public class ClockBasedScheduler implements Scheduler, Closeable
 {
-
-    private static final int JOB_CHECKING_DELAY_MILLIS = 100;
     private volatile boolean shouldRun = true;
     private final Thread thread;
     private final Clock clock;
-    private final List<ScheduledJob> jobs;
+    private final TreeSet<ScheduledJob> jobs;
 
     public ClockBasedScheduler(Clock clock)
     {
         Preconditions.checkNotNull(clock);
         this.clock = clock;
-        jobs = new CopyOnWriteArrayList<ScheduledJob>();
+        jobs = new TreeSet<ScheduledJob>(new ScheduledJobComparator());
         thread = new Thread(new JobExecutor());
         thread.setDaemon(true);
         thread.start();
@@ -38,21 +36,29 @@ public class ClockBasedScheduler implements Scheduler, Closeable
     @Override
     public void schedule(Runnable job, long delay, TimeUnit unit)
     {
+        if (delay < 0)
+        {
+            throw new IllegalArgumentException("Delay must be non-negative.");
+        }
         synchronized (jobs)
         {
             jobs.add(new ScheduledJob(clock.currentMillis() + unit.toMillis(delay), job));
-            jobs.notify();
+            clock.notifyOnTarget(jobs);
         }
     }
 
     @Override
     public <T> ValueFuture<T> schedule(Callable<T> job, long delay, TimeUnit unit)
     {
+        if (delay < 0)
+        {
+            throw new IllegalArgumentException("Delay must be non-negative.");
+        }
         synchronized (jobs)
         {
             ScheduledCallableJob<T> e = new ScheduledCallableJob<T>(clock.currentMillis() + unit.toMillis(delay), job);
             jobs.add(e);
-            jobs.notify();
+            clock.notifyOnTarget(jobs);
             return e.getFuture();
         }
     }
@@ -83,6 +89,22 @@ public class ClockBasedScheduler implements Scheduler, Closeable
         {
             runnable = job;
         }
+
+        long getTimeInMillis()
+        {
+            return timeInMillis;
+        }
+    }
+
+    private static class ScheduledJobComparator implements Comparator<ScheduledJob>
+    {
+
+        @Override
+        public int compare(ScheduledJob o1, ScheduledJob o2)
+        {
+            return new Long(o1.getTimeInMillis()).compareTo(o2.getTimeInMillis());
+        }
+
     }
 
     private static class ScheduledCallableJob<T> extends ScheduledJob
@@ -134,30 +156,39 @@ public class ClockBasedScheduler implements Scheduler, Closeable
             {
                 while (shouldRun)
                 {
-                    ScheduledJob nextJob = null;
-                    for (ScheduledJob job : jobs)
+                    if (!jobs.isEmpty())
                     {
-                        if (job.timeInMillis <= clock.currentMillis())
+                        ScheduledJob nextJob = jobs.first();
+                        if (nextJob.timeInMillis <= clock.currentMillis())
                         {
-                            nextJob = job;
-                            break;
+                            jobs.pollFirst();
+                            return nextJob.runnable;
                         }
                     }
-                    if (nextJob != null)
-                    {
-                        jobs.remove(nextJob);
-                        return nextJob.runnable;
-                    }
-                    try
-                    {
-                        jobs.wait(JOB_CHECKING_DELAY_MILLIS);
-                    }
-                    catch (InterruptedException e)
-                    {
-                        // suppress
-                    }
+
+                    waitForNextJob();
                 }
                 return new NoOperation();
+            }
+        }
+
+        private void waitForNextJob()
+        {
+            synchronized (jobs)
+            {
+                try
+                {
+                    long waitTimeInMillis = Long.MAX_VALUE;
+                    if (!jobs.isEmpty())
+                    {
+                        waitTimeInMillis = jobs.first().getTimeInMillis() - clock.currentMillis();
+                    }
+                    clock.waitOn(jobs, waitTimeInMillis);
+                }
+                catch (InterruptedException e)
+                {
+                    // suppress
+                }
             }
         }
     }

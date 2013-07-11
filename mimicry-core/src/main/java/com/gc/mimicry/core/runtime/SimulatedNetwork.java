@@ -19,6 +19,11 @@ public interface SimulatedNetwork
      */
     public void init(NetworkConfiguration config);
 
+    /**
+     * Returns the configuration with which the network was initialized or null if not yet initialized.
+     * 
+     * @return
+     */
     public NetworkConfiguration getConfig();
 
     /**
@@ -39,7 +44,7 @@ public interface SimulatedNetwork
     public NodeRef spawnNode(NodeConfiguration nodeConfig);
 
     /**
-     * Spawns a new application instance on the referenced node but doesn't start it's main thread.
+     * Spawns a new application instance on the referenced node but doesn't start its main thread.
      * 
      * @param node
      * @param appDesc
