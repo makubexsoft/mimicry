@@ -44,7 +44,7 @@ public class SimpleUDPDataTransport extends EventHandlerBase
 		}
 		else
 		{
-			super.handleUpstream( evt );
+			sendUpstream( evt );
 		}
 	}
 }

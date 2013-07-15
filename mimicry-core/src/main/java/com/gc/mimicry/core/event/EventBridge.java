@@ -48,6 +48,10 @@ public class EventBridge
 
     public void dispatchEventToStack(Event evt)
     {
+        if (downstreamListener.size() == 0)
+        {
+            System.out.println("WARNING: no receiver for " + evt);
+        }
         for (EventListener l : downstreamListener)
         {
             l.handleEvent(evt);

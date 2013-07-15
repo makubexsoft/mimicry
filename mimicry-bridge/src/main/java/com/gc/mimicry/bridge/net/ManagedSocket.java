@@ -786,6 +786,7 @@ public class ManagedSocket extends Socket
                 // filtering by IP must be done in event handler
                 if (data.getDestinationSocket().getPort() == localAddress.getPort())
                 {
+                    System.out.println("Received DATA: " + data);
                     receiveBuffer.write(data.getData());
                 }
             }
@@ -814,7 +815,9 @@ public class ManagedSocket extends Socket
         {
             byte[] buffer = Arrays.copyOfRange(b, off, off + len);
 
-            emitEvent(new TCPSendDataEvent(localAddress, remoteAddress, buffer));
+            TCPSendDataEvent evt = new TCPSendDataEvent(localAddress, remoteAddress, buffer);
+            System.out.println("SEND " + evt);
+            emitEvent(evt);
         }
     }
 }

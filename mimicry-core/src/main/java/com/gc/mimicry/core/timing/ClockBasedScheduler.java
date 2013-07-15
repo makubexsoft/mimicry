@@ -2,7 +2,7 @@ package com.gc.mimicry.core.timing;
 
 import java.io.Closeable;
 import java.util.Comparator;
-import java.util.TreeSet;
+import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -21,13 +21,15 @@ public class ClockBasedScheduler implements Scheduler, Closeable
     private volatile boolean shouldRun = true;
     private final Thread thread;
     private final Clock clock;
-    private final TreeSet<ScheduledJob> jobs;
+    private final PriorityQueue<ScheduledJob> jobs;
 
     public ClockBasedScheduler(Clock clock)
     {
         Preconditions.checkNotNull(clock);
+
         this.clock = clock;
-        jobs = new TreeSet<ScheduledJob>(new ScheduledJobComparator());
+
+        jobs = new PriorityQueue<ScheduledJob>(10, new ScheduledJobComparator());
         thread = new Thread(new JobExecutor());
         thread.setDaemon(true);
         thread.start();
@@ -43,7 +45,7 @@ public class ClockBasedScheduler implements Scheduler, Closeable
         synchronized (jobs)
         {
             jobs.add(new ScheduledJob(clock.currentMillis() + unit.toMillis(delay), job));
-            clock.notifyOnTarget(jobs);
+            clock.notifyAllOnTarget(jobs);
         }
     }
 
@@ -58,7 +60,7 @@ public class ClockBasedScheduler implements Scheduler, Closeable
         {
             ScheduledCallableJob<T> e = new ScheduledCallableJob<T>(clock.currentMillis() + unit.toMillis(delay), job);
             jobs.add(e);
-            clock.notifyOnTarget(jobs);
+            clock.notifyAllOnTarget(jobs);
             return e.getFuture();
         }
     }
@@ -158,10 +160,9 @@ public class ClockBasedScheduler implements Scheduler, Closeable
                 {
                     if (!jobs.isEmpty())
                     {
-                        ScheduledJob nextJob = jobs.first();
+                        ScheduledJob nextJob = jobs.poll();
                         if (nextJob.timeInMillis <= clock.currentMillis())
                         {
-                            jobs.pollFirst();
                             return nextJob.runnable;
                         }
                     }
@@ -181,7 +182,7 @@ public class ClockBasedScheduler implements Scheduler, Closeable
                     long waitUntilInMillis = Long.MAX_VALUE;
                     if (!jobs.isEmpty())
                     {
-                        waitUntilInMillis = jobs.first().getTimeInMillis();
+                        waitUntilInMillis = jobs.peek().getTimeInMillis();
                     }
                     clock.waitOnUntil(jobs, waitUntilInMillis);
                 }

@@ -108,6 +108,7 @@ public class EventStack implements EventListener
 
     void sendUpstream(int index, final Event evt)
     {
+
         if (index > 0)
         {
             int nextIndex = index - 1;

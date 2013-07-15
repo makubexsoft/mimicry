@@ -23,9 +23,11 @@ import com.beust.jcommander.ParameterException;
 import com.gc.mimicry.core.ClassLoadingContext;
 import com.gc.mimicry.core.deployment.ApplicationRepository;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
+import com.gc.mimicry.core.event.EventListener;
 import com.gc.mimicry.core.runtime.SimpleSimulatedNetwork;
 import com.gc.mimicry.core.runtime.SimulatedNetwork;
 import com.gc.mimicry.core.timing.net.ClockController;
+import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.util.FileNameExtensionFilter;
 import com.gc.mimicry.util.IOUtils;
 import com.gc.mimicry.util.concurrent.Future;
@@ -103,6 +105,16 @@ public class Main
 		}
 
 		SimulatedNetwork network = new SimpleSimulatedNetwork( ctx );
+
+		network.getEventBroker().addEventListener( new EventListener()
+		{
+
+			@Override
+			public void handleEvent( Event evt )
+			{
+				System.out.println( "[]  " + evt );
+			}
+		} );
 
 		runSimulationScript( args, appRepo, network );
 
