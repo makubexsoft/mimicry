@@ -1,4 +1,4 @@
-package com.gc.mimicry.plugin.tcp;
+package com.gc.mimicry.plugin.net.tcp;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;

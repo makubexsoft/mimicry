@@ -10,10 +10,11 @@
 \BOOKMARK [0][-]{chapter.3}{Extending the Mimicry Framework}{}
 \BOOKMARK [1][-]{section.3.1}{Event Handler}{chapter.3}
 \BOOKMARK [1][-]{section.3.2}{Event Listener}{chapter.3}
-\BOOKMARK [1][-]{section.3.3}{Custom Event Types}{chapter.3}
-\BOOKMARK [1][-]{section.3.4}{Built-In Event Types}{chapter.3}
-\BOOKMARK [2][-]{subsection.3.4.1}{Console Events}{section.3.4}
-\BOOKMARK [2][-]{subsection.3.4.2}{Networking Events}{section.3.4}
+\BOOKMARK [1][-]{section.3.3}{Working with the Clock}{chapter.3}
+\BOOKMARK [1][-]{section.3.4}{Custom Event Types}{chapter.3}
+\BOOKMARK [1][-]{section.3.5}{Built-In Event Types}{chapter.3}
+\BOOKMARK [2][-]{subsection.3.5.1}{Console Events}{section.3.5}
+\BOOKMARK [2][-]{subsection.3.5.2}{Networking Events}{section.3.5}
 \BOOKMARK [0][-]{chapter.4}{Using Mimicry}{}
 \BOOKMARK [1][-]{section.4.1}{Standalone Setup}{chapter.4}
 \BOOKMARK [1][-]{section.4.2}{Cluster Setup}{chapter.4}

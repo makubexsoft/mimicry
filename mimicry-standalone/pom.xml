@@ -39,4 +39,5 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
+	<name>Mimicry - Standalone System</name>
 </project>

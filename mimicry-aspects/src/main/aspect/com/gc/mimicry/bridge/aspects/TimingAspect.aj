@@ -6,7 +6,7 @@ import java.util.Date;
 import com.gc.mimicry.bridge.SimulatorBridge;
 
 /**
- * This aspect controlls the timeline of the simulated application.
+ * This aspect controls the time line of the simulated application.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -80,12 +80,12 @@ public aspect TimingAspect
 
 	void around( long millis ) throws InterruptedException : sleep(millis)  
 	{
-		SimulatorBridge.getClock().sleepUntil( SimulatorBridge.getClock().currentMillis() + millis );
+		SimulatorBridge.getClock().sleepFor( millis );
 	}
 
 	void around( Object target, long millis ) throws InterruptedException : waitP(target, millis)  
 	{
-		SimulatorBridge.getClock().waitOnUntil( target, SimulatorBridge.getClock().currentMillis() + millis );
+		SimulatorBridge.getClock().waitOnFor( target, millis );
 	}
 
 	void around( Object target ) throws InterruptedException : waitP2(target)  

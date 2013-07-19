@@ -15,7 +15,7 @@ public class SystemClock implements Clock
     }
 
     @Override
-    public void sleepUntil(long untilInMillis) throws InterruptedException
+    public void sleepFor(long untilInMillis) throws InterruptedException
     {
         long waitTime = untilInMillis - System.currentTimeMillis();
         if (waitTime > 0)
@@ -31,7 +31,7 @@ public class SystemClock implements Clock
     }
 
     @Override
-    public void waitOnUntil(Object target, long untilInMillis) throws InterruptedException
+    public void waitOnFor(Object target, long untilInMillis) throws InterruptedException
     {
         long waitTime = untilInMillis - System.currentTimeMillis();
         if (waitTime > 0)
@@ -50,5 +50,25 @@ public class SystemClock implements Clock
     public void notifyAllOnTarget(Object target)
     {
         target.notifyAll();
+    }
+
+    @Override
+    public void sleepUntil(long timeUntilInMillis) throws InterruptedException
+    {
+        long toWait = timeUntilInMillis - currentMillis();
+        if (toWait > 0)
+        {
+            sleepFor(toWait);
+        }
+    }
+
+    @Override
+    public void waitOnUntil(Object target, long timeUntilInMillis) throws InterruptedException
+    {
+        long toWait = timeUntilInMillis - currentMillis();
+        if (toWait > 0)
+        {
+            waitOnUntil(target, toWait);
+        }
     }
 }

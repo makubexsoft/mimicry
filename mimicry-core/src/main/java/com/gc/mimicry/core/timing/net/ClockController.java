@@ -5,6 +5,12 @@ import com.gc.mimicry.shared.events.clock.ClockAdvanceEvent;
 import com.gc.mimicry.shared.events.clock.ClockStartEvent;
 import com.gc.mimicry.shared.events.clock.ClockStopEvent;
 
+/**
+ * This class allows remotely controling the clock of a simulation.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class ClockController
 {
     private final EventBroker broker;

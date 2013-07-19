@@ -123,4 +123,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<name>Mimicry - Core</name>
 </project>

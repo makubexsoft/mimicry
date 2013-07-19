@@ -1,4 +1,4 @@
-package com.gc.mimicry.plugin.tcp;
+package com.gc.mimicry.plugin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

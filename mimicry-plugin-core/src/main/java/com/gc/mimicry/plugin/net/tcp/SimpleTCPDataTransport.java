@@ -1,10 +1,11 @@
-package com.gc.mimicry.plugin.tcp;
+package com.gc.mimicry.plugin.net.tcp;
 
 import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.UUID;
 
 import com.gc.mimicry.core.event.EventHandlerBase;
+import com.gc.mimicry.plugin.net.PortManager;
 import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.shared.net.events.TCPReceivedDataEvent;
 import com.gc.mimicry.shared.net.events.TCPSendDataEvent;

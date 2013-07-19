@@ -23,4 +23,5 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent</relativePath>
 	</parent>
+	<name>Mimicry - Shared</name>
 </project>

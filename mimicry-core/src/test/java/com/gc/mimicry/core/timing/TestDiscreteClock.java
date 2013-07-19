@@ -51,7 +51,7 @@ public class TestDiscreteClock
                     try
                     {
                         latch.countDown();
-                        clock.waitOnUntil(obj, 5000);
+                        clock.waitOnFor(obj, 5000);
                     }
                     catch (InterruptedException e)
                     {

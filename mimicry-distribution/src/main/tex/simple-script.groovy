@@ -15,7 +15,12 @@ EventHandlerConfiguration[] eventStack =
 		className: "com.gc.mimicry.plugin.tcp.SimpleTCPDataTransport"
 	],
 	[
-		className: "com.gc.mimicry.plugin.tcp.TCPConnectionManager"	
+		className: "com.gc.mimicry.plugin.tcp.TCPConnectionManager",
+		configuration: 
+		[
+			someProp: "value-1",
+			otherProp: "value-2"
+		]	
 	]
 ]
 
@@ -43,4 +48,4 @@ network.startApplication(appRef)
 // Start the timeline of the simulation
 // The multiplier of 1.0 indicates that the simulation is running
 // as fast as the system time
-network.getClock().start(1.0)
+timeline.start(1.0)

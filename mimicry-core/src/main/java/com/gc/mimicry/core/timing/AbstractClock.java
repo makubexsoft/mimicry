@@ -29,6 +29,13 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
     }
 
     @Override
+    public void sleepFor(long timeInMillis) throws InterruptedException
+    {
+        long until = currentMillis() + timeInMillis;
+        sleepUntil(until);
+    }
+
+    @Override
     public void sleepUntil(long untilInMillis) throws InterruptedException
     {
         Thread thread = Thread.currentThread();
@@ -92,7 +99,14 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
     }
 
     @Override
-    public void waitOnUntil(Object target, long untilInMillis) throws InterruptedException
+    public void waitOnFor(Object target, long timeoutInMillis) throws InterruptedException
+    {
+        long timeUntil = currentMillis() + timeoutInMillis;
+        waitOnUntil(target, timeUntil);
+    }
+
+    @Override
+    public void waitOnUntil(Object target, long timeUntilInMillis) throws InterruptedException
     {
         Thread thread = Thread.currentThread();
         if (thread instanceof IManagedThread)
@@ -107,7 +121,7 @@ public abstract class AbstractClock implements Clock, ThreadShutdownListener
 
         try
         {
-            while (currentMillis() < untilInMillis)
+            while (currentMillis() < timeUntilInMillis)
             {
                 try
                 {

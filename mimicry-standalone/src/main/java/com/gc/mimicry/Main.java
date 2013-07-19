@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.swing.UIManager;
+
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +25,9 @@ import com.beust.jcommander.ParameterException;
 import com.gc.mimicry.core.ClassLoadingContext;
 import com.gc.mimicry.core.deployment.ApplicationRepository;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
-import com.gc.mimicry.core.event.EventListener;
 import com.gc.mimicry.core.runtime.SimpleSimulatedNetwork;
 import com.gc.mimicry.core.runtime.SimulatedNetwork;
 import com.gc.mimicry.core.timing.net.ClockController;
-import com.gc.mimicry.shared.events.Event;
 import com.gc.mimicry.util.FileNameExtensionFilter;
 import com.gc.mimicry.util.IOUtils;
 import com.gc.mimicry.util.concurrent.Future;
@@ -52,6 +52,8 @@ public class Main
 
 		logger.info( String.format( "Mimicry v.%s starting...",
 				PropertyHelper.getValue( PropertyHelper.MIMICRY_VERSION, "<unknown>" ) ) );
+
+		setLaF();
 
 		ApplicationRepository appRepo = new LocalApplicationRepository();
 
@@ -106,16 +108,6 @@ public class Main
 
 		SimulatedNetwork network = new SimpleSimulatedNetwork( ctx );
 
-		network.getEventBroker().addEventListener( new EventListener()
-		{
-
-			@Override
-			public void handleEvent( Event evt )
-			{
-				System.out.println( "[]  " + evt );
-			}
-		} );
-
 		runSimulationScript( args, appRepo, network );
 
 		Future<?> endFuture = network.getSimulationEndFuture();
@@ -139,6 +131,18 @@ public class Main
 		GroovyScriptEngine gse = new GroovyScriptEngine( roots, Main.class.getClassLoader() );
 		gse.getConfig().addCompilationCustomizers( importCust );
 		gse.run( args.mainScript, binding );
+	}
+
+	private static void setLaF()
+	{
+		try
+		{
+			UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+		}
+		catch ( Exception e )
+		{
+			logger.warn( "Failed to set look-and-feel.", e );
+		}
 	}
 
 	private static Arguments parseCmdArguments( String[] argv )
