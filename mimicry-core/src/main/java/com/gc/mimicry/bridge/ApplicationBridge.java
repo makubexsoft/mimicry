@@ -1,7 +1,7 @@
 package com.gc.mimicry.bridge;
 
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 import com.gc.mimicry.core.event.EventBridge;
@@ -43,7 +43,7 @@ public class ApplicationBridge
             shutdownMethod = bridgeClass.getDeclaredMethod(SHUTDOWN_METHOD_NAME);
             startMethod = bridgeClass.getDeclaredMethod(START_METHOD_NAME, ClassLoader.class);
             setMainClassMethod = bridgeClass.getDeclaredMethod(SET_MAIN_CLASS_METHOD_NAME, String.class);
-            setCommandArgsMethod = bridgeClass.getDeclaredMethod(SET_COMMANDARGS_METHOD_NAME, Set.class);
+            setCommandArgsMethod = bridgeClass.getDeclaredMethod(SET_COMMANDARGS_METHOD_NAME, List.class);
             getShutdownFutureMethod = bridgeClass.getDeclaredMethod(GET_SHUTDOWN_FUTURE_METHOD_NAME);
         }
         catch (Exception e)
@@ -52,7 +52,7 @@ public class ApplicationBridge
         }
     }
 
-    public void setCommandArgs(Set<String> args)
+    public void setCommandArgs(List<String> args)
     {
         Preconditions.checkNotNull(args);
         try

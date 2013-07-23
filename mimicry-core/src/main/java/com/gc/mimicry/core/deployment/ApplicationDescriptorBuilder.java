@@ -5,10 +5,10 @@ import java.io.File;
 import com.google.common.base.Splitter;
 
 /**
- * A utility class implementing the builder pattern for the {@link ApplicationDescriptor}.
+ * A utility class implementing the builder pattern for the {@link ApplicationBundleDescriptor}.
  * 
  * @author Marc-Christian Schulze
- * @see ApplicationDescriptor
+ * @see ApplicationBundleDescriptor
  */
 public class ApplicationDescriptorBuilder
 {
@@ -19,21 +19,12 @@ public class ApplicationDescriptorBuilder
 
     private ApplicationDescriptorBuilder(String name)
     {
-        desc = new ApplicationDescriptor(name);
+        desc = new ApplicationBundleDescriptor(name);
     }
 
     public ApplicationDescriptorBuilder withBundleLocation(File bundleLocation)
     {
         desc.setBundleLocation(bundleLocation);
-        return this;
-    }
-
-    public ApplicationDescriptorBuilder withCommandLine(String cmd)
-    {
-        for (String s : Splitter.on(" ").split(cmd))
-        {
-            desc.addCommandLine(s);
-        }
         return this;
     }
 
@@ -64,10 +55,10 @@ public class ApplicationDescriptorBuilder
         return this;
     }
 
-    public ApplicationDescriptor build()
+    public ApplicationBundleDescriptor build()
     {
         return desc;
     }
 
-    private final ApplicationDescriptor desc;
+    private final ApplicationBundleDescriptor desc;
 }

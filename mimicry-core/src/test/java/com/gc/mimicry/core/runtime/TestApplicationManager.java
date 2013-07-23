@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.gc.mimicry.core.ClassLoadingContext;
-import com.gc.mimicry.core.deployment.ApplicationDescriptor;
+import com.gc.mimicry.core.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.core.deployment.ApplicationDescriptorBuilder;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
 import com.gc.mimicry.core.event.Node;
@@ -71,7 +71,7 @@ public class TestApplicationManager
     @Test
     public void testLaunchApplication() throws IOException, InterruptedException
     {
-        ApplicationDescriptor appDesc;
+        ApplicationBundleDescriptor appDesc;
         Application application;
         appDesc = appRepo.getApplicationDescriptor("sample-app");
         application = node.getApplicationManager().launchApplication(appDesc);
@@ -91,7 +91,7 @@ public class TestApplicationManager
     @Test
     public void testLaunch2ApplicationInstances() throws IOException, InterruptedException
     {
-        ApplicationDescriptor appDesc;
+        ApplicationBundleDescriptor appDesc;
         appDesc = appRepo.getApplicationDescriptor("sample-app");
 
         Application app1;
@@ -116,18 +116,16 @@ public class TestApplicationManager
         ApplicationDescriptorBuilder clientBuilder;
         clientBuilder = ApplicationDescriptorBuilder.newDescriptor("client");
         clientBuilder.withMainClass("examples.PingPongClient");
-        clientBuilder.withCommandLine("127.0.0.1 8000");
         clientBuilder.withRunnableJar("sample-app.jar");
         clientBuilder.withClassPath("sample-app.jar");
-        ApplicationDescriptor clientDesc = clientBuilder.build();
+        ApplicationBundleDescriptor clientDesc = clientBuilder.build();
 
         ApplicationDescriptorBuilder serverBuilder;
         serverBuilder = ApplicationDescriptorBuilder.newDescriptor("server");
         serverBuilder.withMainClass("examples.PingPongServer");
-        serverBuilder.withCommandLine("8000");
         serverBuilder.withRunnableJar("sample-app.jar");
         serverBuilder.withClassPath("sample-app.jar");
-        ApplicationDescriptor serverDesc = serverBuilder.build();
+        ApplicationBundleDescriptor serverDesc = serverBuilder.build();
 
         Application client;
         Application server;
@@ -136,8 +134,8 @@ public class TestApplicationManager
 
         clock.start(1.0);
 
-        server.start();
-        client.start();
+        server.start("8000");
+        client.start("127.0.0.1", "8000");
 
         Thread.sleep(5000);
 

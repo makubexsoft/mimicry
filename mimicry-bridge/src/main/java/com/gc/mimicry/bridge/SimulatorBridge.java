@@ -3,7 +3,7 @@ package com.gc.mimicry.bridge;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 import com.gc.mimicry.bridge.threading.ManagedThread;
@@ -32,7 +32,7 @@ public final class SimulatorBridge
     private static EventBridge eventBridge;
     private static ThreadManager threadManager;
     private static String mainClassName;
-    private static Set<String> commandArgs;
+    private static List<String> commandArgs;
     private static ClassLoader systemClassLoader;
     private static ByteBuffer inputBuffer;
     private static InputStream systemInputStream;
@@ -72,7 +72,7 @@ public final class SimulatorBridge
         SimulatorBridge.mainClassName = mainClassName;
     }
 
-    public static void setCommandArgs(Set<String> args)
+    public static void setCommandArgs(List<String> args)
     {
         commandArgs = args;
     }
@@ -93,7 +93,10 @@ public final class SimulatorBridge
 
     public static Future<?> getShutdownFuture()
     {
-        checkInitialized();
+        if (threadManager == null)
+        {
+            throw new IllegalStateException("No thread manager in place. Invoke setApplicationId first.");
+        }
         return threadManager.getShutdownFuture();
     }
 
@@ -228,19 +231,16 @@ public final class SimulatorBridge
      */
     public static UUID getApplicationId()
     {
-        checkInitialized();
         return applicationId;
     }
 
     public static Clock getClock()
     {
-        checkInitialized();
         return clock;
     }
 
     public static EventBridge getEventBridge()
     {
-        checkInitialized();
         return eventBridge;
     }
 

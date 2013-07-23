@@ -1,6 +1,7 @@
 package com.gc.mimicry.core.runtime;
 
 import java.io.Closeable;
+import java.util.Arrays;
 import java.util.UUID;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
@@ -81,8 +82,9 @@ public class Application implements Closeable
     /**
      * Starts the main thread of the application.
      */
-    public void start()
+    public void start(String... commandArgs)
     {
+        bridge.setCommandArgs(Arrays.asList(commandArgs));
         bridge.startApplication();
     }
 

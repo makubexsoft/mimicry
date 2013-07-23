@@ -10,7 +10,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.gc.mimicry.core.deployment.ApplicationDescriptor;
+import com.gc.mimicry.core.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
 
 public class TestLocalApplicationRepository
@@ -27,7 +27,7 @@ public class TestLocalApplicationRepository
     @Test
     public void testLoadDescriptor()
     {
-        ApplicationDescriptor descriptor = repo.getApplicationDescriptor("sample-app");
+        ApplicationBundleDescriptor descriptor = repo.getApplicationDescriptor("sample-app");
 
         assertNotNull(descriptor);
         assertEquals("sample-app", descriptor.getName());
@@ -38,14 +38,14 @@ public class TestLocalApplicationRepository
     @Test
     public void testLoadInvalidDescriptor()
     {
-        ApplicationDescriptor descriptor = repo.getApplicationDescriptor("sample");
+        ApplicationBundleDescriptor descriptor = repo.getApplicationDescriptor("sample");
         assertNull(descriptor);
     }
 
     @Test
     public void testLoadNonExistentFile()
     {
-        ApplicationDescriptor descriptor = repo.getApplicationDescriptor("does-not-exist");
+        ApplicationBundleDescriptor descriptor = repo.getApplicationDescriptor("does-not-exist");
         assertNull(descriptor);
     }
 }

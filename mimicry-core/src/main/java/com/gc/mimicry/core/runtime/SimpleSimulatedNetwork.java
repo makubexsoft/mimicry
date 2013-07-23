@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gc.mimicry.core.ClassLoadingContext;
-import com.gc.mimicry.core.deployment.ApplicationDescriptor;
+import com.gc.mimicry.core.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.core.event.EventBroker;
 import com.gc.mimicry.core.event.Node;
 import com.gc.mimicry.core.event.NodeManager;
@@ -68,7 +68,7 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     }
 
     @Override
-    public NodeRef spawnNode(NodeConfiguration nodeConfig)
+    public NodeRef createNode(NodeConfiguration nodeConfig)
     {
         checkInitialized();
         logger.info("Spawning node in local JVM: " + nodeConfig.getNodeName());
@@ -77,7 +77,7 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     }
 
     @Override
-    public ApplicationRef spawnApplication(NodeRef nodeRef, ApplicationDescriptor appDesc)
+    public ApplicationRef loadApplication(NodeRef nodeRef, ApplicationBundleDescriptor appDesc)
     {
         checkInitialized();
 
@@ -99,23 +99,6 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
             logger.error("Failed to spawn application.", e);
             throw new RuntimeException("Failed to spawn application.", e);
         }
-    }
-
-    @Override
-    public void startApplication(ApplicationRef app)
-    {
-        checkInitialized();
-
-        Node node = nodeMgr.findNode(app.getNodeId());
-        if (node == null)
-        {
-            throw new RuntimeException("Node doesn't exist in local JVM: " + app.getNodeId());
-        }
-
-        ApplicationManager manager = node.getApplicationManager();
-        Application application = manager.getApplication(app.getApplicationId());
-        logger.info("Starting application: " + app);
-        application.start();
     }
 
     @Override

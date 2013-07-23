@@ -15,7 +15,7 @@ public interface ApplicationRepository
 
     public Set<String> getApplicationNames();
 
-    public ApplicationDescriptor getApplicationDescriptor(String applicationName);
+    public ApplicationBundleDescriptor getApplicationDescriptor(String applicationName);
 
     public void storeApplication(String appName, InputStream bundleStream) throws IOException;
 }

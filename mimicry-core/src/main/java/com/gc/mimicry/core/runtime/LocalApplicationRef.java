@@ -2,10 +2,12 @@ package com.gc.mimicry.core.runtime;
 
 import java.util.UUID;
 
+import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
 
 public class LocalApplicationRef implements ApplicationRef
 {
+    private final Application app;
     private final UUID nodeId;
     private final UUID appId;
 
@@ -13,6 +15,7 @@ public class LocalApplicationRef implements ApplicationRef
     {
         Preconditions.checkNotNull(app);
 
+        this.app = app;
         nodeId = app.getNode().getId();
         appId = app.getId();
     }
@@ -35,4 +38,15 @@ public class LocalApplicationRef implements ApplicationRef
         return "LocalApplicationRef [nodeId=" + nodeId + ", appId=" + appId + "]";
     }
 
+    @Override
+    public void start(String... commandArgs)
+    {
+        app.start(commandArgs);
+    }
+
+    @Override
+    public Future<?> stop()
+    {
+        return app.stop();
+    }
 }

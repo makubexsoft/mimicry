@@ -30,7 +30,7 @@ public class LocalApplicationRepository implements ApplicationRepository
         DEFAULT_APP_REPOSITORY = ".mimicry" + File.separator + "repository";
     }
 
-    private final Map<String, ApplicationDescriptor> loadedDescriptors;
+    private final Map<String, ApplicationBundleDescriptor> loadedDescriptors;
     private final File repositoryPath;
 
     public LocalApplicationRepository() throws IOException
@@ -48,7 +48,7 @@ public class LocalApplicationRepository implements ApplicationRepository
             throw new IOException("Failed to create directories of repository: " + repositoryPath);
         }
 
-        loadedDescriptors = new HashMap<String, ApplicationDescriptor>();
+        loadedDescriptors = new HashMap<String, ApplicationBundleDescriptor>();
     }
 
     @Override
@@ -66,9 +66,9 @@ public class LocalApplicationRepository implements ApplicationRepository
     }
 
     @Override
-    public ApplicationDescriptor getApplicationDescriptor(String applicationName)
+    public ApplicationBundleDescriptor getApplicationDescriptor(String applicationName)
     {
-        ApplicationDescriptor descriptor = loadedDescriptors.get(applicationName);
+        ApplicationBundleDescriptor descriptor = loadedDescriptors.get(applicationName);
         if (descriptor == null)
         {
             try
@@ -84,7 +84,7 @@ public class LocalApplicationRepository implements ApplicationRepository
         return descriptor;
     }
 
-    private ApplicationDescriptor loadDescriptor(String appName) throws IOException
+    private ApplicationBundleDescriptor loadDescriptor(String appName) throws IOException
     {
         File bundleFile = new File(repositoryPath, appName + ".zip");
         final ZipFile zipFile = new ZipFile(bundleFile);
@@ -102,7 +102,6 @@ public class LocalApplicationRepository implements ApplicationRepository
             builder.withBundleLocation(bundleFile);
             builder.withMainClass(props.getProperty("Main-Class"));
             builder.withRunnableJar(props.getProperty("Runnable-Jar"));
-            builder.withCommandLine(props.getProperty("Command-Line"));
             builder.withClassPath(props.getProperty("Class-Path"));
             for (String s : Splitter.on(",").split(props.getProperty("Supported-OS")))
             {

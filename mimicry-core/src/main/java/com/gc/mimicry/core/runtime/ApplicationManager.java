@@ -1,6 +1,7 @@
 package com.gc.mimicry.core.runtime;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ import com.gc.mimicry.bridge.WeavingClassLoader;
 import com.gc.mimicry.core.BaseResourceManager;
 import com.gc.mimicry.core.ChildFirstURLClassLoader;
 import com.gc.mimicry.core.ClassLoadingContext;
-import com.gc.mimicry.core.deployment.ApplicationDescriptor;
+import com.gc.mimicry.core.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.core.event.Node;
 import com.gc.mimicry.util.ClassPathUtil;
 import com.google.common.base.Preconditions;
@@ -78,11 +79,29 @@ public class ApplicationManager extends BaseResourceManager
      * @return
      * @throws IOException
      */
-    public Application launchApplication(ApplicationDescriptor appDesc) throws IOException
+    public Application launchApplication(ApplicationBundleDescriptor appDesc) throws IOException
     {
+        WeavingClassLoader loader = createClassLoader(appDesc);
+
+        ApplicationBridge bridge = createBridge(appDesc, loader);
+
+        return createApplication(bridge);
+    }
+
+    private ApplicationBridge createBridge(ApplicationBundleDescriptor appDesc, WeavingClassLoader loader)
+    {
+        ApplicationBridge bridge = new ApplicationBridge(loader);
+        bridge.setMainClass(appDesc.getMainClass());
+        bridge.setEventBridge(node.getEventBridge());
+        bridge.setClock(node.getClock());
+        return bridge;
+    }
+
+    private WeavingClassLoader createClassLoader(ApplicationBundleDescriptor appDesc) throws MalformedURLException
+    {
+        ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
         ChildFirstURLClassLoader outerClassLoader;
-        outerClassLoader = new ChildFirstURLClassLoader(context.getBridgeClassPath(), Thread.currentThread()
-                .getContextClassLoader());
+        outerClassLoader = new ChildFirstURLClassLoader(context.getBridgeClassPath(), parentCL);
 
         List<URL> aspectUrls = new ArrayList<URL>();
         aspectUrls.addAll(context.getAspectClassPath());
@@ -94,28 +113,19 @@ public class ApplicationManager extends BaseResourceManager
 
         LoopInterceptingByteCodeLoader codeLoader = createApplicationClassLoader(appDesc);
         WeavingClassLoader loader = new WeavingClassLoader(aspectJClassPath, aspectUrls, codeLoader, outerClassLoader);
+        return loader;
+    }
 
-        ApplicationBridge bridge = new ApplicationBridge(loader);
-        bridge.setMainClass(appDesc.getMainClass());
-        bridge.setCommandArgs(appDesc.getCommandLine());
-        bridge.setEventBridge(node.getEventBridge());
-        bridge.setClock(node.getClock());
-
+    private Application createApplication(ApplicationBridge bridge)
+    {
         Application app = new Application(node, bridge);
-
         applications.add(app);
         attachResource(app);
-
         return app;
     }
 
-    private LoopInterceptingByteCodeLoader createApplicationClassLoader(ApplicationDescriptor appDesc)
+    private LoopInterceptingByteCodeLoader createApplicationClassLoader(ApplicationBundleDescriptor appDesc)
     {
-        //
-        // In order to resolve all symbols in soot
-        // we need to setup the classpath which can be referenced by soot
-        // App.'s Classpath + Core Bundle
-        //
         Set<String> referencedClassPath = new HashSet<String>(appDesc.getClassPath());
         referencedClassPath.addAll(ClassPathUtil.getSystemClassPath());
         LoopInterceptingByteCodeLoader codeLoader;

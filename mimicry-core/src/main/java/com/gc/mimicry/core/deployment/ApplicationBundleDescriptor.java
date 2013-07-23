@@ -13,23 +13,21 @@ import com.google.common.base.Preconditions;
  * @author Marc-Christian Schulze
  * 
  */
-public class ApplicationDescriptor implements Serializable
+public class ApplicationBundleDescriptor implements Serializable
 {
     private static final long serialVersionUID = -6006659970679551969L;
     private transient File bundleLocation;
     private final String name;
-    private final Set<String> commandLine;
     private final Set<String> classPath;
     private String mainClass;
     private String runnableJarFile;
     private final Set<String> supportedOSes;
 
-    ApplicationDescriptor(String name)
+    public ApplicationBundleDescriptor(String name)
     {
         Preconditions.checkNotNull(name);
 
         this.name = name;
-        commandLine = new TreeSet<String>();
         classPath = new TreeSet<String>();
         supportedOSes = new TreeSet<String>();
     }
@@ -37,11 +35,6 @@ public class ApplicationDescriptor implements Serializable
     void setBundleLocation(File bundleLocation)
     {
         this.bundleLocation = bundleLocation;
-    }
-
-    void addCommandLine(String commandLine)
-    {
-        this.commandLine.add(commandLine);
     }
 
     void addClassPath(String classPath)
@@ -106,16 +99,6 @@ public class ApplicationDescriptor implements Serializable
     }
 
     /**
-     * Returns the command line parameters.
-     * 
-     * @return
-     */
-    public Set<String> getCommandLine()
-    {
-        return commandLine;
-    }
-
-    /**
      * Returns the class path required to execute the application. It doesn't contain the JRE library since the location
      * is platform dependent.
      * 
@@ -139,8 +122,18 @@ public class ApplicationDescriptor implements Serializable
     @Override
     public String toString()
     {
-        return "ApplicationDescriptor [name=" + name + ", commandLine=" + commandLine + ", classPath=" + classPath
-                + ", mainClass=" + mainClass + ", runnableJarFile=" + runnableJarFile + ", supportedOSes="
-                + supportedOSes + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("ApplicationBundleDescriptor [name=");
+        builder.append(name);
+        builder.append(", classPath=");
+        builder.append(classPath);
+        builder.append(", mainClass=");
+        builder.append(mainClass);
+        builder.append(", runnableJarFile=");
+        builder.append(runnableJarFile);
+        builder.append(", supportedOSes=");
+        builder.append(supportedOSes);
+        builder.append("]");
+        return builder.toString();
     }
 }

@@ -1,6 +1,6 @@
 package com.gc.mimicry.core.runtime;
 
-import com.gc.mimicry.core.deployment.ApplicationDescriptor;
+import com.gc.mimicry.core.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.core.event.EventBroker;
 import com.gc.mimicry.util.concurrent.Future;
 
@@ -41,7 +41,7 @@ public interface SimulatedNetwork
      *            The configuration containing information how to create and configure the node.
      * @return A reference to the newly created node.
      */
-    public NodeRef spawnNode(NodeConfiguration nodeConfig);
+    public NodeRef createNode(NodeConfiguration nodeConfig);
 
     /**
      * Spawns a new application instance on the referenced node but doesn't start its main thread.
@@ -50,15 +50,7 @@ public interface SimulatedNetwork
      * @param appDesc
      * @return
      */
-    public ApplicationRef spawnApplication(NodeRef node, ApplicationDescriptor appDesc);
-
-    /**
-     * Starts the main thread of the referenced application.
-     * 
-     * @param app
-     *            Reference to the application to start.
-     */
-    public void startApplication(ApplicationRef app);
+    public ApplicationRef loadApplication(NodeRef node, ApplicationBundleDescriptor appDesc);
 
     /**
      * Shuts the simulation asynchronously down and returns the corresponding future to monitor progress.
