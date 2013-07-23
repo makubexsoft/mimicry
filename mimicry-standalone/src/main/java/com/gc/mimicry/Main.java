@@ -25,8 +25,8 @@ import com.beust.jcommander.ParameterException;
 import com.gc.mimicry.core.ClassLoadingContext;
 import com.gc.mimicry.core.deployment.ApplicationRepository;
 import com.gc.mimicry.core.deployment.LocalApplicationRepository;
-import com.gc.mimicry.core.runtime.SimpleSimulatedNetwork;
-import com.gc.mimicry.core.runtime.SimulatedNetwork;
+import com.gc.mimicry.core.runtime.Simulation;
+import com.gc.mimicry.core.runtime.StandaloneSimulation;
 import com.gc.mimicry.core.timing.net.ClockController;
 import com.gc.mimicry.util.FileNameExtensionFilter;
 import com.gc.mimicry.util.IOUtils;
@@ -106,7 +106,7 @@ public class Main
 			ctx.addBridgeClassPath( jarFile.toURI().toURL() );
 		}
 
-		SimulatedNetwork network = new SimpleSimulatedNetwork( ctx );
+		Simulation network = new StandaloneSimulation( ctx );
 
 		runSimulationScript( args, appRepo, network );
 
@@ -114,11 +114,11 @@ public class Main
 		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
 	}
 
-	private static void runSimulationScript( Arguments args, ApplicationRepository appRepo, SimulatedNetwork network )
+	private static void runSimulationScript( Arguments args, ApplicationRepository appRepo, Simulation network )
 			throws IOException, ResourceException, ScriptException
 	{
 		Binding binding = new Binding();
-		binding.setVariable( "network", network );
+		binding.setVariable( "simulation", network );
 		binding.setVariable( "repository", appRepo );
 		binding.setVariable( "timeline", new ClockController( network.getEventBroker() ) );
 

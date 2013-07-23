@@ -25,9 +25,9 @@ import com.google.common.base.Preconditions;
  * @author Marc-Christian Schulze
  * 
  */
-public class SimpleSimulatedNetwork implements SimulatedNetwork
+public class StandaloneSimulation implements Simulation
 {
-    public SimpleSimulatedNetwork(ClassLoadingContext ctx)
+    public StandaloneSimulation(ClassLoadingContext ctx)
     {
         Preconditions.checkNotNull(ctx);
 
@@ -68,11 +68,11 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     }
 
     @Override
-    public NodeRef createNode(NodeConfiguration nodeConfig)
+    public NodeRef createNode(String nodeName, EventHandlerConfiguration[] eventStack)
     {
         checkInitialized();
-        logger.info("Spawning node in local JVM: " + nodeConfig.getNodeName());
-        Node node = nodeMgr.createNode(nodeConfig);
+        logger.info("Spawning node in local JVM: " + nodeName);
+        Node node = nodeMgr.createNode(new NodeConfiguration(nodeName, eventStack));
         return new LocalNodeRef(node);
     }
 
@@ -147,7 +147,7 @@ public class SimpleSimulatedNetwork implements SimulatedNetwork
     private static final Logger logger;
     static
     {
-        logger = LoggerFactory.getLogger(SimpleSimulatedNetwork.class);
+        logger = LoggerFactory.getLogger(StandaloneSimulation.class);
     }
 
 }

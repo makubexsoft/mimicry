@@ -15,7 +15,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import com.gc.mimicry.core.runtime.SimulatedNetwork;
+import com.gc.mimicry.core.runtime.Simulation;
 import com.gc.mimicry.core.timing.Clock;
 import com.gc.mimicry.core.timing.ClockType;
 import com.gc.mimicry.core.timing.DiscreteClock;
@@ -44,7 +44,7 @@ public class TimelineWindowPlugin extends JDialog
 	private Clock					localClock;
 	private final ClockDriver		clockDriver;
 	private Thread					updateThread;
-	private final SimulatedNetwork	network;
+	private final Simulation	network;
 	private final ClockController	clockCtrl;
 
 	private JTextField				txtMultiplier;
@@ -56,7 +56,7 @@ public class TimelineWindowPlugin extends JDialog
 	private JLabel					lblCurrentTime;
 	private JTabbedPane				tabbedPane;
 
-	public TimelineWindowPlugin(SimulatedNetwork network, ClockController clockCtrl)
+	public TimelineWindowPlugin(Simulation network, ClockController clockCtrl)
 	{
 		this.network = network;
 		this.clockCtrl = clockCtrl;

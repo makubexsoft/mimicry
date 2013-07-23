@@ -2,6 +2,7 @@ package com.gc.mimicry.core.runtime;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
@@ -10,13 +11,21 @@ public class NodeConfiguration implements Serializable
 {
     private static final long serialVersionUID = 7308790723979464412L;
     private String nodeName;
-    private List<EventHandlerConfiguration> eventStack;
+    private final List<EventHandlerConfiguration> eventStack;
 
     public NodeConfiguration(String name)
     {
         Preconditions.checkNotNull(name);
         this.nodeName = name;
         eventStack = new ArrayList<EventHandlerConfiguration>();
+    }
+
+    public NodeConfiguration(String name, EventHandlerConfiguration[] stack)
+    {
+        Preconditions.checkNotNull(name);
+        this.nodeName = name;
+        eventStack = new ArrayList<EventHandlerConfiguration>();
+        eventStack.addAll(Arrays.asList(stack));
     }
 
     public String getNodeName()
