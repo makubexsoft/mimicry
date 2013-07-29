@@ -28,9 +28,9 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 
-import com.gc.mimicry.core.session.controller.SessionController;
-import com.gc.mimicry.core.timing.ClockType;
-import com.gc.mimicry.net.NodeInfo;
+import com.gc.mimicry.cluster.NodeInfo;
+import com.gc.mimicry.cluster.session.controller.SessionController;
+import com.gc.mimicry.engine.timing.ClockType;
 import com.jidesoft.swing.JideTabbedPane;
 
 public class SessionManagementFrame extends JInternalFrame

@@ -13,9 +13,9 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
-import com.gc.mimicry.core.session.controller.SessionController;
-import com.gc.mimicry.core.session.controller.SessionControllerFuture;
-import com.gc.mimicry.core.session.controller.SimulationController;
+import com.gc.mimicry.cluster.session.controller.SessionController;
+import com.gc.mimicry.cluster.session.controller.SessionControllerFuture;
+import com.gc.mimicry.cluster.session.controller.SimulationController;
 import com.gc.mimicry.util.concurrent.FutureListener;
 import com.gc.mimicry.util.concurrent.ValueFuture;
 

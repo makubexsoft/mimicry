@@ -16,17 +16,17 @@ import java.util.List;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
-import com.gc.mimicry.core.event.EventListener;
-import com.gc.mimicry.shared.events.BaseEvent;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.net.events.DatagramSocketOption;
-import com.gc.mimicry.shared.net.events.SetDatagramSocketOptionEvent;
-import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
-import com.gc.mimicry.shared.net.events.SocketBoundEvent;
-import com.gc.mimicry.shared.net.events.SocketClosedEvent;
-import com.gc.mimicry.shared.net.events.SocketErrorEvent;
-import com.gc.mimicry.shared.net.events.SocketType;
-import com.gc.mimicry.shared.net.events.UDPPacketEvent;
+import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
+import com.gc.mimicry.ext.net.events.SocketBoundEvent;
+import com.gc.mimicry.ext.net.events.SocketClosedEvent;
+import com.gc.mimicry.ext.net.events.SocketErrorEvent;
+import com.gc.mimicry.ext.net.events.SocketType;
+import com.gc.mimicry.ext.net.udp.events.DatagramSocketOption;
+import com.gc.mimicry.ext.net.udp.events.SetDatagramSocketOptionEvent;
+import com.gc.mimicry.ext.net.udp.events.UDPPacketEvent;
 
 /**
  * Stub implementation of a {@link DatagramSocket} that translates all interactions into events and vice-versa.

@@ -9,6 +9,8 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.gc.mimicry.bridge.weaving.SootByteCodeLoader;
+
 import soot.G;
 
 public class TestSootByteCodeLoader

@@ -11,12 +11,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;
 
-import com.gc.mimicry.core.event.EventBroker;
-import com.gc.mimicry.core.event.EventListener;
-import com.gc.mimicry.core.runtime.ApplicationRef;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.events.console.ConsoleInputEvent;
-import com.gc.mimicry.shared.events.console.ConsoleOutputEvent;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.apps.ApplicationRef;
+import com.gc.mimicry.ext.stdio.events.ConsoleInputEvent;
+import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
 
 /**
  * This plugin allows the user to interact with the command line of a certain

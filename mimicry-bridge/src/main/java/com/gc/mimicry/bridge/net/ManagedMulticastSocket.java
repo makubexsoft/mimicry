@@ -9,11 +9,11 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 
-import com.gc.mimicry.shared.net.events.JoinMulticastGroupEvent;
-import com.gc.mimicry.shared.net.events.LeaveMulticastGroupEvent;
-import com.gc.mimicry.shared.net.events.MulticastSocketOption;
-import com.gc.mimicry.shared.net.events.SetMulticastSocketOptionEvent;
-import com.gc.mimicry.shared.net.events.UDPPacketEvent;
+import com.gc.mimicry.ext.net.udp.events.JoinMulticastGroupEvent;
+import com.gc.mimicry.ext.net.udp.events.LeaveMulticastGroupEvent;
+import com.gc.mimicry.ext.net.udp.events.MulticastSocketOption;
+import com.gc.mimicry.ext.net.udp.events.SetMulticastSocketOptionEvent;
+import com.gc.mimicry.ext.net.udp.events.UDPPacketEvent;
 
 /**
  * Stub implementation of a {@link MulticastSocket} that translates all interactions into events and vice-versa.

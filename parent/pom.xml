@@ -5,10 +5,19 @@
 	<artifactId>parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<name>Mimicry - Parent</name>
+	<url>http://www.mimicry-framework.org</url>
+	<inceptionYear>2012</inceptionYear>
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
 
 	<modules>
 		<module>../mimicry-aspects</module>
-		<module>../mimicry-shared</module>
 		<module>../mimicry-bridge</module>
 		<module>../mimicry-core</module>
 		<module>../mimicry-dedicated-engine</module>
@@ -62,5 +71,16 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	<name>Mimicry - Parent</name>
+
+	<developers>
+		<developer>
+			<id>marc.christian.schulze</id>
+			<email>Marc.Christian.Schulze@gmail.com</email>
+			<name>Marc-Christian Schulze</name>
+			<roles>
+				<role>Project Lead</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
 </project>

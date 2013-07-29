@@ -9,12 +9,12 @@ import java.util.UUID;
 import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.bridge.threading.ThreadShouldTerminateException;
-import com.gc.mimicry.core.event.EventBridge;
-import com.gc.mimicry.core.event.EventListener;
-import com.gc.mimicry.core.timing.Clock;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.events.console.ConsoleInputEvent;
-import com.gc.mimicry.shared.util.ByteBuffer;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.stack.EventBridge;
+import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.ext.stdio.events.ConsoleInputEvent;
+import com.gc.mimicry.util.ByteBuffer;
 import com.gc.mimicry.util.concurrent.Future;
 
 /**

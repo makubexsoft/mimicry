@@ -2,7 +2,7 @@ package com.gc.mimicry.bridge.cflow;
 
 import java.util.UUID;
 
-import com.gc.mimicry.shared.events.Event;
+import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.util.concurrent.DefaultValueFuture;
 
 public class ControlFlow

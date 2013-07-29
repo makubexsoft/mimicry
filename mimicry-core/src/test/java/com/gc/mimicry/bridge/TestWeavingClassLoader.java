@@ -13,6 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.gc.mimicry.bridge.weaving.LoopInterceptingByteCodeLoader;
+import com.gc.mimicry.bridge.weaving.WeavingClassLoader;
 import com.gc.mimicry.util.ReflectionUtil;
 
 public class TestWeavingClassLoader

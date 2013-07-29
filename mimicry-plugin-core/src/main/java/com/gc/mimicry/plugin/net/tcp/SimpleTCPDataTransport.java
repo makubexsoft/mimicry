@@ -4,11 +4,11 @@ import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.UUID;
 
-import com.gc.mimicry.core.event.EventHandlerBase;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.stack.EventHandlerBase;
+import com.gc.mimicry.ext.net.tcp.events.TCPReceivedDataEvent;
+import com.gc.mimicry.ext.net.tcp.events.TCPSendDataEvent;
 import com.gc.mimicry.plugin.net.PortManager;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.net.events.TCPReceivedDataEvent;
-import com.gc.mimicry.shared.net.events.TCPSendDataEvent;
 
 /**
  * This handler imitates a simple TCP/IP packet transport.

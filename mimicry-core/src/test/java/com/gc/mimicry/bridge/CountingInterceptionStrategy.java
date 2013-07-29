@@ -1,5 +1,7 @@
 package com.gc.mimicry.bridge;
 
+import com.gc.mimicry.bridge.weaving.LoopInterceptionStrategy;
+
 public class CountingInterceptionStrategy implements LoopInterceptionStrategy
 {
 

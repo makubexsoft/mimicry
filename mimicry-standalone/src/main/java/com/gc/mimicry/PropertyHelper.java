@@ -19,7 +19,6 @@ public class PropertyHelper
 	public static String			MIMICRY_SCRIPT_PATH	= "mimicry.script.path";
 	public static String			MIMICRY_BRIDGE_PATH	= "mimicry.bridge.path";
 	public static String			MIMICRY_CORE_PATH	= "mimicry.core.path";
-	public static String			MIMICRY_SHARED_PATH	= "mimicry.shared.path";
 	public static String			MIMICRY_ASPECT_PATH	= "mimicry.aspect.path";
 	public static String			MIMICRY_PLUGIN_PATH	= "mimicry.plugin.path";
 
@@ -46,7 +45,9 @@ public class PropertyHelper
 	{
 		String value = properties.getProperty( name );
 		if ( value == null )
+		{
 			value = defaultValue;
+		}
 		return value;
 	}
 }

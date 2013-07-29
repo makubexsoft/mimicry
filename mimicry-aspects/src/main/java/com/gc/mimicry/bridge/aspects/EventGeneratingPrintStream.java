@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
-import com.gc.mimicry.shared.events.console.ConsoleOutputEvent;
+import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
 
 public class EventGeneratingPrintStream extends PrintStream
 {

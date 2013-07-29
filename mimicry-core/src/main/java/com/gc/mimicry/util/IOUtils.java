@@ -99,15 +99,18 @@ public class IOUtils
     {
         List<File> result = new ArrayList<File>();
         File[] files = path.listFiles();
-        for (File f : files)
+        if (files != null)
         {
-            if (f.isFile() && filter.accept(path, f.getName()))
+            for (File f : files)
             {
-                result.add(f);
-            }
-            else
-            {
-                result.addAll(collectFiles(f, filter));
+                if (f.isFile() && filter.accept(path, f.getName()))
+                {
+                    result.add(f);
+                }
+                else
+                {
+                    result.addAll(collectFiles(f, filter));
+                }
             }
         }
         return result;

@@ -15,17 +15,17 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import com.gc.mimicry.core.runtime.Simulation;
-import com.gc.mimicry.core.timing.Clock;
-import com.gc.mimicry.core.timing.ClockType;
-import com.gc.mimicry.core.timing.DiscreteClock;
-import com.gc.mimicry.core.timing.RealtimeClock;
-import com.gc.mimicry.core.timing.net.ClockController;
-import com.gc.mimicry.core.timing.net.ClockDriver;
-import com.gc.mimicry.shared.events.clock.ClockAdvanceEvent;
-import com.gc.mimicry.shared.events.clock.ClockEvent;
-import com.gc.mimicry.shared.events.clock.ClockStartEvent;
-import com.gc.mimicry.shared.events.clock.ClockStopEvent;
+import com.gc.mimicry.engine.Simulation;
+import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.ClockType;
+import com.gc.mimicry.engine.timing.DiscreteClock;
+import com.gc.mimicry.engine.timing.RealtimeClock;
+import com.gc.mimicry.ext.timing.ClockController;
+import com.gc.mimicry.ext.timing.ClockDriver;
+import com.gc.mimicry.ext.timing.events.ClockAdvanceEvent;
+import com.gc.mimicry.ext.timing.events.ClockEvent;
+import com.gc.mimicry.ext.timing.events.ClockStartEvent;
+import com.gc.mimicry.ext.timing.events.ClockStopEvent;
 
 /**
  * This plugin allows the user to control the timeline using a graphical user

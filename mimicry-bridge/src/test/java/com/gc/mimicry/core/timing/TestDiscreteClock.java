@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.bridge.threading.ThreadShouldTerminateException;
+import com.gc.mimicry.engine.timing.DiscreteClock;
 
 public class TestDiscreteClock
 {

@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
+import com.gc.mimicry.bridge.weaving.LoopInterceptingByteCodeLoader;
+
 public class TestIsolatedSootByteCodeLoader
 {
 

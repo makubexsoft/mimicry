@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.gc.mimicry.core.ClassLoadingContext;
-import com.gc.mimicry.core.deployment.ApplicationRepository;
-import com.gc.mimicry.core.deployment.LocalApplicationRepository;
-import com.gc.mimicry.core.runtime.Simulation;
-import com.gc.mimicry.core.runtime.StandaloneSimulation;
-import com.gc.mimicry.core.timing.net.ClockController;
+import com.gc.mimicry.engine.ClassLoadingContext;
+import com.gc.mimicry.engine.Simulation;
+import com.gc.mimicry.engine.StandaloneSimulation;
+import com.gc.mimicry.engine.deployment.ApplicationRepository;
+import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
+import com.gc.mimicry.ext.timing.ClockController;
 import com.gc.mimicry.util.FileNameExtensionFilter;
 import com.gc.mimicry.util.IOUtils;
 import com.gc.mimicry.util.concurrent.Future;
@@ -63,9 +63,6 @@ public class Main
 		File aspectDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_ASPECT_PATH, "." ) );
 		List<File> aspectJarFiles = IOUtils.collectFiles( aspectDir, new FileNameExtensionFilter( ".jar" ) );
 
-		File sharedDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_SHARED_PATH, "." ) );
-		List<File> sharedJarFiles = IOUtils.collectFiles( sharedDir, new FileNameExtensionFilter( ".jar" ) );
-
 		File coreDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_CORE_PATH, "." ) );
 		List<File> coreJarFiles = IOUtils.collectFiles( coreDir, new FileNameExtensionFilter( ".jar" ) );
 
@@ -73,7 +70,6 @@ public class Main
 		List<File> pluginJarFiles = IOUtils.collectFiles( pluginDir, new FileNameExtensionFilter( ".jar" ) );
 
 		List<File> tmp = new ArrayList<File>();
-		tmp.addAll( sharedJarFiles );
 		tmp.addAll( coreJarFiles );
 		tmp.addAll( pluginJarFiles );
 		Collection<URL> urls = Collections2.transform( tmp, new Function<File, URL>()

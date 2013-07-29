@@ -1,6 +1,6 @@
 package com.gc.mimicry.bridge.threading;
 
-import com.gc.mimicry.core.timing.Clock;
+import com.gc.mimicry.engine.timing.Clock;
 
 /**
  * This exception is used to terminate {@link ManagedThread}s. The exception is raised either by the {@link Clock} when

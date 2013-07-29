@@ -1,9 +1,9 @@
 package com.gc.mimicry;
 
-import com.gc.mimicry.core.messaging.MessagingSystem;
-import com.gc.mimicry.core.messaging.p2p.DefaultMessagingSystem;
-import com.gc.mimicry.core.session.engine.SimulationEngine;
-import com.gc.mimicry.net.P2PClusterNode;
+import com.gc.mimicry.cluster.P2PClusterNode;
+import com.gc.mimicry.cluster.messaging.MessagingSystem;
+import com.gc.mimicry.cluster.messaging.p2p.DefaultMessagingSystem;
+import com.gc.mimicry.cluster.session.engine.SimulationEngine;
 
 public class Main {
 

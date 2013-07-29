@@ -1,6 +1,6 @@
 package com.gc.mimicry.bridge.threading;
 
-import com.gc.mimicry.bridge.LoopInterceptionStrategy;
+import com.gc.mimicry.bridge.weaving.LoopInterceptionStrategy;
 
 /**
  * This strategy throws a {@link ThreadShouldTerminateException} if the {@link ManagedThread#isShuttingDown()} flag is

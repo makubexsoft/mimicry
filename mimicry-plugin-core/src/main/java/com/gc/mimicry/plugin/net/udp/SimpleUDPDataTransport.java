@@ -3,10 +3,10 @@ package com.gc.mimicry.plugin.net.udp;
 import java.util.Set;
 import java.util.UUID;
 
-import com.gc.mimicry.core.event.EventHandlerBase;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.stack.EventHandlerBase;
+import com.gc.mimicry.ext.net.udp.events.UDPPacketEvent;
 import com.gc.mimicry.plugin.net.PortManager;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.net.events.UDPPacketEvent;
 
 /**
  * This handler imitates a simple and reliable UDP/IP packet transport.

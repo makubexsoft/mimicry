@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 
-import com.gc.mimicry.core.event.EventBridge;
-import com.gc.mimicry.core.timing.Clock;
+import com.gc.mimicry.engine.stack.EventBridge;
+import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
 

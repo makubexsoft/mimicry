@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.gc.mimicry.core.event.EventHandlerBase;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.net.events.ConnectionEstablishedEvent;
-import com.gc.mimicry.shared.net.events.SocketAwaitingConnectionEvent;
-import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.stack.EventHandlerBase;
+import com.gc.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
+import com.gc.mimicry.ext.net.tcp.events.SocketAwaitingConnectionEvent;
+import com.gc.mimicry.ext.net.tcp.events.SocketConnectionRequest;
 
 /**
  * Simulates TCP connection establishment but does not dispatch data of the

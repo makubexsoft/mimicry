@@ -17,21 +17,21 @@ import java.util.Arrays;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.cflow.ControlFlow;
-import com.gc.mimicry.core.event.EventListener;
-import com.gc.mimicry.shared.events.BaseEvent;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.net.events.ConnectionEstablishedEvent;
-import com.gc.mimicry.shared.net.events.SetPerformancePreferencesEvent;
-import com.gc.mimicry.shared.net.events.SetSocketOptionEvent;
-import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
-import com.gc.mimicry.shared.net.events.SocketBoundEvent;
-import com.gc.mimicry.shared.net.events.SocketConnectionRequest;
-import com.gc.mimicry.shared.net.events.SocketErrorEvent;
-import com.gc.mimicry.shared.net.events.SocketOption;
-import com.gc.mimicry.shared.net.events.SocketType;
-import com.gc.mimicry.shared.net.events.TCPReceivedDataEvent;
-import com.gc.mimicry.shared.net.events.TCPSendDataEvent;
-import com.gc.mimicry.shared.util.ByteBuffer;
+import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
+import com.gc.mimicry.ext.net.events.SocketBoundEvent;
+import com.gc.mimicry.ext.net.events.SocketErrorEvent;
+import com.gc.mimicry.ext.net.events.SocketType;
+import com.gc.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
+import com.gc.mimicry.ext.net.tcp.events.SetPerformancePreferencesEvent;
+import com.gc.mimicry.ext.net.tcp.events.SetSocketOptionEvent;
+import com.gc.mimicry.ext.net.tcp.events.SocketConnectionRequest;
+import com.gc.mimicry.ext.net.tcp.events.SocketOption;
+import com.gc.mimicry.ext.net.tcp.events.TCPReceivedDataEvent;
+import com.gc.mimicry.ext.net.tcp.events.TCPSendDataEvent;
+import com.gc.mimicry.util.ByteBuffer;
 
 /**
  * Stub implementation of the {@link Socket} that translates all interactions into events and vice-versa.
@@ -786,7 +786,6 @@ public class ManagedSocket extends Socket
                 // filtering by IP must be done in event handler
                 if (data.getDestinationSocket().getPort() == localAddress.getPort())
                 {
-                    System.out.println("Received DATA: " + data);
                     receiveBuffer.write(data.getData());
                 }
             }
@@ -816,7 +815,6 @@ public class ManagedSocket extends Socket
             byte[] buffer = Arrays.copyOfRange(b, off, off + len);
 
             TCPSendDataEvent evt = new TCPSendDataEvent(localAddress, remoteAddress, buffer);
-            System.out.println("SEND " + evt);
             emitEvent(evt);
         }
     }

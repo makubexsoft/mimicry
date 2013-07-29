@@ -3,7 +3,7 @@ package com.gc.mimicry.bridge.threading;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
-import com.gc.mimicry.core.StructuredId;
+import com.gc.mimicry.util.StructuredId;
 
 /**
  * Subclasses of this class provide a graceful termination strategy and are used to clean up a simulated application

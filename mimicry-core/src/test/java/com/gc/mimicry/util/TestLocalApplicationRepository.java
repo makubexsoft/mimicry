@@ -10,8 +10,8 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.gc.mimicry.core.deployment.ApplicationBundleDescriptor;
-import com.gc.mimicry.core.deployment.LocalApplicationRepository;
+import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
+import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
 
 public class TestLocalApplicationRepository
 {

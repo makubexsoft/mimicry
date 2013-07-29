@@ -1,23 +1,75 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>standalone</artifactId>
+	<artifactId>mimicry-ui</artifactId>
+	<url>http://www.mimicry-framework.org</url>
+	<inceptionYear>2012</inceptionYear>
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	
+	<parent>
+		<groupId>com.gc.mimicry</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
+
+	<properties>
+		<jide.version>3.5.6</jide.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.gc.mimicry</groupId>
 			<artifactId>core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+ 		<dependency>
 			<groupId>org.swinglabs</groupId>
 			<artifactId>swingx</artifactId>
 			<version>1.6.1</version>
 		</dependency>
+
+		<!-- JIDE Framework -->
 		<dependency>
 			<groupId>com.jidesoft</groupId>
 			<artifactId>jide-oss</artifactId>
-			<version>3.5.3</version>
+			<version>${jide.version}</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/jide/jide-common.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.jidesoft</groupId>
+			<artifactId>jide-dock</artifactId>
+			<version>${jide.version}</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/jide/jide-dock.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.jidesoft</groupId>
+			<artifactId>jide-plaf-jdk7</artifactId>
+			<version>${jide.version}</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/jide/jide-plaf-jdk7.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.jidesoft</groupId>
+			<artifactId>jide-plaf</artifactId>
+			<version>${jide.version}</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/jide/jide-plaf.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.jidesoft</groupId>
+			<artifactId>jide-properties</artifactId>
+			<version>${jide.version}</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/jide/jide-properties.jar</systemPath>
 		</dependency>
 	</dependencies>
 	<build>
@@ -27,10 +79,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<parent>
-		<groupId>com.gc.mimicry</groupId>
-		<artifactId>parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../parent/pom.xml</relativePath>
-	</parent>
 </project>

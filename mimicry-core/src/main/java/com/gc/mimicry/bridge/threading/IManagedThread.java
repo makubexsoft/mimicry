@@ -1,6 +1,6 @@
 package com.gc.mimicry.bridge.threading;
 
-import com.gc.mimicry.core.StructuredId;
+import com.gc.mimicry.util.StructuredId;
 
 /**
  * Abstraction of a managed thread to decouple the core from the bridge package.

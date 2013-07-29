@@ -37,13 +37,13 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import com.gc.mimicry.core.messaging.MessagingSystem;
-import com.gc.mimicry.core.session.SessionInfo;
-import com.gc.mimicry.core.session.controller.SessionBrowser;
-import com.gc.mimicry.core.session.controller.SessionBrowserListener;
-import com.gc.mimicry.core.session.controller.SessionController;
-import com.gc.mimicry.core.session.controller.SimulationController;
-import com.gc.mimicry.net.P2PClusterNode;
+import com.gc.mimicry.cluster.P2PClusterNode;
+import com.gc.mimicry.cluster.messaging.MessagingSystem;
+import com.gc.mimicry.cluster.session.SessionInfo;
+import com.gc.mimicry.cluster.session.controller.SessionBrowser;
+import com.gc.mimicry.cluster.session.controller.SessionBrowserListener;
+import com.gc.mimicry.cluster.session.controller.SessionController;
+import com.gc.mimicry.cluster.session.controller.SimulationController;
 
 public class MainFrame extends JFrame
 {

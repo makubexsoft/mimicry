@@ -11,11 +11,11 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.core.event.EventHandlerBase;
-import com.gc.mimicry.shared.events.Event;
-import com.gc.mimicry.shared.net.events.SocketBindRequestEvent;
-import com.gc.mimicry.shared.net.events.SocketBoundEvent;
-import com.gc.mimicry.shared.net.events.SocketErrorEvent;
+import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.stack.EventHandlerBase;
+import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
+import com.gc.mimicry.ext.net.events.SocketBoundEvent;
+import com.gc.mimicry.ext.net.events.SocketErrorEvent;
 
 /**
  * Simulates the port management of the operating system for UDP and TCP
