@@ -1,0 +1,82 @@
+
+Below all libraries used within the Mimicry Framework are listed with their licensing information.
+To read the full license texts either follow the given urls or take a look into the LICENSES directory
+shipped with the Mimicry Framework.
+
+Soot 
+	Site:    http://www.sable.mcgill.ca/soot/
+	License: GNU Lesser General Public License
+	
+AspectJ 
+	Site:    http://eclipse.org/aspectj/
+	License: Eclipse Public License - v 1.0
+	         http://www.eclipse.org/legal/epl-v10.html
+
+JUnit
+	Site:    http://www.junit.org
+	License: Common Public License Version 1.0 
+	         http://www.opensource.org/licenses/cpl1.0.txt
+	
+Mockito
+	Site:    http://www.mockito.org
+	License: The MIT License
+	         http://code.google.com/p/mockito/wiki/License
+	
+CGLib
+	Site:    http://cglib.sourceforge.net/
+	License: The Apache Software License, Version 2.0
+	         http://www.apache.org/licenses/LICENSE-2.0.txt
+	
+ASM
+	Site:    http://asm.ow2.org/
+	License: <custom>
+	         http://asm.ow2.org/license.html
+	
+Guava: Google Core Libraries for Java
+	Site:    http://code.google.com/p/guava-libraries
+	License: The Apache Software License, Version 2.0
+	         http://www.apache.org/licenses/LICENSE-2.0.txt
+	         
+The Netty Project
+	Site:    http://www.jboss.org/netty/
+	License: The Apache Software License, Version 2.0
+	         http://www.apache.org/licenses/LICENSE-2.0.txt
+	         
+Groovy
+	Site:    http://groovy.codehaus.org/
+	License: The Apache Software License, Version 2.0
+	         http://www.apache.org/licenses/LICENSE-2.0.txt
+	         
+Logback Classic Module
+	Site:    http://logback.qos.ch
+	License: Eclipse Public License - v 1.0
+	         http://www.eclipse.org/legal/epl-v10.html
+	License: GNU Lesser General Public License
+	         http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+	         
+SLF4J
+	Site:    http://www.slf4j.org
+	License: MIT License
+	         http://www.opensource.org/licenses/mit-license.php
+	         
+JGoodies Binding
+	Site:    https://binding.java.net/
+	License: The BSD License
+	         http://www.opensource.org/licenses/bsd-license.html
+	         
+JCommander
+	Site:    http://beust.com/jcommander
+	License: The Apache Software License, Version 2.0
+	         http://www.apache.org/licenses/LICENSE-2.0.txt
+	         
+SwingX
+	Site:    http://www.swinglabs.org/
+	License: Lesser General Public License (LGPL)
+	         http://www.gnu.org/copyleft/lesser.html
+	         
+JIDE Docking Framework
+	Site:    http://www.jidesoft.com/
+	License: commercial / free for open source projects
+	         http://www.jidesoft.com/purchase/SLA.htm
+
+	
