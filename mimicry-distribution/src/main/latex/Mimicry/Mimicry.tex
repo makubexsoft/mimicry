@@ -181,9 +181,9 @@ This directory is not meant to contain custom user code.
 \section{Event Handler}
 The most common extensions are event handler that are necessary for each simulation. Therefore great care has been taken to create a simple but still powerful as well as robust API.
 All event handler need to implement the interface \texttt{com.gc.mimicry.core.event.EventHandler} and must provide a publicly visible default constructor (since instantiation is done by Mimicry internally when required).
-\lstinputlisting[firstline=18]{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/event/EventHandler.java}
+\lstinputlisting[firstline=18]{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/stack/EventHandler.java}
 The two primary methods are handleUpstream and handleDownstream which are invoked by the event stack when events are passed up or down. You can also use a more abstract base class named \textit{EventHandlerBase}.
-\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/event/EventHandlerBase.java}
+\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/stack/EventHandlerBase.java}
 The use of the base class is recommended if you either are only processing upstream or downstream events; or you don't have to subclass anything else.
 It's important to note that the event handler are entirely thread-safe as long as you don't spawn your own thread within. Instead use the given Scheduler instance which is synchronized with all other thread access to your handler instance. Furthermore you shouldn't create any UI elements such as frames or dialogs within your handler because it's not always the case that they are instantiated within your local JVM.
 Sometimes you want to separate your handling code into different layers like in the ISO OSI model but still access the state of the other handler. Mimicry therefore has a built-in feature to obtain references to event handler within the same event stack. The \textit{EventHandlerContext} provides a method named \textit{findHandler} that takes a class and returns a proxy to the handler instance.
@@ -194,7 +194,7 @@ The returned proxy can be safely invoked and the access is serialized on the thr
 You can create proxies from interfaces which internally uses JDK's dynamic proxies as well as of classes which in that case uses CGLib.
 
 Finally you might want to make your handler configurable by the simulation script. This can easily be achieved by implementing another interface called \textit{Configurable}.
-\lstinputlisting[firstline=15]{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/runtime/Configurable.java}
+\lstinputlisting[firstline=15]{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/stack/Configurable.java}
 Once you've implemented that interface the framework will automatically inject the configuration provided in the simulation script into your event handler. The definition of the configuration might look like this:
 \begin{lstlisting}
 EventHandlerConfiguration[] eventStack = 
@@ -214,7 +214,7 @@ EventHandlerConfiguration[] eventStack =
 
 \section{Event Listener}
 Event listener allow you to write code that receives events without being part of any event stack. They can directly be registered at the \textit{EventBroker}. Unlike event handler they are not able to suppress events. They can only monitor the event stream and inject events asynchronously.
-\lstinputlisting[firstline=11]{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/event/EventListener.java}
+\lstinputlisting[firstline=11]{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/EventListener.java}
 They are typically used to write plug-ins that are not located within an event stack but directly instantiated in the simulation script. An example of such a plug-in is the \textit{ConsoleWindowPlugin} that can be attached to an application in order to interaction with the command line of that particular instance.
 \begin{lstlisting}
 import com.gc.mimicry.plugin.ConsoleWindowPlugin;
@@ -224,7 +224,7 @@ ConsoleWindowPlugin.attach(network.getEventBroker(), appRef);
 
 \section{Working with the Clock}
 In the current implementation of mimicry the clocks of all application instances are in sync. This means it's currently not possible to set a different time for multiple nodes or applications. Nonetheless, the clock enables you to control the time line of all applications. The interface depicted in Listing \ref{lst:clockInterface} shows what can be done using the clock.
-\lstinputlisting[caption={The Interface of a Clock}, label=lst:clockInterface,firstline=9]{../../../../mimicry-core/src/main/java/com/gc/mimicry/core/timing/Clock.java}
+\lstinputlisting[caption={The Interface of a Clock}, label=lst:clockInterface,firstline=9]{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/timing/Clock.java}
 Beneath offering the current time in milliseconds a clock provides 5 methods that are similar to the one provided by Java's base class \texttt{java.lang.Object} as well as one of \texttt{java.lang.Thread}. Those methods are basically the equivalent except that those having a timeout parameter also exist with an absolute time parameter. This is especially useful when we are working in multi-threaded environments where the delta time is specified by one but evaluated by another thread. An example can be found in the \texttt{ClockBasedScheduler}.
 Using the clock the event handler are able to perform actions depending on the simulation time. For instance a TCP connection request could raise an error after the timeout specified in the \texttt{SO\_TIMEOUT} socket property has been elapsed.
 
@@ -232,7 +232,7 @@ Using the clock the event handler are able to perform actions depending on the s
 
 \section{Custom Event Types}
 All events must implement the \textit{Event} interface in order to processable by the event engine.
-\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/events/Event.java}
+\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/Event.java}
 In the current implementation the events don't make use of the VectorClock implemented in the Mimicry core which can later on be used to establish happened-before relations among recorded events.
 
 \section{Built-In Event Types}
@@ -363,6 +363,6 @@ It might be useful to implement a new aspect which automatically exposes Java ob
 Depending on the kind of simulated application it might be necessary to run them in a chrooted environment. Therefore intercepting all file system accesses would help in isolating.
 
 \bibliographystyle{alpha}
-\bibliography{references}
+\bibliography{Mimicry}
 
 \end{document}
