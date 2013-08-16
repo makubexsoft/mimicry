@@ -87,7 +87,7 @@ public class LoopInterceptingByteCodeLoader
         logger = LoggerFactory.getLogger(LoopInterceptingByteCodeLoader.class);
         FAILED_TO_LOAD_MSG = "Failed to load SootByteCodeLoader";
         FAILED_TO_INVOKE_MSG = "Failed to invoke SootByteCodeLoader";
-        LOADER_CLASS_NAME = "com.gc.mimicry.bridge.SootByteCodeLoader";
+        LOADER_CLASS_NAME = "com.gc.mimicry.bridge.weaving.SootByteCodeLoader";
         LOADER_METHOD_NAME = "loadBytes";
     }
 }

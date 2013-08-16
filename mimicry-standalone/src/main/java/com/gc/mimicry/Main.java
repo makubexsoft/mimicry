@@ -55,20 +55,36 @@ public class Main
 
 		setLaF();
 
-		ApplicationRepository appRepo = new LocalApplicationRepository();
-
+		// Read configuration
 		File bridgeDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_BRIDGE_PATH, "." ) );
-		List<File> bridgeJarFiles = IOUtils.collectFiles( bridgeDir, new FileNameExtensionFilter( ".jar" ) );
-
 		File aspectDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_ASPECT_PATH, "." ) );
-		List<File> aspectJarFiles = IOUtils.collectFiles( aspectDir, new FileNameExtensionFilter( ".jar" ) );
-
 		File coreDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_CORE_PATH, "." ) );
-		List<File> coreJarFiles = IOUtils.collectFiles( coreDir, new FileNameExtensionFilter( ".jar" ) );
-
 		File pluginDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_PLUGIN_PATH, "." ) );
+
+		// Collect jar files in plugin folders
+		List<File> bridgeJarFiles = IOUtils.collectFiles( bridgeDir, new FileNameExtensionFilter( ".jar" ) );
+		List<File> aspectJarFiles = IOUtils.collectFiles( aspectDir, new FileNameExtensionFilter( ".jar" ) );
+		List<File> coreJarFiles = IOUtils.collectFiles( coreDir, new FileNameExtensionFilter( ".jar" ) );
 		List<File> pluginJarFiles = IOUtils.collectFiles( pluginDir, new FileNameExtensionFilter( ".jar" ) );
 
+		// Create class loader for event handler
+		URLClassLoader eventHandlerCL = createEHClassLoader( coreJarFiles, pluginJarFiles );
+
+		// Create context
+		ClassLoadingContext ctx = createContext( bridgeJarFiles, aspectJarFiles, eventHandlerCL );
+
+		// Create simulation
+		Simulation network = new StandaloneSimulation( ctx );
+
+		ApplicationRepository appRepo = new LocalApplicationRepository();
+		runSimulationScript( args, appRepo, network );
+
+		Future<?> endFuture = network.getSimulationEndFuture();
+		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
+	}
+
+	private static URLClassLoader createEHClassLoader( List<File> coreJarFiles, List<File> pluginJarFiles )
+	{
 		List<File> tmp = new ArrayList<File>();
 		tmp.addAll( coreJarFiles );
 		tmp.addAll( pluginJarFiles );
@@ -87,9 +103,13 @@ public class Main
 				}
 			}
 		} );
-
 		URLClassLoader eventHandlerCL = new URLClassLoader( urls.toArray( new URL[0] ), Main.class.getClassLoader() );
+		return eventHandlerCL;
+	}
 
+	private static ClassLoadingContext createContext( List<File> bridgeJarFiles, List<File> aspectJarFiles,
+			URLClassLoader eventHandlerCL ) throws MalformedURLException
+	{
 		ClassLoadingContext ctx;
 		ctx = new ClassLoadingContext( eventHandlerCL );
 		for ( File jarFile : aspectJarFiles )
@@ -101,13 +121,7 @@ public class Main
 		{
 			ctx.addBridgeClassPath( jarFile.toURI().toURL() );
 		}
-
-		Simulation network = new StandaloneSimulation( ctx );
-
-		runSimulationScript( args, appRepo, network );
-
-		Future<?> endFuture = network.getSimulationEndFuture();
-		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
+		return ctx;
 	}
 
 	private static void runSimulationScript( Arguments args, ApplicationRepository appRepo, Simulation network )

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +19,7 @@ import com.gc.mimicry.engine.ClassLoadingContext;
 import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.util.BaseResourceManager;
-import com.gc.mimicry.util.ChildFirstURLClassLoader;
+import com.gc.mimicry.util.MeFirstClassLoader;
 import com.gc.mimicry.util.ClassPathUtil;
 import com.google.common.base.Preconditions;
 
@@ -88,6 +87,14 @@ public class ApplicationManager extends BaseResourceManager
         return createApplication(bridge);
     }
 
+    private Application createApplication(ApplicationBridge bridge)
+    {
+        Application app = new Application(node, bridge);
+        applications.add(app);
+        attachResource(app);
+        return app;
+    }
+
     private ApplicationBridge createBridge(ApplicationBundleDescriptor appDesc, WeavingClassLoader loader)
     {
         ApplicationBridge bridge = new ApplicationBridge(loader);
@@ -100,28 +107,20 @@ public class ApplicationManager extends BaseResourceManager
     private WeavingClassLoader createClassLoader(ApplicationBundleDescriptor appDesc) throws MalformedURLException
     {
         ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
-        ChildFirstURLClassLoader outerClassLoader;
-        outerClassLoader = new ChildFirstURLClassLoader(context.getBridgeClassPath(), parentCL);
+        MeFirstClassLoader outerClassLoader;
+        outerClassLoader = new MeFirstClassLoader(context.getBridgeClassPath(), parentCL);
 
         List<URL> aspectUrls = new ArrayList<URL>();
         aspectUrls.addAll(context.getAspectClassPath());
 
         Set<URL> aspectJClassPath;
-        aspectJClassPath = new HashSet<URL>(Arrays.asList(ClassPathUtil.createClassPath(appDesc.getClassPath())));
+        aspectJClassPath = new HashSet<URL>(); // Arrays.asList(ClassPathUtil.createClassPath(appDesc.getClassPath())));
         aspectJClassPath.addAll(context.getAspectClassPath());
         aspectJClassPath.addAll(context.getBridgeClassPath());
 
         LoopInterceptingByteCodeLoader codeLoader = createApplicationClassLoader(appDesc);
         WeavingClassLoader loader = new WeavingClassLoader(aspectJClassPath, aspectUrls, codeLoader, outerClassLoader);
         return loader;
-    }
-
-    private Application createApplication(ApplicationBridge bridge)
-    {
-        Application app = new Application(node, bridge);
-        applications.add(app);
-        attachResource(app);
-        return app;
     }
 
     private LoopInterceptingByteCodeLoader createApplicationClassLoader(ApplicationBundleDescriptor appDesc)

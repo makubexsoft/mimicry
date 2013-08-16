@@ -19,19 +19,31 @@ import java.util.List;
  * A child-first class loader implementation that first tries to load classes from it's own class path before issuing
  * the parent {@link ClassLoader}.
  */
-public class ChildFirstURLClassLoader extends URLClassLoader
+public class MeFirstClassLoader extends URLClassLoader
 {
     private final ClassLoader system;
 
-    public ChildFirstURLClassLoader(URL[] classpath, ClassLoader parent)
+    public MeFirstClassLoader(URL[] classpath)
+    {
+        super(classpath);
+        system = getSystemClassLoader();
+    }
+
+    public MeFirstClassLoader(URL[] classpath, ClassLoader parent)
     {
         super(classpath, parent);
         system = getSystemClassLoader();
     }
 
-    public ChildFirstURLClassLoader(Collection<URL> classpath, ClassLoader parent)
+    public MeFirstClassLoader(Collection<URL> classpath, ClassLoader parent)
     {
         super(classpath.toArray(new URL[0]), parent);
+        system = getSystemClassLoader();
+    }
+
+    public MeFirstClassLoader(Collection<URL> classpath)
+    {
+        super(classpath.toArray(new URL[0]));
         system = getSystemClassLoader();
     }
 

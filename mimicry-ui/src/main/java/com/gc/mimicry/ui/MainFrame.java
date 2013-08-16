@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -24,41 +25,21 @@ import com.jidesoft.docking.DockingManagerGroup;
 public class MainFrame extends DefaultDockableHolder
 {
 	private static final long	serialVersionUID	= -1396222277201712462L;
-	private DockingManagerGroup mgrGroup;
-	
+
 	public MainFrame()
 	{
-		setTitle("The Mimicry Framework");
+		setTitle( "The Mimicry Framework" );
 		setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
-		
-//		this.mgrGroup = new DockingManagerGroup();
-//		mgrGroup.add( getDockingManager() );
-		
+
 		configureDockingManager();
-		
 		createSimulationAndFrames();
-		
+
 		setJMenuBar( createMenuBar() );
-		
+
 		setSize( 800, 600 );
 		setVisible( true );
 	}
 
-	public MainFrame(DockingManagerGroup mgrGroup)
-	{
-		setTitle("The Mimicry Framework");
-		setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
-		
-//		this.mgrGroup = mgrGroup;
-//		mgrGroup.add( getDockingManager() );
-		
-		configureDockingManager();
-		setJMenuBar( createMenuBar() );
-		
-		setSize( 800, 600 );
-		setVisible( true );
-	}
-	
 	private void configureDockingManager()
 	{
 		getDockingManager().setInitSplitPriority( DockingManager.SPLIT_EAST_WEST_SOUTH_NORTH );
@@ -78,7 +59,8 @@ public class MainFrame extends DefaultDockableHolder
 		}
 		catch ( IOException e )
 		{
-			JOptionPane.showMessageDialog( this, "Failed to create a simulation.\nReason: " + e.getMessage(), "Simulation failed.", JOptionPane.ERROR_MESSAGE );
+			String message = "Failed to create a simulation.\nReason: " + e.getMessage();
+			JOptionPane.showMessageDialog( this, message, "Simulation failed.", JOptionPane.ERROR_MESSAGE );
 		}
 	}
 
@@ -93,16 +75,22 @@ public class MainFrame extends DefaultDockableHolder
 		consoleFrame.setKey( "mimicry.consoleFrame" );
 		consoleFrame.getContext().setInitMode( DockContext.STATE_FRAMEDOCKED );
 		consoleFrame.getContext().setInitSide( DockContext.DOCK_SIDE_CENTER );
-		
+
 		NetworkBrowserFrame networkBrowser = new NetworkBrowserFrame();
 		networkBrowser.setKey( "mimicry.networkBrowser" );
 		networkBrowser.getContext().setInitMode( DockContext.STATE_FRAMEDOCKED );
 		networkBrowser.getContext().setInitSide( DockContext.DOCK_SIDE_WEST );
 
+		ApplicationRepositoryFrame appRepo = new ApplicationRepositoryFrame();
+		appRepo.setKey( "mimicry.applicationRepository" );
+		appRepo.getContext().setInitMode( DockContext.STATE_FRAMEDOCKED );
+		appRepo.getContext().setInitSide( DockContext.DOCK_SIDE_WEST );
+
 		getDockingManager().beginLoadLayoutData();
 		getDockingManager().addFrame( consoleFrame );
 		getDockingManager().addFrame( eventLogFrame );
 		getDockingManager().addFrame( networkBrowser );
+		getDockingManager().addFrame( appRepo );
 		getDockingManager().loadLayoutData();
 	}
 
@@ -112,36 +100,32 @@ public class MainFrame extends DefaultDockableHolder
 
 		JMenu menuFile = new JMenu( "File" );
 		JMenuItem itmExit = new JMenuItem( "Exit" );
-		
-		JMenu menuView = new JMenu("View");
-		//JMenuItem itmNewWindow = new JMenuItem("Open new window");
+
+		JMenu menuView = new JMenu( "View" );
+		JCheckBoxMenuItem itmEventLog = new JCheckBoxMenuItem("Event Log");
+		JCheckBoxMenuItem itmSimulationConsole = new JCheckBoxMenuItem("Simulation Console");
+		JCheckBoxMenuItem itmNetworkBrowser= new JCheckBoxMenuItem("Network Browser");
+		JCheckBoxMenuItem itmAppRepo= new JCheckBoxMenuItem("Application Repository");
 
 		JMenu menuHelp = new JMenu( "Help" );
-		JMenuItem itmManual = new JMenuItem("Show Manual");
-		JMenuItem itmAbout = new JMenuItem("About Mimicry ...");
+		JMenuItem itmManual = new JMenuItem( "Show Manual" );
+		JMenuItem itmAbout = new JMenuItem( "About Mimicry ..." );
 
 		menuBar.add( menuFile );
 		menuFile.add( itmExit );
-		
-		menuBar.add(menuView);
-		//menuView.add(itmNewWindow);
+
+		menuBar.add( menuView );
+		menuView.add(itmEventLog);
+		menuView.add(itmSimulationConsole);
+		menuView.add(itmNetworkBrowser);
+		menuView.add(itmAppRepo);
 
 		menuBar.add( menuHelp );
-		menuHelp.add(itmManual);
-		menuHelp.add(itmAbout);
-		
-//		itmNewWindow.addActionListener( new ActionListener()
-//		{
-//			
-//			@Override
-//			public void actionPerformed( ActionEvent e )
-//			{
-//				new MainFrame(mgrGroup);
-//			}
-//		} );
+		menuHelp.add( itmManual );
+		menuHelp.add( itmAbout );
+
 		itmAbout.addActionListener( new ActionListener()
 		{
-			
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
@@ -156,27 +140,39 @@ public class MainFrame extends DefaultDockableHolder
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
-				if (Desktop.isDesktopSupported()) {
-				    try {
-				        File myFile = new File("Mimicry.pdf");
-				        Desktop.getDesktop().open(myFile);
-				    } catch (IOException ex) {
-				        // no application registered for PDFs
-				    	JOptionPane.showMessageDialog( MainFrame.this, "Can't open PDF file. Opening containing folder instead." );
-				    	try
+				if ( Desktop.isDesktopSupported() )
+				{
+					try
+					{
+						File myFile = new File( "Mimicry.pdf" );
+						Desktop.getDesktop().open( myFile );
+					}
+					catch ( IOException ex )
+					{
+						// no application registered for PDFs
+						JOptionPane.showMessageDialog( MainFrame.this,
+								"Can't open PDF file. Opening containing folder instead." );
+						try
 						{
-							Desktop.getDesktop().open( new File(".") );
+							Desktop.getDesktop().open( new File( "." ) );
 						}
 						catch ( IOException e1 )
 						{
-							// should not happen
+							String message = "I'm afraid. I can't open the folder containing the PDF for you. "
+									+ "But it's located at:\n" + new File( "./Mimicry.pdf" ).getAbsolutePath();
+							JOptionPane.showMessageDialog( MainFrame.this, message );
 						}
-				    }
+					}
+				}
+				else
+				{
+					String message = "I'm afraid. I can't open the PDF for you. But it's located at:\n"
+							+ new File( "./Mimicry.pdf" ).getAbsolutePath();
+					JOptionPane.showMessageDialog( MainFrame.this, message );
 				}
 			}
 		} );
 
 		return menuBar;
 	}
-
 }

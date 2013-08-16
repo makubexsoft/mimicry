@@ -11,6 +11,7 @@ import com.google.common.base.Splitter;
 
 public class ClassPathUtil
 {
+
     public static URL[] createClassPath(Collection<String> paths)
     {
         URL[] urls = new URL[paths.size()];

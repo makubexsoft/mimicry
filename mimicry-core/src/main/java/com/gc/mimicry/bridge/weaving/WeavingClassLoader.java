@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.aspectj.weaver.loadtime.WeavingURLClassLoader;
 import org.slf4j.Logger;
@@ -21,6 +22,14 @@ import com.google.common.base.Preconditions;
  */
 public class WeavingClassLoader extends WeavingURLClassLoader
 {
+    private static HashSet<String> forbiddenPackages = new HashSet<String>();
+    static
+    {
+        forbiddenPackages.add("com.gc.mimicry");
+        forbiddenPackages.add("java");
+        forbiddenPackages.add("sun");
+    }
+
     public WeavingClassLoader(Collection<URL> classPath, Collection<URL> aspects,
             LoopInterceptingByteCodeLoader loader, ClassLoader parent) throws MalformedURLException
     {
@@ -31,6 +40,25 @@ public class WeavingClassLoader extends WeavingURLClassLoader
         this.loader = loader;
     }
 
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException
+    {
+        Class<?> clazz = findLoadedClass(name);
+        if (clazz != null)
+        {
+            return clazz;
+        }
+
+        try
+        {
+            return findClass(name);
+        }
+        catch (ClassNotFoundException e)
+        {
+            return super.loadClass(name);
+        }
+    }
+
     /**
      * First queries the {@link LoopInterceptingByteCodeLoader} to load the byte code if it doesn't find the class
      * (because it's not part of simulated application) the call is forwarded to the actual implementation of the base
@@ -39,19 +67,25 @@ public class WeavingClassLoader extends WeavingURLClassLoader
     @Override
     protected byte[] getBytes(String name) throws IOException
     {
-        byte[] byteCode = null; // FIXME: loader.loadTransformedByteCode( name
-                                // );
+        byte[] byteCode = super.getBytes(name);
         if (byteCode == null)
         {
-            byteCode = super.getBytes(name);
+            for (String pkg : forbiddenPackages)
+            {
+                if (name.startsWith(pkg + "."))
+                {
+                    return null;
+                }
+            }
+            byteCode = loader.loadTransformedByteCode(name);
             if (byteCode != null)
             {
-                logger.debug("AspectJ loaded byte code: " + name + " (" + byteCode.length + " bytes)");
+                logger.debug("Soot loaded byte code: " + name + " (" + byteCode.length + " bytes)");
             }
         }
         else if (logger.isDebugEnabled())
         {
-            logger.debug("Soot loaded byte code: " + name + " (" + byteCode.length + " bytes)");
+            logger.debug("AspectJ loaded byte code: " + name + " (" + byteCode.length + " bytes)");
         }
         // IOUtils.writeToFile(byteCode, new File("_dump_" + name + ".class"));
         return byteCode;

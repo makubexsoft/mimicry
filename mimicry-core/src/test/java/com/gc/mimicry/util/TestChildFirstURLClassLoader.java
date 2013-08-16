@@ -20,14 +20,27 @@ public class TestChildFirstURLClassLoader
 {
 
     @Test
+    public void testChildFirstOverridesParent() throws MalformedURLException, ClassNotFoundException
+    {
+        URLClassLoader loader1 = new URLClassLoader(new URL[] { new File("target/test-classes").toURI().toURL() }, null);
+        URLClassLoader loader2 = new MeFirstClassLoader(new URL[] { new File("target/test-classes").toURI()
+                .toURL() }, loader1);
+
+        Class<?> class1 = loader1.loadClass(ExampleClass.class.getName());
+        Class<?> class2 = loader2.loadClass(ExampleClass.class.getName());
+
+        assertFalse(class1.equals(class2));
+    }
+
+    @Test
     public void testParentRecovers() throws ClassNotFoundException, IOException
     {
         URLClassLoader parentLoader = new URLClassLoader(createURLs("target/test-classes"));
-        ChildFirstURLClassLoader childLoader1 = new ChildFirstURLClassLoader(createURLs(), parentLoader);
-        ChildFirstURLClassLoader childLoader2 = new ChildFirstURLClassLoader(createURLs(), parentLoader);
+        MeFirstClassLoader childLoader1 = new MeFirstClassLoader(createURLs(), parentLoader);
+        MeFirstClassLoader childLoader2 = new MeFirstClassLoader(createURLs(), parentLoader);
 
-        Class<?> class1 = childLoader1.loadClass("stubs.ExampleClass");
-        Class<?> class2 = childLoader2.loadClass("stubs.ExampleClass");
+        Class<?> class1 = childLoader1.loadClass(ExampleClass.class.getName());
+        Class<?> class2 = childLoader2.loadClass(ExampleClass.class.getName());
 
         assertNotNull(class1);
         assertNotNull(class2);
@@ -42,13 +55,13 @@ public class TestChildFirstURLClassLoader
     public void testChildLoadsFirst() throws ClassNotFoundException, IOException
     {
         URLClassLoader parentLoader = new URLClassLoader(createURLs("target/test-classes"));
-        ChildFirstURLClassLoader childLoader1 = new ChildFirstURLClassLoader(createURLs("target/test-classes"),
+        MeFirstClassLoader childLoader1 = new MeFirstClassLoader(createURLs("target/test-classes"),
                 parentLoader);
-        ChildFirstURLClassLoader childLoader2 = new ChildFirstURLClassLoader(createURLs("target/test-classes"),
+        MeFirstClassLoader childLoader2 = new MeFirstClassLoader(createURLs("target/test-classes"),
                 parentLoader);
 
-        Class<?> class1 = childLoader1.loadClass("stubs.ExampleClass");
-        Class<?> class2 = childLoader2.loadClass("stubs.ExampleClass");
+        Class<?> class1 = childLoader1.loadClass(ExampleClass.class.getName());
+        Class<?> class2 = childLoader2.loadClass(ExampleClass.class.getName());
 
         assertNotNull(class1);
         assertNotNull(class2);
@@ -67,7 +80,7 @@ public class TestChildFirstURLClassLoader
         getClass().getClassLoader().loadClass(String.class.getName());
 
         URLClassLoader parentLoader = new URLClassLoader(createURLs());
-        ChildFirstURLClassLoader childLoader = new ChildFirstURLClassLoader(createURLs(getJVMJar("rt.jar")),
+        MeFirstClassLoader childLoader = new MeFirstClassLoader(createURLs(getJVMJar("rt.jar")),
                 parentLoader);
 
         Class<?> class1 = childLoader.loadClass(String.class.getName());
@@ -83,11 +96,11 @@ public class TestChildFirstURLClassLoader
     public void testForParentOverrides() throws ClassNotFoundException, IOException
     {
         URLClassLoader parentLoader = new URLClassLoader(createURLs("target/test-classes"));
-        ChildFirstURLClassLoader childLoader = new ChildFirstURLClassLoader(createURLs("target/test-classes"),
+        MeFirstClassLoader childLoader = new MeFirstClassLoader(createURLs("target/test-classes"),
                 parentLoader);
 
-        Class<?> class1 = parentLoader.loadClass("stubs.ExampleClass");
-        Class<?> class2 = childLoader.loadClass("stubs.ExampleClass");
+        Class<?> class1 = parentLoader.loadClass(ExampleClass.class.getName());
+        Class<?> class2 = childLoader.loadClass(ExampleClass.class.getName());
 
         assertNotNull(class1);
         assertNotNull(class2);
@@ -105,10 +118,10 @@ public class TestChildFirstURLClassLoader
 
         URLClassLoader parentLoader = new URLClassLoader(createURLs(), null);
 
-        ChildFirstURLClassLoader childLoader = new ChildFirstURLClassLoader(createURLs(), parentLoader);
+        MeFirstClassLoader childLoader = new MeFirstClassLoader(createURLs(), parentLoader);
         try
         {
-            childLoader.loadClass("stubs.ExampleClass");
+            childLoader.loadClass(ExampleClass.class.getName());
         }
         finally
         {

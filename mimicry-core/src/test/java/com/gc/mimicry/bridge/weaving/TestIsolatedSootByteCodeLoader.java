@@ -1,4 +1,4 @@
-package com.gc.mimicry.bridge;
+package com.gc.mimicry.bridge.weaving;
 
 import static org.junit.Assert.assertNotNull;
 

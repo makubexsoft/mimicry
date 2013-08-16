@@ -6,11 +6,18 @@ import groovy.lang.GroovyShell;
 import groovy.swing.SwingBuilder;
 import groovy.ui.Console;
 
+import java.awt.BorderLayout;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
 import javax.swing.RootPaneContainer;
 import javax.swing.text.DefaultCaret;
 
@@ -29,6 +36,9 @@ public class ConsoleFrame extends DockableFrame implements RootPaneContainer
 	{
 		setTitle( "Simulation Console" );
 
+		Console.setCaptureStdErr( false );
+		Console.setCaptureStdOut( false );
+		
 		final Console console = new Console()
 		{
 			public void newScript( ClassLoader parent, Binding binding )
@@ -94,12 +104,32 @@ public class ConsoleFrame extends DockableFrame implements RootPaneContainer
 		console.setShowScriptInOutput( false );
 		console.setShell( createShell( simu ) );
 		console.run( config );
+		
+		// Add additional splitter for script directory view
+		JSplitPane hsplit = console.getSplitPane();
+		JSplitPane vsplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		vsplit.setLeftComponent( createScriptDirView() );
+		vsplit.setRightComponent( hsplit );
+		add(vsplit, BorderLayout.CENTER);
 
 		// enable auto-scroll
 		DefaultCaret caret = (DefaultCaret) console.getOutputArea().getCaret();
 		caret.setUpdatePolicy( DefaultCaret.ALWAYS_UPDATE );
 	}
-
+	
+	private JComponent createScriptDirView()
+	{
+		JTree tree = new JTree();
+		JScrollPane scroll = new JScrollPane(tree);
+		
+		JPanel panel = new JPanel();
+		panel.setLayout( new BorderLayout() );
+		panel.add( new JLabel("Script Directory"), BorderLayout.NORTH );
+		panel.add(scroll, BorderLayout.CENTER);
+		
+		return panel;
+	}
+	
 	private GroovyShell createShell( final Simulation simu )
 	{
 		BuiltInBinding binding = new BuiltInBinding();

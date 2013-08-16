@@ -5,22 +5,13 @@ shipped with the Mimicry Framework.
 
 Soot 
 	Site:    http://www.sable.mcgill.ca/soot/
-	License: GNU Lesser General Public License
+	License: GNU Lesser General Public License 3
+	         http://www.gnu.org/copyleft/lesser.html
 	
 AspectJ 
 	Site:    http://eclipse.org/aspectj/
 	License: Eclipse Public License - v 1.0
 	         http://www.eclipse.org/legal/epl-v10.html
-
-JUnit
-	Site:    http://www.junit.org
-	License: Common Public License Version 1.0 
-	         http://www.opensource.org/licenses/cpl1.0.txt
-	
-Mockito
-	Site:    http://www.mockito.org
-	License: The MIT License
-	         http://code.google.com/p/mockito/wiki/License
 	
 CGLib
 	Site:    http://cglib.sourceforge.net/
@@ -51,7 +42,7 @@ Logback Classic Module
 	Site:    http://logback.qos.ch
 	License: Eclipse Public License - v 1.0
 	         http://www.eclipse.org/legal/epl-v10.html
-	License: GNU Lesser General Public License
+	License: GNU Lesser General Public License (2.1)
 	         http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
 	         
 SLF4J
@@ -61,7 +52,7 @@ SLF4J
 	         
 JGoodies Binding
 	Site:    https://binding.java.net/
-	License: The BSD License
+	License: The BSD License (2-Clause)
 	         http://www.opensource.org/licenses/bsd-license.html
 	         
 JCommander

@@ -1,4 +1,4 @@
-package com.gc.mimicry.bridge;
+package com.gc.mimicry.bridge.weaving;
 
 import com.gc.mimicry.bridge.weaving.LoopInterceptionStrategy;
 

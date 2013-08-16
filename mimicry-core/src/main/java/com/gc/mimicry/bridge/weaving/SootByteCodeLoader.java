@@ -46,8 +46,8 @@ public final class SootByteCodeLoader
         logger = LoggerFactory.getLogger(SootByteCodeLoader.class);
     }
     private static final Object lock = new Object();
-    private final SootClass interceptorClass;
-    private final SootMethod interceptorMethod;
+    private SootClass interceptorClass;
+    private SootMethod interceptorMethod;
 
     private String classPath;
 
@@ -62,10 +62,22 @@ public final class SootByteCodeLoader
 
         classPath += File.pathSeparator + System.getProperty("java.home") + File.separator;
         classPath += "lib" + File.separator + "jce.jar";
+        //
+        // classPath += File.pathSeparator + System.getProperty("java.home") + File.separator;
+        // classPath += "lib" + File.separator + "tools.jar";
+        //
+        // classPath += File.pathSeparator + System.getProperty("java.home") + File.separator;
+        // classPath += "lib" + File.separator + "jsse.jar";
 
         configureSoot();
+        loadInterceptorClass();
 
-        interceptorClass = Scene.v().loadClassAndSupport("com.gc.mimicry.bridge.LoopInterceptor");
+        Scene.v().loadNecessaryClasses();
+    }
+
+    private void loadInterceptorClass()
+    {
+        interceptorClass = Scene.v().loadClassAndSupport("com.gc.mimicry.bridge.weaving.LoopInterceptor");
         interceptorClass.setApplicationClass();
         for (SootMethod sm : interceptorClass.getMethods())
         {
@@ -143,6 +155,7 @@ public final class SootByteCodeLoader
         // PhaseOptions.v().setPhaseOption( "bb.lp", "off" );
 
         // Options.v().set_whole_program( false );
+
     }
 
     private byte[] getByteCodeOf(SootClass sootClass) throws IOException
@@ -193,7 +206,8 @@ public final class SootByteCodeLoader
     {
         try
         {
-            // Scene.v().forceResolve( className, SootClass.BODIES );
+            // Scene.v().addBasicClass(className, SootClass.SIGNATURES);
+            Scene.v().forceResolve(className, SootClass.BODIES);
             SootClass sootClass = Scene.v().loadClassAndSupport(className);
             sootClass.setApplicationClass();
             return sootClass;
