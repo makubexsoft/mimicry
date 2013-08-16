@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.gc.mimicry.engine.ClassLoadingContext;
+import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.apps.Application;
 import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.engine.deployment.ApplicationDescriptorBuilder;
@@ -42,8 +42,8 @@ public class TestApplicationManager
         URLClassLoader coreClassLoader;
         coreClassLoader = new URLClassLoader(new URL[0], classLoader);
 
-        ClassLoadingContext ctx;
-        ctx = new ClassLoadingContext(coreClassLoader);
+        MimicryConfiguration ctx;
+        ctx = new MimicryConfiguration(coreClassLoader);
         ctx.addAspectClassPath(new File(ASPECTS_PATH).toURI().toURL());
 
         ctx.addBridgeClassPath(new File(ASPECTS_PATH).toURI().toURL());

@@ -9,18 +9,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gc.mimicry.bridge.ApplicationBridge;
-import com.gc.mimicry.bridge.weaving.LoopInterceptingByteCodeLoader;
-import com.gc.mimicry.bridge.weaving.WeavingClassLoader;
-import com.gc.mimicry.engine.ClassLoadingContext;
+import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
+import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.util.BaseResourceManager;
 import com.gc.mimicry.util.MeFirstClassLoader;
-import com.gc.mimicry.util.ClassPathUtil;
 import com.google.common.base.Preconditions;
 
 /**
@@ -32,7 +27,7 @@ import com.google.common.base.Preconditions;
  */
 public class ApplicationManager extends BaseResourceManager
 {
-    public ApplicationManager(ClassLoadingContext context, Node node)
+    public ApplicationManager(MimicryConfiguration context, Node node)
     {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(node);
@@ -80,7 +75,7 @@ public class ApplicationManager extends BaseResourceManager
      */
     public Application launchApplication(ApplicationBundleDescriptor appDesc) throws IOException
     {
-        WeavingClassLoader loader = createClassLoader(appDesc);
+        ApplicationClassLoader loader = createClassLoader(appDesc);
 
         ApplicationBridge bridge = createBridge(appDesc, loader);
 
@@ -95,7 +90,7 @@ public class ApplicationManager extends BaseResourceManager
         return app;
     }
 
-    private ApplicationBridge createBridge(ApplicationBundleDescriptor appDesc, WeavingClassLoader loader)
+    private ApplicationBridge createBridge(ApplicationBundleDescriptor appDesc, ApplicationClassLoader loader)
     {
         ApplicationBridge bridge = new ApplicationBridge(loader);
         bridge.setMainClass(appDesc.getMainClass());
@@ -104,7 +99,7 @@ public class ApplicationManager extends BaseResourceManager
         return bridge;
     }
 
-    private WeavingClassLoader createClassLoader(ApplicationBundleDescriptor appDesc) throws MalformedURLException
+    private ApplicationClassLoader createClassLoader(ApplicationBundleDescriptor appDesc) throws MalformedURLException
     {
         ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
         MeFirstClassLoader outerClassLoader;
@@ -114,30 +109,15 @@ public class ApplicationManager extends BaseResourceManager
         aspectUrls.addAll(context.getAspectClassPath());
 
         Set<URL> aspectJClassPath;
-        aspectJClassPath = new HashSet<URL>(); // Arrays.asList(ClassPathUtil.createClassPath(appDesc.getClassPath())));
+        aspectJClassPath = new HashSet<URL>();
         aspectJClassPath.addAll(context.getAspectClassPath());
         aspectJClassPath.addAll(context.getBridgeClassPath());
 
-        LoopInterceptingByteCodeLoader codeLoader = createApplicationClassLoader(appDesc);
-        WeavingClassLoader loader = new WeavingClassLoader(aspectJClassPath, aspectUrls, codeLoader, outerClassLoader);
+        ApplicationClassLoader loader = new ApplicationClassLoader(aspectJClassPath, aspectUrls, outerClassLoader);
         return loader;
     }
 
-    private LoopInterceptingByteCodeLoader createApplicationClassLoader(ApplicationBundleDescriptor appDesc)
-    {
-        Set<String> referencedClassPath = new HashSet<String>(appDesc.getClassPath());
-        referencedClassPath.addAll(ClassPathUtil.getSystemClassPath());
-        LoopInterceptingByteCodeLoader codeLoader;
-        codeLoader = new LoopInterceptingByteCodeLoader(referencedClassPath.toArray(new String[0]));
-        return codeLoader;
-    }
-
-    private static final Logger logger;
-    static
-    {
-        logger = LoggerFactory.getLogger(ApplicationManager.class);
-    }
     private final Set<Application> applications;
     private final Node node;
-    private final ClassLoadingContext context;
+    private final MimicryConfiguration context;
 }

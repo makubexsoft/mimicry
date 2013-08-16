@@ -15,24 +15,19 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.gc.mimicry.bridge.weaving.LoopInterceptingByteCodeLoader;
-import com.gc.mimicry.bridge.weaving.WeavingClassLoader;
+import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
 import com.gc.mimicry.engine.Application;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.Applications;
-import com.gc.mimicry.engine.ClassLoadingContext;
+import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.EntryPoint;
 import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
-import com.gc.mimicry.engine.deployment.ApplicationDescriptorBuilder;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.engine.timing.SystemClock;
-import com.gc.mimicry.util.ClassPathUtil;
 import com.gc.mimicry.util.FileNameExtensionFilter;
 import com.gc.mimicry.util.IOUtils;
-import com.gc.mimicry.util.MeFirstClassLoader;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
@@ -120,12 +115,13 @@ public class TestMimicrySandbox
         URLClassLoader eventHandlerCL = createEHClassLoader(coreJarFiles, pluginJarFiles);
 
         // Create context
-        ClassLoadingContext clctx = createContext(bridgeJarFiles, aspectJarFiles, eventHandlerCL);
+        MimicryConfiguration clctx = createContext(bridgeJarFiles, aspectJarFiles, eventHandlerCL);
 
-        ApplicationDescriptorBuilder builder = ApplicationDescriptorBuilder.newDescriptor("test");
+        URLClassLoader loader = createApplicationLoader(clctx);
 
-        URLClassLoader loader = createClassLoader(clctx, builder.build());
-
+        //
+        // -------------------------------------------
+        //
         EventBridge eventBridge = new EventBridge();
 
         ApplicationContext ctx = new ApplicationContext();
@@ -191,11 +187,11 @@ public class TestMimicrySandbox
         return eventHandlerCL;
     }
 
-    private static ClassLoadingContext createContext(List<File> bridgeJarFiles, List<File> aspectJarFiles,
+    private static MimicryConfiguration createContext(List<File> bridgeJarFiles, List<File> aspectJarFiles,
             URLClassLoader eventHandlerCL) throws MalformedURLException
     {
-        ClassLoadingContext ctx;
-        ctx = new ClassLoadingContext(eventHandlerCL);
+        MimicryConfiguration ctx;
+        ctx = new MimicryConfiguration(eventHandlerCL);
         for (File jarFile : aspectJarFiles)
         {
             ctx.addAspectClassPath(jarFile.toURI().toURL());
@@ -208,51 +204,17 @@ public class TestMimicrySandbox
         return ctx;
     }
 
-    private WeavingClassLoader createClassLoader(ClassLoadingContext ctx, ApplicationBundleDescriptor appDesc)
-            throws MalformedURLException
+    private ApplicationClassLoader createApplicationLoader(MimicryConfiguration config) throws MalformedURLException
     {
-        ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
-        MeFirstClassLoader outerClassLoader;
-        outerClassLoader = new MeFirstClassLoader(ctx.getBridgeClassPath(), parentCL);
+        List<URL> aspects = new ArrayList<URL>();
+        aspects.addAll(config.getAspectClassPath());
 
-        List<URL> aspectUrls = new ArrayList<URL>();
-        aspectUrls.addAll(ctx.getAspectClassPath());
+        Set<URL> appClassPath;
+        appClassPath = new HashSet<URL>();
+        appClassPath.addAll(config.getAspectClassPath());
+        appClassPath.addAll(config.getBridgeClassPath());
 
-        Set<URL> aspectJClassPath;
-        aspectJClassPath = new HashSet<URL>();
-        aspectJClassPath.addAll(ctx.getAspectClassPath());
-        aspectJClassPath.addAll(ctx.getBridgeClassPath());
-        // TODO: add system classpath without JRE and core
-        // Collection<URL> urls = Collections2.transform(ClassPathUtil.getSystemClassPath(), new Function<String, URL>()
-        // {
-        // @Override
-        // public URL apply(String f)
-        // {
-        // try
-        // {
-        // return new File(f).toURI().toURL();
-        // }
-        // catch (MalformedURLException e)
-        // {
-        // return null;
-        // }
-        // }
-        // });
-        // aspectJClassPath.addAll(urls);
-
-        LoopInterceptingByteCodeLoader codeLoader = createApplicationClassLoader(appDesc);
-
-        WeavingClassLoader loader = new WeavingClassLoader(aspectJClassPath, aspectUrls, codeLoader,
-                TestMimicrySandbox.class.getClassLoader());
-        return loader;
-    }
-
-    private LoopInterceptingByteCodeLoader createApplicationClassLoader(ApplicationBundleDescriptor appDesc)
-    {
-        Set<String> referencedClassPath = new HashSet<String>(appDesc.getClassPath());
-        referencedClassPath.addAll(ClassPathUtil.getSystemClassPath());
-        LoopInterceptingByteCodeLoader codeLoader;
-        codeLoader = new LoopInterceptingByteCodeLoader(referencedClassPath.toArray(new String[0]));
-        return codeLoader;
+        ClassLoader parent = TestMimicrySandbox.class.getClassLoader();
+        return new ApplicationClassLoader(appClassPath, aspects, parent);
     }
 }

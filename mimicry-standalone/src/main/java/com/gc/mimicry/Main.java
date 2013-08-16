@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.gc.mimicry.engine.ClassLoadingContext;
+import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.StandaloneSimulation;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
@@ -71,7 +71,7 @@ public class Main
 		URLClassLoader eventHandlerCL = createEHClassLoader( coreJarFiles, pluginJarFiles );
 
 		// Create context
-		ClassLoadingContext ctx = createContext( bridgeJarFiles, aspectJarFiles, eventHandlerCL );
+		MimicryConfiguration ctx = createContext( bridgeJarFiles, aspectJarFiles, eventHandlerCL );
 
 		// Create simulation
 		Simulation network = new StandaloneSimulation( ctx );
@@ -107,11 +107,11 @@ public class Main
 		return eventHandlerCL;
 	}
 
-	private static ClassLoadingContext createContext( List<File> bridgeJarFiles, List<File> aspectJarFiles,
+	private static MimicryConfiguration createContext( List<File> bridgeJarFiles, List<File> aspectJarFiles,
 			URLClassLoader eventHandlerCL ) throws MalformedURLException
 	{
-		ClassLoadingContext ctx;
-		ctx = new ClassLoadingContext( eventHandlerCL );
+		MimicryConfiguration ctx;
+		ctx = new MimicryConfiguration( eventHandlerCL );
 		for ( File jarFile : aspectJarFiles )
 		{
 			ctx.addAspectClassPath( jarFile.toURI().toURL() );

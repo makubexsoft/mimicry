@@ -2,7 +2,7 @@ package com.gc.mimicry.engine.nodes;
 
 import java.util.UUID;
 
-import com.gc.mimicry.engine.ClassLoadingContext;
+import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.EventBroker;
 import com.gc.mimicry.engine.apps.ApplicationManager;
 import com.gc.mimicry.engine.stack.EventBridge;
@@ -27,7 +27,7 @@ public class Node extends BaseResourceManager
     private final EventBridge eventBridge;
     private final Clock clock;
 
-    Node(ClassLoadingContext context, String name, EventBroker eventBroker, Clock clock)
+    Node(MimicryConfiguration context, String name, EventBroker eventBroker, Clock clock)
     {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(name);

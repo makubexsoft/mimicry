@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.gc.mimicry.engine.ClassLoadingContext;
+import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.StandaloneSimulation;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
@@ -71,8 +71,8 @@ public class SimulationFactory
 
 		URLClassLoader eventHandlerCL = new URLClassLoader( urls.toArray( new URL[0] ), Main.class.getClassLoader() );
 
-		ClassLoadingContext ctx;
-		ctx = new ClassLoadingContext( eventHandlerCL );
+		MimicryConfiguration ctx;
+		ctx = new MimicryConfiguration( eventHandlerCL );
 		for ( File jarFile : aspectJarFiles )
 		{
 			ctx.addAspectClassPath( jarFile.toURI().toURL() );

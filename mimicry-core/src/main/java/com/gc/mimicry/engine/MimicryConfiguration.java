@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ClassLoadingContext
+public class MimicryConfiguration
 {
-    public ClassLoadingContext(ClassLoader eventHandlerClassLoader)
+    public MimicryConfiguration(ClassLoader eventHandlerClassLoader)
     {
         this.eventHandlerClassLoader = eventHandlerClassLoader;
         aspectClassPath = new ArrayList<URL>();

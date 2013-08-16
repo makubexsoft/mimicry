@@ -32,7 +32,7 @@ import com.google.common.base.Preconditions;
  */
 public class StandaloneSimulation implements Simulation
 {
-    public StandaloneSimulation(ClassLoadingContext ctx)
+    public StandaloneSimulation(MimicryConfiguration ctx)
     {
         Preconditions.checkNotNull(ctx);
 
@@ -148,7 +148,7 @@ public class StandaloneSimulation implements Simulation
     private NetworkConfiguration config;
     private final Future<?> endFuture;
     private final EventBroker eventBroker;
-    private final ClassLoadingContext ctx;
+    private final MimicryConfiguration ctx;
     private static final Logger logger;
     static
     {

@@ -20,11 +20,8 @@ public class TestWeavingClassLoader
     @Before
     public void setUp() throws MalformedURLException
     {
-        String[] classUrls = { "target/classes", "target/test-classes" };
-        LoopInterceptingByteCodeLoader byteCodeLoader = new LoopInterceptingByteCodeLoader(classUrls);
-
-        loader = new WeavingClassLoader(Arrays.asList(ClassPathUtil.createClassPath("target/classes")),
-                Arrays.asList(ClassPathUtil.createClassPath("target/classes")), byteCodeLoader, null);
+        loader = new ApplicationClassLoader(Arrays.asList(ClassPathUtil.createClassPath("target/classes")),
+                Arrays.asList(ClassPathUtil.createClassPath("target/classes")), null);
     }
 
     @After
@@ -71,5 +68,5 @@ public class TestWeavingClassLoader
     private static final String INTERCEPTOR_INTERFACE_NAME = "com.gc.mimicry.bridge.weaving.LoopInterceptor";
     private static final String COUNTING_STRATEGY_NAME = "com.gc.mimicry.bridge.weaving.CountingInterceptionStrategy";
     private static final String STRATEGY_INTERFACE_NAME = "com.gc.mimicry.bridge.weaving.LoopInterceptionStrategy";
-    private WeavingClassLoader loader;
+    private ApplicationClassLoader loader;
 }
