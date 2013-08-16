@@ -2,8 +2,8 @@ package com.gc.mimicry.bridge;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.UUID;
 
+import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.util.concurrent.Future;
@@ -37,7 +37,7 @@ public class ApplicationBridge
         try
         {
             bridgeClass = classLoader.loadClass(BRIDGE_CLASS_NAME);
-            setIdMethod = bridgeClass.getDeclaredMethod(SET_ID_METHOD_NAME, UUID.class);
+            setIdMethod = bridgeClass.getDeclaredMethod(SET_ID_METHOD_NAME, ThreadManager.class);
             setClockMethod = bridgeClass.getDeclaredMethod(SET_CLOCK_METHOD_NAME, Clock.class);
             setEventBridgeMethod = bridgeClass.getDeclaredMethod(SET_EVENT_BRIDGE_METHOD_NAME, EventBridge.class);
             shutdownMethod = bridgeClass.getDeclaredMethod(SHUTDOWN_METHOD_NAME);
@@ -78,16 +78,16 @@ public class ApplicationBridge
         }
     }
 
-    public void setApplicationId(UUID id)
+    public void setThreadManager(ThreadManager mgr)
     {
-        Preconditions.checkNotNull(id);
+        Preconditions.checkNotNull(mgr);
         try
         {
-            setIdMethod.invoke(null, id);
+            setIdMethod.invoke(null, mgr);
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Failed to set application id.", e);
+            throw new RuntimeException("Failed to set thread manager.", e);
         }
     }
 
@@ -165,7 +165,7 @@ public class ApplicationBridge
     static
     {
         BRIDGE_CLASS_NAME = "com.gc.mimicry.bridge.SimulatorBridge";
-        SET_ID_METHOD_NAME = "setApplicationId";
+        SET_ID_METHOD_NAME = "setThreadManager";
         SET_CLOCK_METHOD_NAME = "setClock";
         SET_EVENT_BRIDGE_METHOD_NAME = "setEventBridge";
         SHUTDOWN_METHOD_NAME = "shutdownApplication";

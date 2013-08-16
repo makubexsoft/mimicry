@@ -141,6 +141,8 @@ public class ManagedThread extends Thread implements IManagedThread
         shuttingDown = true;
         interrupt();
         fireThreadShouldTerminate();
+        suspend();
+        stop();
     }
 
     @Override

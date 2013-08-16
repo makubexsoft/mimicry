@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -97,7 +98,8 @@ public class TestMimicrySandbox
     }
 
     @Test
-    public void test2() throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, SecurityException
+    public void test2() throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, SecurityException,
+            InterruptedException
     {
         // Read configuration
         File bridgeDir = new File("../mimicry-bridge/target");
@@ -139,9 +141,10 @@ public class TestMimicrySandbox
             @Override
             public void main(String[] args)
             {
-                System.out.println("Started!");
-
-                // System.out.println(new Thread());
+                for (;;)
+                {
+                    System.out.print(new Socket());
+                }
             }
         });
 
@@ -157,6 +160,10 @@ public class TestMimicrySandbox
 
         System.out.println("Starting...");
         app.start();
+        System.out.println("Running");
+        Thread.sleep(2000);
+        app.stop().awaitUninterruptibly(5000);
+        System.out.println("end.");
     }
 
     private static URLClassLoader createEHClassLoader(List<File> coreJarFiles, List<File> pluginJarFiles)
@@ -215,6 +222,23 @@ public class TestMimicrySandbox
         aspectJClassPath = new HashSet<URL>();
         aspectJClassPath.addAll(ctx.getAspectClassPath());
         aspectJClassPath.addAll(ctx.getBridgeClassPath());
+        // TODO: add system classpath without JRE and core
+        // Collection<URL> urls = Collections2.transform(ClassPathUtil.getSystemClassPath(), new Function<String, URL>()
+        // {
+        // @Override
+        // public URL apply(String f)
+        // {
+        // try
+        // {
+        // return new File(f).toURI().toURL();
+        // }
+        // catch (MalformedURLException e)
+        // {
+        // return null;
+        // }
+        // }
+        // });
+        // aspectJClassPath.addAll(urls);
 
         LoopInterceptingByteCodeLoader codeLoader = createApplicationClassLoader(appDesc);
 

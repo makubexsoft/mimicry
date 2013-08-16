@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
+import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.util.concurrent.Future;
@@ -41,7 +42,7 @@ public class Application implements Closeable
         this.clock = node.getClock();
         id = UUID.randomUUID();
 
-        bridge.setApplicationId(id);
+        bridge.setThreadManager(new ThreadManager(id));
         bridge.setClock(clock);
         bridge.setEventBridge(node.getEventBridge());
 

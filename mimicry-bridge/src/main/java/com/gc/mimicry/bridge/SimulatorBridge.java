@@ -85,10 +85,10 @@ public final class SimulatorBridge
     /**
      * Gets invoked by the {@link ApplicationBridge}.
      */
-    public static void setApplicationId(UUID id)
+    public static void setThreadManager(ThreadManager mgr)
     {
-        applicationId = id;
-        threadManager = new ThreadManager(id);
+        applicationId = mgr.getApplicationId();
+        threadManager = mgr;
     }
 
     public static Future<?> getShutdownFuture()
