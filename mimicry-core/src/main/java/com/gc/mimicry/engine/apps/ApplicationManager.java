@@ -1,11 +1,7 @@
 package com.gc.mimicry.engine.apps;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,7 +11,6 @@ import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.util.BaseResourceManager;
-import com.gc.mimicry.util.MeFirstClassLoader;
 import com.google.common.base.Preconditions;
 
 /**
@@ -75,7 +70,7 @@ public class ApplicationManager extends BaseResourceManager
      */
     public Application launchApplication(ApplicationBundleDescriptor appDesc) throws IOException
     {
-        ApplicationClassLoader loader = createClassLoader(appDesc);
+        ApplicationClassLoader loader = ApplicationClassLoader.create(null);// TODO:appDesc);
 
         ApplicationBridge bridge = createBridge(appDesc, loader);
 
@@ -93,29 +88,29 @@ public class ApplicationManager extends BaseResourceManager
     private ApplicationBridge createBridge(ApplicationBundleDescriptor appDesc, ApplicationClassLoader loader)
     {
         ApplicationBridge bridge = new ApplicationBridge(loader);
-        bridge.setMainClass(appDesc.getMainClass());
         bridge.setEventBridge(node.getEventBridge());
         bridge.setClock(node.getClock());
         return bridge;
     }
 
-    private ApplicationClassLoader createClassLoader(ApplicationBundleDescriptor appDesc) throws MalformedURLException
-    {
-        ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
-        MeFirstClassLoader outerClassLoader;
-        outerClassLoader = new MeFirstClassLoader(context.getBridgeClassPath(), parentCL);
-
-        List<URL> aspectUrls = new ArrayList<URL>();
-        aspectUrls.addAll(context.getAspectClassPath());
-
-        Set<URL> aspectJClassPath;
-        aspectJClassPath = new HashSet<URL>();
-        aspectJClassPath.addAll(context.getAspectClassPath());
-        aspectJClassPath.addAll(context.getBridgeClassPath());
-
-        ApplicationClassLoader loader = new ApplicationClassLoader(aspectJClassPath, aspectUrls, outerClassLoader);
-        return loader;
-    }
+    // private ApplicationClassLoader createClassLoader(ApplicationBundleDescriptor appDesc) throws
+    // MalformedURLException
+    // {
+    // ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
+    // MeFirstClassLoader outerClassLoader;
+    // outerClassLoader = new MeFirstClassLoader(context.getBridgeClassPath(), parentCL);
+    //
+    // List<URL> aspectUrls = new ArrayList<URL>();
+    // aspectUrls.addAll(context.getAspectClassPath());
+    //
+    // Set<URL> aspectJClassPath;
+    // aspectJClassPath = new HashSet<URL>();
+    // aspectJClassPath.addAll(context.getAspectClassPath());
+    // aspectJClassPath.addAll(context.getBridgeClassPath());
+    //
+    // ApplicationClassLoader loader = new ApplicationClassLoader(aspectJClassPath, aspectUrls, outerClassLoader);
+    // return loader;
+    // }
 
     private final Set<Application> applications;
     private final Node node;

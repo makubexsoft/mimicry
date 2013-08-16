@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java -classpath '.:./plugins/*:./lib/*:./lib/core/*:./lib/shared/*' com.gc.mimicry.Main -mainScript $1
+java -classpath '.:./plugins/*:./lib/*' com.gc.mimicry.Main -mainScript $1

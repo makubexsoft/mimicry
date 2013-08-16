@@ -12,6 +12,7 @@ public class MimicryConfiguration
         this.eventHandlerClassLoader = eventHandlerClassLoader;
         aspectClassPath = new ArrayList<URL>();
         bridgeClassPath = new ArrayList<URL>();
+        coreClassPath = new ArrayList<URL>();
     }
 
     public ClassLoader getEventHandlerClassLoader()
@@ -29,6 +30,11 @@ public class MimicryConfiguration
         return Collections.unmodifiableList(bridgeClassPath);
     }
 
+    public List<URL> getCoreClassPath()
+    {
+        return Collections.unmodifiableList(coreClassPath);
+    }
+
     public void addAspectClassPath(URL p)
     {
         aspectClassPath.add(p);
@@ -39,7 +45,13 @@ public class MimicryConfiguration
         bridgeClassPath.add(p);
     }
 
+    public void addCoreClassPath(URL p)
+    {
+        coreClassPath.add(p);
+    }
+
     private final ClassLoader eventHandlerClassLoader;
     private final List<URL> aspectClassPath;
     private final List<URL> bridgeClassPath;
+    private final List<URL> coreClassPath;
 }

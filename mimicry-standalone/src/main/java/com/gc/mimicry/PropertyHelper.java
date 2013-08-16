@@ -16,11 +16,7 @@ public class PropertyHelper
 	private static final File		PROPERTIES_FILE		= new File( "./mimicry.properties" );
 
 	public static String			MIMICRY_VERSION		= "mimicry.version";
-	public static String			MIMICRY_SCRIPT_PATH	= "mimicry.script.path";
-	public static String			MIMICRY_BRIDGE_PATH	= "mimicry.bridge.path";
-	public static String			MIMICRY_CORE_PATH	= "mimicry.core.path";
-	public static String			MIMICRY_ASPECT_PATH	= "mimicry.aspect.path";
-	public static String			MIMICRY_PLUGIN_PATH	= "mimicry.plugin.path";
+	public static String			MIMICRY_SCRIPT_PATH	= "mimicry.scriptPath";
 
 	private static final Properties	properties;
 	static

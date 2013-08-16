@@ -10,9 +10,9 @@ public aspect LoggingAspect {
 	private static PrintStream out;
 	private static PrintStream err;
 
-	public pointcut getOutStream() : get(PrintStream System.out);
+	public pointcut getOutStream() : get(PrintStream System.out) && !within(com.gc.mimicry..*);
 
-	public pointcut getErrStream() : get(PrintStream System.err);
+	public pointcut getErrStream() : get(PrintStream System.err) && !within(com.gc.mimicry..*);
 
 	public pointcut setOutStream() : call(void System.setOut(..)) && !within(com.gc.mimicry..*);
 

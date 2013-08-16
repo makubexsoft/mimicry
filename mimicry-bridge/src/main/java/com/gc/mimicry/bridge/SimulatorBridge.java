@@ -1,21 +1,15 @@
 package com.gc.mimicry.bridge;
 
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
 import java.util.UUID;
 
-import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.bridge.threading.ThreadManager;
-import com.gc.mimicry.bridge.threading.ThreadShouldTerminateException;
 import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.ext.stdio.events.ConsoleInputEvent;
 import com.gc.mimicry.util.ByteBuffer;
-import com.gc.mimicry.util.concurrent.Future;
 
 /**
  * The simulator bridge provides access for the aspects woven into the application code to the simulator that loaded the
@@ -26,13 +20,10 @@ import com.gc.mimicry.util.concurrent.Future;
  */
 public final class SimulatorBridge
 {
-    private static volatile boolean started;
     private static UUID applicationId;
     private static Clock clock;
     private static EventBridge eventBridge;
     private static ThreadManager threadManager;
-    private static String mainClassName;
-    private static List<String> commandArgs;
     private static ClassLoader systemClassLoader;
     private static ByteBuffer inputBuffer;
     private static InputStream systemInputStream;
@@ -67,21 +58,6 @@ public final class SimulatorBridge
         return systemClassLoader;
     }
 
-    public static void setMainClass(String mainClassName)
-    {
-        SimulatorBridge.mainClassName = mainClassName;
-    }
-
-    public static void setCommandArgs(List<String> args)
-    {
-        commandArgs = args;
-    }
-
-    public static boolean wasStarted()
-    {
-        return started;
-    }
-
     /**
      * Gets invoked by the {@link ApplicationBridge}.
      */
@@ -89,15 +65,6 @@ public final class SimulatorBridge
     {
         applicationId = mgr.getApplicationId();
         threadManager = mgr;
-    }
-
-    public static Future<?> getShutdownFuture()
-    {
-        if (threadManager == null)
-        {
-            throw new IllegalStateException("No thread manager in place. Invoke setApplicationId first.");
-        }
-        return threadManager.getShutdownFuture();
     }
 
     /**
@@ -114,58 +81,6 @@ public final class SimulatorBridge
     public static void setEventBridge(EventBridge eventBridge)
     {
         SimulatorBridge.eventBridge = eventBridge;
-    }
-
-    private static void checkInitialized()
-    {
-        if (mainClassName == null)
-        {
-            throw new IllegalStateException("Bridge not fully initialized. Main-Class missing.");
-        }
-        if (commandArgs == null)
-        {
-            throw new IllegalStateException("Bridge not fully initialized. Command arguments missing.");
-        }
-        if (applicationId == null)
-        {
-            throw new IllegalStateException("Bridge not fully initialized. Application id missing.");
-        }
-        if (threadManager == null)
-        {
-            throw new IllegalStateException("Bridge not fully initialized. Thread manager missing.");
-        }
-        if (clock == null)
-        {
-            throw new IllegalStateException("Bridge not fully initialized. Clock missing.");
-        }
-        if (eventBridge == null)
-        {
-            throw new IllegalStateException("Bridge not fully initialized. EventBridge missing.");
-        }
-    }
-
-    /**
-     * Gets invoked by the {@link ApplicationBridge}.
-     * 
-     * @throws ClassNotFoundException
-     * @throws SecurityException
-     * @throws NoSuchMethodException
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
-     * @throws InvocationTargetException
-     */
-    public static void startApplication(ClassLoader applicationLoader) throws ClassNotFoundException,
-            NoSuchMethodException, SecurityException, NoSuchFieldException, IllegalArgumentException,
-            IllegalAccessException, InvocationTargetException
-    {
-        checkInitialized();
-        if (started)
-        {
-            throw new IllegalStateException("Application already running.");
-        }
-
-        systemClassLoader = applicationLoader;
 
         inputHandler = new EventListener()
         {
@@ -181,47 +96,6 @@ public final class SimulatorBridge
             }
         };
         eventBridge.addUpstreamEventListener(getApplicationId(), inputHandler);
-
-        Class<?> mainClass = applicationLoader.loadClass(mainClassName);
-        final Method mainMethod = mainClass.getMethod("main", String[].class);
-        ManagedThread thread = new ManagedThread(new Runnable()
-        {
-
-            @Override
-            public void run()
-            {
-                try
-                {
-                    mainMethod.invoke(null, new Object[] { commandArgs.toArray(new String[0]) });
-                }
-                catch (IllegalAccessException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                catch (IllegalArgumentException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                catch (InvocationTargetException e)
-                {
-                    if (e.getCause() instanceof ThreadShouldTerminateException)
-                    {
-                        // application shut down by our life-cycle
-                    }
-                    else
-                    {
-                        // application crashed due to unknown exception
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        }, "Application[id=" + getApplicationId() + "] main");
-        thread.setContextClassLoader(applicationLoader);
-        thread.start();
-        started = true;
     }
 
     /**
@@ -241,6 +115,10 @@ public final class SimulatorBridge
 
     public static EventBridge getEventBridge()
     {
+        if (eventBridge == null)
+        {
+            throw new IllegalStateException("Not initialized. eventBridge is missing.");
+        }
         return eventBridge;
     }
 
@@ -259,10 +137,6 @@ public final class SimulatorBridge
      */
     public static void shutdownApplication()
     {
-        if (!started)
-        {
-            throw new IllegalStateException("Application not started.");
-        }
         getThreadManager().shutdownAllThreads();
     }
 }

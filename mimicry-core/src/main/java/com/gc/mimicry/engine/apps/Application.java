@@ -1,7 +1,6 @@
 package com.gc.mimicry.engine.apps;
 
 import java.io.Closeable;
-import java.util.Arrays;
 import java.util.UUID;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
@@ -42,11 +41,12 @@ public class Application implements Closeable
         this.clock = node.getClock();
         id = UUID.randomUUID();
 
-        bridge.setThreadManager(new ThreadManager(id));
+        ThreadManager mgr = new ThreadManager(id);
+        bridge.setThreadManager(mgr);
         bridge.setClock(clock);
         bridge.setEventBridge(node.getEventBridge());
 
-        terminationFuture = bridge.getShutdownFuture();
+        terminationFuture = mgr.getShutdownFuture();
     }
 
     /**
@@ -85,8 +85,8 @@ public class Application implements Closeable
      */
     public void start(String... commandArgs)
     {
-        bridge.setCommandArgs(Arrays.asList(commandArgs));
-        bridge.startApplication();
+        // bridge.setCommandArgs(Arrays.asList(commandArgs));
+        // bridge.startApplication();
     }
 
     /**
@@ -96,7 +96,7 @@ public class Application implements Closeable
      */
     public Future<?> stop()
     {
-        bridge.shutdownApplication();
+        // bridge.shutdownApplication();
         return terminationFuture;
     }
 

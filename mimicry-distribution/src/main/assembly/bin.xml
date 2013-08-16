@@ -52,37 +52,12 @@
 
 	<dependencySets>
 		<dependencySet>
-			<outputDirectory>/lib/core</outputDirectory>
-			<unpack>false</unpack>
-			<includes>
-				<include>com.gc.mimicry:core</include>
-			</includes>
-		</dependencySet>
-		<dependencySet>
-			<outputDirectory>/lib/bridge</outputDirectory>
-			<unpack>false</unpack>
-			<includes>
-				<include>com.gc.mimicry:bridge</include>
-			</includes>
-		</dependencySet>
-		<dependencySet>
-			<outputDirectory>/lib/aspects</outputDirectory>
-			<unpack>false</unpack>
-			<includes>
-				<include>com.gc.mimicry:aspects</include>
-			</includes>
-		</dependencySet>
-		<dependencySet>
-			<outputDirectory>/plugins</outputDirectory>
-			<unpack>false</unpack>
-			<includes>
-				<include>com.gc.mimicry:plugin-core</include>
-			</includes>
-		</dependencySet>
-		<dependencySet>
 			<outputDirectory>/lib</outputDirectory>
 			<unpack>false</unpack>
 			<includes>
+				<include>com.gc.mimicry:core</include>
+				<include>com.gc.mimicry:bridge</include>
+				<include>com.gc.mimicry:aspects</include>
 				<include>com.gc.mimicry:mimicry-standalone</include>
 				<include>com.gc.mimicry:mimicry-ui</include>
 			</includes>
@@ -94,6 +69,13 @@
 			<excludes>
 				<exclude>com.gc.mimicry</exclude>
 			</excludes>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>/plugins</outputDirectory>
+			<unpack>false</unpack>
+			<includes>
+				<include>com.gc.mimicry:plugin-core</include>
+			</includes>
 		</dependencySet>
 	</dependencySets>
 </assembly>

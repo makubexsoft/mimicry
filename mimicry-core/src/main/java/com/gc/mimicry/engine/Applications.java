@@ -7,27 +7,21 @@ import com.googlecode.transloader.DefaultTransloader;
 import com.googlecode.transloader.ObjectWrapper;
 import com.googlecode.transloader.Transloader;
 import com.googlecode.transloader.clone.CloningStrategy;
-import com.googlecode.transloader.clone.reflect.MinimalCloningDecisionStrategy;
+import com.googlecode.transloader.clone.reflect.CloningDecisionStrategy;
+import com.googlecode.transloader.clone.reflect.MaximalCloningDecisionStrategy;
 import com.googlecode.transloader.clone.reflect.ObjenesisInstantiationStrategy;
 import com.googlecode.transloader.clone.reflect.ReflectionCloningStrategy;
 
 public class Applications
 {
-
-    public static Application create(ApplicationContext ctx, EntryPoint runnable) throws ClassNotFoundException,
+    public static Application create(final ApplicationContext ctx, EntryPoint runnable) throws ClassNotFoundException,
             NoSuchMethodException, SecurityException
     {
-        MinimalCloningDecisionStrategy cloneStrategy = new MinimalCloningDecisionStrategy();
-        ObjenesisInstantiationStrategy createStrategy = new ObjenesisInstantiationStrategy();
-        ReflectionCloningStrategy strategy;
-        strategy = new ReflectionCloningStrategy(cloneStrategy, createStrategy, CloningStrategy.MINIMAL);
-        Transloader transloader = new DefaultTransloader(strategy);
-        ObjectWrapper someObjectWrapped = transloader.wrap(runnable);
-
-        final EntryPoint entryPoint = (EntryPoint) someObjectWrapped.cloneWith(ctx.getClassLoader());
+        final EntryPoint entryPoint = bridge(ctx.getClassLoader(), runnable);
 
         Class<?> threadClass = ctx.getClassLoader().loadClass("com.gc.mimicry.bridge.threading.ManagedThread");
         final Constructor<?> constructor = threadClass.getConstructor(Runnable.class);
+
         EntryPoint r = new EntryPoint()
         {
             @Override
@@ -44,14 +38,28 @@ public class Applications
                         }
                         catch (Throwable e)
                         {
+                            e.printStackTrace();
                             throw new RuntimeException("Thread terminated due to uncaught exception.", e);
                         }
                     }
                 });
+                thread.setContextClassLoader(ctx.getClassLoader());
                 thread.start();
             }
         };
         return new Application(ctx, r);
+    }
+
+    private static EntryPoint bridge(ClassLoader loader, EntryPoint runnable)
+    {
+        CloningDecisionStrategy cloneStrategy = new MaximalCloningDecisionStrategy();
+        ObjenesisInstantiationStrategy createStrategy = new ObjenesisInstantiationStrategy();
+        ReflectionCloningStrategy strategy;
+        strategy = new ReflectionCloningStrategy(cloneStrategy, createStrategy, CloningStrategy.MAXIMAL);
+        Transloader transloader = new DefaultTransloader(strategy);
+        ObjectWrapper someObjectWrapped = transloader.wrap(runnable);
+
+        return (EntryPoint) someObjectWrapped.cloneWith(loader);
     }
 
     public static Application create(ApplicationContext ctx, String mainClassName) throws NoSuchMethodException,

@@ -6,22 +6,22 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.gc.mimicry.util.ClassPathUtil;
 import com.gc.mimicry.util.ReflectionUtil;
 
 public class TestWeavingClassLoader
 {
     @Before
     public void setUp() throws MalformedURLException
-    {
-        loader = new ApplicationClassLoader(Arrays.asList(ClassPathUtil.createClassPath("target/classes")),
-                Arrays.asList(ClassPathUtil.createClassPath("target/classes")), null);
+    {/*
+      * config)(Arrays.asList(ClassPathUtil.createClassPath("target/classes")),
+      * Arrays.asList(ClassPathUtil.createClassPath("target/classes")), null
+      */
+        loader = ApplicationClassLoader.create(null);
     }
 
     @After

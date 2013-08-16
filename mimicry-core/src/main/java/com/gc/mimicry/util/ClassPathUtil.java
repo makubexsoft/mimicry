@@ -11,6 +11,20 @@ import com.google.common.base.Splitter;
 
 public class ClassPathUtil
 {
+    public static String getResourceLocation(ClassLoader loader, String resourceName)
+    {
+        URL resource = loader.getResource(resourceName);
+
+        if (resource.getProtocol().equalsIgnoreCase("jar"))
+        {
+            return resource.getPath().substring(0, resource.getPath().indexOf("!"));
+        }
+        else if (resource.getProtocol().equalsIgnoreCase("file"))
+        {
+            return resource.getPath().substring(0, resource.getPath().length() - resourceName.length());
+        }
+        return null;
+    }
 
     public static URL[] createClassPath(Collection<String> paths)
     {
@@ -50,14 +64,22 @@ public class ClassPathUtil
         return urls;
     }
 
-    public static Set<String> getSystemClassPath()
+    public static Set<URL> getSystemClassPath()
     {
-        Set<String> result = new HashSet<String>();
+        Set<URL> result = new HashSet<URL>();
         String path = System.getProperty("java.class.path");
         Iterable<String> split = Splitter.on(File.pathSeparatorChar).split(path);
         for (String s : split)
         {
-            result.add(s);
+            try
+            {
+                result.add(new File(s).toURI().toURL());
+            }
+            catch (MalformedURLException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         return result;
     }

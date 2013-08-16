@@ -141,7 +141,7 @@ public class ManagedThread extends Thread implements IManagedThread
         shuttingDown = true;
         interrupt();
         fireThreadShouldTerminate();
-        suspend();
+        // suspend();
         stop();
     }
 
@@ -167,6 +167,7 @@ public class ManagedThread extends Thread implements IManagedThread
 
     private void init()
     {
+        super.setDaemon(true);
         listener = new CopyOnWriteArrayList<ThreadShutdownListener>();
         assignId();
     }

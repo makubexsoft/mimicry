@@ -8,11 +8,6 @@ import groovy.util.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import javax.swing.UIManager;
 
@@ -28,11 +23,8 @@ import com.gc.mimicry.engine.StandaloneSimulation;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
 import com.gc.mimicry.ext.timing.ClockController;
-import com.gc.mimicry.util.FileNameExtensionFilter;
-import com.gc.mimicry.util.IOUtils;
+import com.gc.mimicry.util.ClassPathUtil;
 import com.gc.mimicry.util.concurrent.Future;
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 
 public class Main
 {
@@ -55,23 +47,8 @@ public class Main
 
 		setLaF();
 
-		// Read configuration
-		File bridgeDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_BRIDGE_PATH, "." ) );
-		File aspectDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_ASPECT_PATH, "." ) );
-		File coreDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_CORE_PATH, "." ) );
-		File pluginDir = new File( PropertyHelper.getValue( PropertyHelper.MIMICRY_PLUGIN_PATH, "." ) );
-
-		// Collect jar files in plugin folders
-		List<File> bridgeJarFiles = IOUtils.collectFiles( bridgeDir, new FileNameExtensionFilter( ".jar" ) );
-		List<File> aspectJarFiles = IOUtils.collectFiles( aspectDir, new FileNameExtensionFilter( ".jar" ) );
-		List<File> coreJarFiles = IOUtils.collectFiles( coreDir, new FileNameExtensionFilter( ".jar" ) );
-		List<File> pluginJarFiles = IOUtils.collectFiles( pluginDir, new FileNameExtensionFilter( ".jar" ) );
-
-		// Create class loader for event handler
-		URLClassLoader eventHandlerCL = createEHClassLoader( coreJarFiles, pluginJarFiles );
-
 		// Create context
-		MimicryConfiguration ctx = createContext( bridgeJarFiles, aspectJarFiles, eventHandlerCL );
+		MimicryConfiguration ctx = createConfig();
 
 		// Create simulation
 		Simulation network = new StandaloneSimulation( ctx );
@@ -83,44 +60,20 @@ public class Main
 		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
 	}
 
-	private static URLClassLoader createEHClassLoader( List<File> coreJarFiles, List<File> pluginJarFiles )
+	private static MimicryConfiguration createConfig() throws MalformedURLException
 	{
-		List<File> tmp = new ArrayList<File>();
-		tmp.addAll( coreJarFiles );
-		tmp.addAll( pluginJarFiles );
-		Collection<URL> urls = Collections2.transform( tmp, new Function<File, URL>()
-		{
-			@Override
-			public URL apply( File f )
-			{
-				try
-				{
-					return f.toURI().toURL();
-				}
-				catch ( MalformedURLException e )
-				{
-					return null;
-				}
-			}
-		} );
-		URLClassLoader eventHandlerCL = new URLClassLoader( urls.toArray( new URL[0] ), Main.class.getClassLoader() );
-		return eventHandlerCL;
-	}
+		ClassLoader loader = Main.class.getClassLoader();
 
-	private static MimicryConfiguration createContext( List<File> bridgeJarFiles, List<File> aspectJarFiles,
-			URLClassLoader eventHandlerCL ) throws MalformedURLException
-	{
-		MimicryConfiguration ctx;
-		ctx = new MimicryConfiguration( eventHandlerCL );
-		for ( File jarFile : aspectJarFiles )
-		{
-			ctx.addAspectClassPath( jarFile.toURI().toURL() );
-			ctx.addBridgeClassPath( jarFile.toURI().toURL() );
-		}
-		for ( File jarFile : bridgeJarFiles )
-		{
-			ctx.addBridgeClassPath( jarFile.toURI().toURL() );
-		}
+		File bridgeJar = new File( ClassPathUtil.getResourceLocation( loader,
+				"com/gc/mimicry/bridge/SimulatorBridge.class" ) );
+		File aspectJar = new File( ClassPathUtil.getResourceLocation( loader,
+				"com/gc/mimicry/bridge/aspects/ConsoleAspect.class" ) );
+
+		MimicryConfiguration ctx = new MimicryConfiguration( loader );
+		ctx.addAspectClassPath( aspectJar.toURI().toURL() );
+		ctx.addBridgeClassPath( aspectJar.toURI().toURL() );
+		ctx.addBridgeClassPath( bridgeJar.toURI().toURL() );
+
 		return ctx;
 	}
 

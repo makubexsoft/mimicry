@@ -23,7 +23,6 @@ public class Application implements Closeable
         bridge.setClock(ctx.getClock());
         bridge.setEventBridge(ctx.getEventBridge());
         bridge.setThreadManager(threadManager);
-
     }
 
     public void start(String... args)
