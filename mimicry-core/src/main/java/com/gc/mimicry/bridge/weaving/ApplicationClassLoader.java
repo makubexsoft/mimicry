@@ -2,15 +2,15 @@ package com.gc.mimicry.bridge.weaving;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.aspectj.weaver.loadtime.WeavingURLClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.MimicryConfiguration;
+import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.util.ClassPathUtil;
 
 /**
@@ -20,16 +20,47 @@ import com.gc.mimicry.util.ClassPathUtil;
  */
 public class ApplicationClassLoader extends WeavingURLClassLoader
 {
-    public static ApplicationClassLoader create(MimicryConfiguration config) throws MalformedURLException
+    private static final Logger logger;
+    static
     {
-        List<URL> aspects = new ArrayList<URL>();
-        aspects.addAll(config.getAspectClassPath());
+        logger = LoggerFactory.getLogger(ApplicationClassLoader.class);
+    }
 
+    public static ApplicationClassLoader create(ClassPathConfiguration config) throws MalformedURLException
+    {
         Set<URL> classPath = new HashSet<URL>();
         classPath.addAll(config.getAspectClassPath());
         classPath.addAll(config.getBridgeClassPath());
 
-        return new ApplicationClassLoader(classPath, aspects);
+        return new ApplicationClassLoader(classPath, config.getAspectClassPath());
+    }
+
+    ApplicationClassLoader(Collection<URL> classPath, Collection<URL> aspects)
+    {
+        super(ClassPathUtil.getSystemClassPath().toArray(new URL[0]), aspects.toArray(new URL[0]), new MyParentLoader(
+                classPath, aspects));
+        ((MyParentLoader) getParent()).setChild(this);
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        if (name.startsWith("com.gc.mimicry."))
+        {
+            throw new ClassNotFoundException(name);
+        }
+        Class<?> c = super.findClass(name);
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("[STAGE-0] " + name);
+        }
+        return c;
+    }
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException
+    {
+        return getParent().loadClass(name);
     }
 
     static class MyParentLoader extends WeavingURLClassLoader
@@ -79,7 +110,10 @@ public class ApplicationClassLoader extends WeavingURLClassLoader
             try
             {
                 Class<?> c = findClass(name);
-                System.out.println("[STAGE-1] " + name);
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("[STAGE-1] " + name);
+                }
                 return c;
             }
             catch (ClassNotFoundException e)
@@ -91,33 +125,11 @@ public class ApplicationClassLoader extends WeavingURLClassLoader
             // STAGE-2
             //
             Class<?> c = getParent().loadClass(name);
-            System.out.println("[STAGE-2] " + name);
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("[STAGE-2] " + name);
+            }
             return c;
         }
-    }
-
-    ApplicationClassLoader(Collection<URL> classPath, Collection<URL> aspects)
-    {
-        super(ClassPathUtil.getSystemClassPath().toArray(new URL[0]), aspects.toArray(new URL[0]), new MyParentLoader(
-                classPath, aspects));
-        ((MyParentLoader) getParent()).setChild(this);
-    }
-
-    @Override
-    protected Class findClass(String name) throws ClassNotFoundException
-    {
-        if (name.startsWith("com.gc.mimicry."))
-        {
-            throw new ClassNotFoundException(name);
-        }
-        Class c = super.findClass(name);
-        System.out.println("[STAGE-0] " + name);
-        return c;
-    }
-
-    @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException
-    {
-        return getParent().loadClass(name);
     }
 }

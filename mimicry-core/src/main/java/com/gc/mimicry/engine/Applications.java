@@ -38,7 +38,6 @@ public class Applications
                         }
                         catch (Throwable e)
                         {
-                            e.printStackTrace();
                             throw new RuntimeException("Thread terminated due to uncaught exception.", e);
                         }
                     }

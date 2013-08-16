@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
-import com.gc.mimicry.engine.MimicryConfiguration;
+import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.util.BaseResourceManager;
@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
  */
 public class ApplicationManager extends BaseResourceManager
 {
-    public ApplicationManager(MimicryConfiguration context, Node node)
+    public ApplicationManager(ClassPathConfiguration context, Node node)
     {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(node);
@@ -114,5 +114,5 @@ public class ApplicationManager extends BaseResourceManager
 
     private final Set<Application> applications;
     private final Node node;
-    private final MimicryConfiguration context;
+    private final ClassPathConfiguration context;
 }

@@ -6,16 +6,13 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import org.aspectj.weaver.tools.WeavingAdaptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.gc.mimicry.engine.MimicryConfiguration;
-import com.gc.mimicry.engine.apps.Application;
+import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.deployment.ApplicationBundleDescriptor;
 import com.gc.mimicry.engine.deployment.ApplicationDescriptorBuilder;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
@@ -37,13 +34,7 @@ public class TestApplicationManager
     {
         configureAspectJ();
 
-        ClassLoader classLoader = getClass().getClassLoader();
-
-        URLClassLoader coreClassLoader;
-        coreClassLoader = new URLClassLoader(new URL[0], classLoader);
-
-        MimicryConfiguration ctx;
-        ctx = new MimicryConfiguration(coreClassLoader);
+        ClassPathConfiguration ctx = ClassPathConfiguration.deriveFromClassPath();
         ctx.addAspectClassPath(new File(ASPECTS_PATH).toURI().toURL());
 
         ctx.addBridgeClassPath(new File(ASPECTS_PATH).toURI().toURL());

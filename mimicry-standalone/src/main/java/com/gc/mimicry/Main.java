@@ -5,9 +5,7 @@ import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import javax.swing.UIManager;
 
@@ -17,13 +15,12 @@ import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.gc.mimicry.engine.MimicryConfiguration;
+import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.StandaloneSimulation;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
 import com.gc.mimicry.ext.timing.ClockController;
-import com.gc.mimicry.util.ClassPathUtil;
 import com.gc.mimicry.util.concurrent.Future;
 
 public class Main
@@ -48,7 +45,7 @@ public class Main
 		setLaF();
 
 		// Create context
-		MimicryConfiguration ctx = createConfig();
+		ClassPathConfiguration ctx = ClassPathConfiguration.deriveFromClassPath();
 
 		// Create simulation
 		Simulation network = new StandaloneSimulation( ctx );
@@ -58,23 +55,6 @@ public class Main
 
 		Future<?> endFuture = network.getSimulationEndFuture();
 		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
-	}
-
-	private static MimicryConfiguration createConfig() throws MalformedURLException
-	{
-		ClassLoader loader = Main.class.getClassLoader();
-
-		File bridgeJar = new File( ClassPathUtil.getResourceLocation( loader,
-				"com/gc/mimicry/bridge/SimulatorBridge.class" ) );
-		File aspectJar = new File( ClassPathUtil.getResourceLocation( loader,
-				"com/gc/mimicry/bridge/aspects/ConsoleAspect.class" ) );
-
-		MimicryConfiguration ctx = new MimicryConfiguration( loader );
-		ctx.addAspectClassPath( aspectJar.toURI().toURL() );
-		ctx.addBridgeClassPath( aspectJar.toURI().toURL() );
-		ctx.addBridgeClassPath( bridgeJar.toURI().toURL() );
-
-		return ctx;
 	}
 
 	private static void runSimulationScript( Arguments args, ApplicationRepository appRepo, Simulation network )

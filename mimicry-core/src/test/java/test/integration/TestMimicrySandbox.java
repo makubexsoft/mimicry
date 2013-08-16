@@ -14,10 +14,10 @@ import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
 import com.gc.mimicry.engine.Application;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.Applications;
+import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.EntryPoint;
 import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.MimicryConfiguration;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.engine.timing.SystemClock;
@@ -86,7 +86,7 @@ public class TestMimicrySandbox
     @Test
     public void test2() throws Exception
     {
-        MimicryConfiguration clctx = createConfig();
+        ClassPathConfiguration clctx = createConfig();
         ClassLoader loader = ApplicationClassLoader.create(clctx);
         EventBridge eventBridge = new EventBridge();
 
@@ -123,7 +123,7 @@ public class TestMimicrySandbox
 
     public void testSeparatesLoadsCoreClassesCorrectly() throws Exception
     {
-        MimicryConfiguration clctx = createConfig();
+        ClassPathConfiguration clctx = createConfig();
         ClassLoader loader = ApplicationClassLoader.create(clctx);
         EventBridge eventBridge = new EventBridge();
 
@@ -136,14 +136,12 @@ public class TestMimicrySandbox
         assertEquals(System.identityHashCode(Clock.class), System.identityHashCode(class1));
     }
 
-    private static MimicryConfiguration createConfig() throws MalformedURLException
+    private static ClassPathConfiguration createConfig() throws MalformedURLException
     {
-        ClassLoader loader = TestMimicrySandbox.class.getClassLoader();
-
         File bridgeJar = new File("../mimicry-bridge/target/bridge-0.0.1-SNAPSHOT.jar");
         File aspectJar = new File("../mimicry-aspects/target/aspects-0.0.1-SNAPSHOT.jar");
 
-        MimicryConfiguration ctx = new MimicryConfiguration(loader);
+        ClassPathConfiguration ctx = ClassPathConfiguration.createEmpty();
         ctx.addAspectClassPath(aspectJar.toURI().toURL());
         ctx.addBridgeClassPath(aspectJar.toURI().toURL());
         ctx.addBridgeClassPath(bridgeJar.toURI().toURL());

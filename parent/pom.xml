@@ -27,6 +27,7 @@
 		<module>../mimicry-standalone</module>
 		<module>../sample-simu-app</module>
 		<module>../mimicry-distribution</module>
+		<module>../test-maven-usage</module>
 	</modules>
 
 	<properties>

@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.MimicryConfiguration;
+import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventBroker;
 import com.gc.mimicry.engine.EventListener;
@@ -37,10 +37,10 @@ public class NodeManager implements Closeable, EventListener
     }
     private final Map<UUID, Node> nodes;
     private final EventBroker eventBroker;
-    private final MimicryConfiguration ctx;
+    private final ClassPathConfiguration ctx;
     private final Clock clock;
 
-    public NodeManager(MimicryConfiguration ctx, EventBroker eventBroker, Clock clock)
+    public NodeManager(ClassPathConfiguration ctx, EventBroker eventBroker, Clock clock)
     {
         Preconditions.checkNotNull(ctx);
         Preconditions.checkNotNull(eventBroker);
