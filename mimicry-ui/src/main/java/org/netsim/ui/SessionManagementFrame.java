@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
@@ -24,9 +25,6 @@ import javax.swing.SpringLayout;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreePath;
-
-import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.treetable.TreeTableModel;
 
 import com.gc.mimicry.cluster.NodeInfo;
 import com.gc.mimicry.cluster.session.controller.SessionController;
@@ -54,12 +52,12 @@ public class SessionManagementFrame extends JInternalFrame
 		tabbedPane.addTab( "Cluster Nodes", null, panNodes, null );
 		panNodes.setLayout( new BorderLayout( 0, 0 ) );
 
-		JXTreeTable treeTable = new JXTreeTable(
-				new ClusterNodesModel( new ArrayList<NodeInfo>( controller.getNodes() ) ) );
-		treeTable.setShowsRootHandles( false );
+//		JTable treeTable = new JTable(
+//				new ClusterNodesModel( new ArrayList<NodeInfo>( controller.getNodes() ) ) );
+//		treeTable.setShowsRootHandles( false );
 
 		JScrollPane tableScroll = new JScrollPane();
-		tableScroll.setViewportView( treeTable );
+//		tableScroll.setViewportView( treeTable );
 		panNodes.add( tableScroll, BorderLayout.CENTER );
 
 		JPanel panClock = new JPanel();
@@ -133,8 +131,8 @@ public class SessionManagementFrame extends JInternalFrame
 		JScrollPane scrollPane_1 = new JScrollPane();
 		panel_5.add( scrollPane_1, BorderLayout.CENTER );
 
-		JXTreeTable treeTable_1 = new JXTreeTable( new LogicalNodesModel() );
-		scrollPane_1.setViewportView( treeTable_1 );
+//		JXTreeTable treeTable_1 = new JXTreeTable( new LogicalNodesModel() );
+//		scrollPane_1.setViewportView( treeTable_1 );
 
 		JPanel panel_3 = new JPanel();
 		panel_3.setBorder( new TitledBorder( null, "Status", TitledBorder.CENTER, TitledBorder.TOP, null, null ) );
@@ -155,227 +153,227 @@ public class SessionManagementFrame extends JInternalFrame
 	}
 }
 
-class LogicalNodesModel implements TreeTableModel
-{
-	public LogicalNodesModel()
-	{
-
-	}
-
-	public Object getRoot()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Object getChild( Object parent, int index )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public int getChildCount( Object parent )
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public boolean isLeaf( Object node )
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public void valueForPathChanged( TreePath path, Object newValue )
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	public int getIndexOfChild( Object parent, Object child )
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public void addTreeModelListener( TreeModelListener l )
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	public void removeTreeModelListener( TreeModelListener l )
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	public Class<?> getColumnClass( int arg0 )
-	{
-		return String.class;
-	}
-
-	public int getColumnCount()
-	{
-		return COLUMN_NAMES.length;
-	}
-
-	public String getColumnName( int arg0 )
-	{
-		return COLUMN_NAMES[arg0];
-	}
-
-	public int getHierarchicalColumn()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public Object getValueAt( Object arg0, int arg1 )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public boolean isCellEditable( Object arg0, int arg1 )
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public void setValueAt( Object arg0, Object arg1, int arg2 )
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	private static final String[]	COLUMN_NAMES	= new String[]
-													{ "Node / Application", "State" };
-}
-
-class ClusterNodesModel implements TreeTableModel
-{
-
-	private final static String[]	COLUMN_NAMES	= new String[]
-													{ "Node", "IP-Address", "Architecture", "Operating System",
-			"Kernel", "# CPU Cores", "Java Version" };
-	private final Object			root			= new Object();
-	private final List<NodeInfo>	nodes;
-
-	public ClusterNodesModel(List<NodeInfo> nodes)
-	{
-		this.nodes = nodes;
-	}
-
-	public Object getRoot()
-	{
-		return root;
-	}
-
-	public Object getChild( Object parent, int index )
-	{
-		if ( parent == getRoot() )
-		{
-			return nodes.get( index );
-		}
-		return null;
-	}
-
-	public int getChildCount( Object parent )
-	{
-		if ( nodes == null )
-		{
-			return 0;
-		}
-		if ( getRoot() == parent )
-		{
-			return nodes.size();
-		}
-		return 0;
-	}
-
-	public boolean isLeaf( Object node )
-	{
-		if ( getRoot() == node )
-		{
-			return nodes.size() == 0;
-		}
-		return true;
-	}
-
-	public void valueForPathChanged( TreePath path, Object newValue )
-	{
-	}
-
-	public int getIndexOfChild( Object parent, Object child )
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public void addTreeModelListener( TreeModelListener l )
-	{
-		// TODO Auto-generated method stub
-	}
-
-	public void removeTreeModelListener( TreeModelListener l )
-	{
-		// TODO Auto-generated method stub
-	}
-
-	public Class<?> getColumnClass( int arg0 )
-	{
-		return String.class;
-	}
-
-	public int getColumnCount()
-	{
-		return COLUMN_NAMES.length;
-	}
-
-	public String getColumnName( int arg0 )
-	{
-		return COLUMN_NAMES[arg0];
-	}
-
-	public int getHierarchicalColumn()
-	{
-		return 0;
-	}
-
-	public Object getValueAt( Object node, int column )
-	{
-		if ( node instanceof NodeInfo )
-		{
-			NodeInfo info = (NodeInfo) node;
-			switch ( column )
-			{
-				case 0:
-					return info.getNodeId().toString().toUpperCase();
-				case 1:
-					return info.getIpAddress().toString();
-				case 2:
-					return info.getArchitecture();
-				case 3:
-					return info.getOperatingSystem();
-				case 4:
-					return info.getOsVersion();
-				case 5:
-					return info.getNumberCores();
-				case 6:
-					return info.getJavaVersion();
-			}
-		}
-
-		return null;
-	}
-
-	public boolean isCellEditable( Object arg0, int arg1 )
-	{
-		return false;
-	}
-
-	public void setValueAt( Object arg0, Object arg1, int arg2 )
-	{
-	}
-}
+//class LogicalNodesModel implements TreeTableModel
+//{
+//	public LogicalNodesModel()
+//	{
+//
+//	}
+//
+//	public Object getRoot()
+//	{
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	public Object getChild( Object parent, int index )
+//	{
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	public int getChildCount( Object parent )
+//	{
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	public boolean isLeaf( Object node )
+//	{
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	public void valueForPathChanged( TreePath path, Object newValue )
+//	{
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	public int getIndexOfChild( Object parent, Object child )
+//	{
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	public void addTreeModelListener( TreeModelListener l )
+//	{
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	public void removeTreeModelListener( TreeModelListener l )
+//	{
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	public Class<?> getColumnClass( int arg0 )
+//	{
+//		return String.class;
+//	}
+//
+//	public int getColumnCount()
+//	{
+//		return COLUMN_NAMES.length;
+//	}
+//
+//	public String getColumnName( int arg0 )
+//	{
+//		return COLUMN_NAMES[arg0];
+//	}
+//
+//	public int getHierarchicalColumn()
+//	{
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	public Object getValueAt( Object arg0, int arg1 )
+//	{
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	public boolean isCellEditable( Object arg0, int arg1 )
+//	{
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	public void setValueAt( Object arg0, Object arg1, int arg2 )
+//	{
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	private static final String[]	COLUMN_NAMES	= new String[]
+//													{ "Node / Application", "State" };
+//}
+//
+//class ClusterNodesModel implements TreeTableModel
+//{
+//
+//	private final static String[]	COLUMN_NAMES	= new String[]
+//													{ "Node", "IP-Address", "Architecture", "Operating System",
+//			"Kernel", "# CPU Cores", "Java Version" };
+//	private final Object			root			= new Object();
+//	private final List<NodeInfo>	nodes;
+//
+//	public ClusterNodesModel(List<NodeInfo> nodes)
+//	{
+//		this.nodes = nodes;
+//	}
+//
+//	public Object getRoot()
+//	{
+//		return root;
+//	}
+//
+//	public Object getChild( Object parent, int index )
+//	{
+//		if ( parent == getRoot() )
+//		{
+//			return nodes.get( index );
+//		}
+//		return null;
+//	}
+//
+//	public int getChildCount( Object parent )
+//	{
+//		if ( nodes == null )
+//		{
+//			return 0;
+//		}
+//		if ( getRoot() == parent )
+//		{
+//			return nodes.size();
+//		}
+//		return 0;
+//	}
+//
+//	public boolean isLeaf( Object node )
+//	{
+//		if ( getRoot() == node )
+//		{
+//			return nodes.size() == 0;
+//		}
+//		return true;
+//	}
+//
+//	public void valueForPathChanged( TreePath path, Object newValue )
+//	{
+//	}
+//
+//	public int getIndexOfChild( Object parent, Object child )
+//	{
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	public void addTreeModelListener( TreeModelListener l )
+//	{
+//		// TODO Auto-generated method stub
+//	}
+//
+//	public void removeTreeModelListener( TreeModelListener l )
+//	{
+//		// TODO Auto-generated method stub
+//	}
+//
+//	public Class<?> getColumnClass( int arg0 )
+//	{
+//		return String.class;
+//	}
+//
+//	public int getColumnCount()
+//	{
+//		return COLUMN_NAMES.length;
+//	}
+//
+//	public String getColumnName( int arg0 )
+//	{
+//		return COLUMN_NAMES[arg0];
+//	}
+//
+//	public int getHierarchicalColumn()
+//	{
+//		return 0;
+//	}
+//
+//	public Object getValueAt( Object node, int column )
+//	{
+//		if ( node instanceof NodeInfo )
+//		{
+//			NodeInfo info = (NodeInfo) node;
+//			switch ( column )
+//			{
+//				case 0:
+//					return info.getNodeId().toString().toUpperCase();
+//				case 1:
+//					return info.getIpAddress().toString();
+//				case 2:
+//					return info.getArchitecture();
+//				case 3:
+//					return info.getOperatingSystem();
+//				case 4:
+//					return info.getOsVersion();
+//				case 5:
+//					return info.getNumberCores();
+//				case 6:
+//					return info.getJavaVersion();
+//			}
+//		}
+//
+//		return null;
+//	}
+//
+//	public boolean isCellEditable( Object arg0, int arg1 )
+//	{
+//		return false;
+//	}
+//
+//	public void setValueAt( Object arg0, Object arg1, int arg2 )
+//	{
+//	}
+//}

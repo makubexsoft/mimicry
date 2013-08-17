@@ -18,6 +18,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry excluding="com/gc/mimicry/bridge/weaving/SocketAspect.aj" kind="src" path="src/test/aspect"/>
+	<classpathentry kind="lib" path="libs/transloader-0.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
@@ -28,7 +29,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/transloader-0.4.jar"/>
-	<classpathentry kind="lib" path="libs/soot-2.5.0.jar" sourcepath="/data/projects/Mimicry/soot_src/soot/src"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

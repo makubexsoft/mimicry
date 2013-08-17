@@ -3,11 +3,6 @@ Below all libraries used within the Mimicry Framework are listed with their lice
 To read the full license texts either follow the given urls or take a look into the LICENSES directory
 shipped with the Mimicry Framework.
 
-Soot 
-	Site:    http://www.sable.mcgill.ca/soot/
-	License: GNU Lesser General Public License 3
-	         http://www.gnu.org/copyleft/lesser.html
-	
 AspectJ 
 	Site:    http://eclipse.org/aspectj/
 	License: Eclipse Public License - v 1.0
@@ -60,14 +55,14 @@ JCommander
 	License: The Apache Software License, Version 2.0
 	         http://www.apache.org/licenses/LICENSE-2.0.txt
 	         
-SwingX
-	Site:    http://www.swinglabs.org/
-	License: Lesser General Public License (LGPL)
-	         http://www.gnu.org/copyleft/lesser.html
-	         
 JIDE Docking Framework
 	Site:    http://www.jidesoft.com/
 	License: commercial / free for open source projects
 	         http://www.jidesoft.com/purchase/SLA.htm
+
+Transloader
+	Site:    https://code.google.com/p/transloader/
+	License: The Apache Software License, Version 2.0
+	         http://www.apache.org/licenses/LICENSE-2.0.txt
 
 	
