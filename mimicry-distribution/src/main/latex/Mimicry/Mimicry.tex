@@ -232,7 +232,7 @@ Using the clock the event handler are able to perform actions depending on the s
 
 \section{Custom Event Types}
 All events must implement the \textit{Event} interface in order to processable by the event engine.
-\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/Event.java}
+\lstinputlisting{../../../../mimicry-core/src/main/java/com/gc/mimicry/engine/event/Event.java}
 In the current implementation the events don't make use of the VectorClock implemented in the Mimicry core which can later on be used to establish happened-before relations among recorded events.
 
 \section{Built-In Event Types}
@@ -361,6 +361,22 @@ It might be useful to implement a new aspect which automatically exposes Java ob
 
 \section{FileSystem Simulation}
 Depending on the kind of simulated application it might be necessary to run them in a chrooted environment. Therefore intercepting all file system accesses would help in isolating.
+
+\section{Checkpoints}
+A *checkpoint* represents a certain state in the simulation where all threads are either
+\begin{itemize}
+	\item sleeping,
+	\item waiting on a monitor,
+	\item blocked by IO or
+	\item in the front of a synchronized block.
+\end{itemize}
+Having checkpoints enabled you can
+\begin{itemize}
+	\item monitor the application's CPU utilization
+	\item deterministically replay random numbers
+\end{itemize}
+But be aware that checkpoints decrease the application's performance.
+
 
 \bibliographystyle{alpha}
 \bibliography{Mimicry}

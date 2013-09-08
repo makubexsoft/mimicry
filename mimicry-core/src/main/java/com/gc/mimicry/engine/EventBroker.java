@@ -1,5 +1,6 @@
 package com.gc.mimicry.engine;
 
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventStack;
 
 /**

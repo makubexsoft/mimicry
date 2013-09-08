@@ -2,56 +2,23 @@ package com.gc.mimicry.ext.net.tcp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
-public class SetPerformancePreferencesEvent extends BaseEvent
+public interface SetPerformancePreferencesEvent extends Event
 {
-	private static final long		serialVersionUID	= 3426612354615334209L;
-	private final InetSocketAddress	socketAddress;
-	private final int				connectionTime;
-	private final int				latency;
-	private final int				bandwidth;
+    public InetSocketAddress getSocketAddress();
 
-	public SetPerformancePreferencesEvent(InetSocketAddress socketAddress, int connectionTime, int latency, int bandwidth)
-	{
-		this.socketAddress = socketAddress;
-		this.connectionTime = connectionTime;
-		this.latency = latency;
-		this.bandwidth = bandwidth;
-	}
+    public void setSocketAddress(InetSocketAddress value);
 
-	public InetSocketAddress getSocketAddress()
-	{
-		return socketAddress;
-	}
+    public int getConnectionTime();
 
-	public int getConnectionTime()
-	{
-		return connectionTime;
-	}
+    public void setConnectionTime(int value);
 
-	public int getLatency()
-	{
-		return latency;
-	}
+    public int getLatency();
 
-	public int getBandwidth()
-	{
-		return bandwidth;
-	}
+    public void setLatency(int value);
 
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "SetPerformancePreferencesEvent [connectionTime=" );
-		builder.append( connectionTime );
-		builder.append( ", latency=" );
-		builder.append( latency );
-		builder.append( ", bandwidth=" );
-		builder.append( bandwidth );
-		builder.append( "]" );
-		return builder.toString();
-	}
+    public int getBandwidth();
 
+    public void setBandwidth(int value);
 }

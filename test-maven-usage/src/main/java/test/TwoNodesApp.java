@@ -13,8 +13,9 @@ import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.SystemClock;
 
-public class Main
+public class TwoNodesApp
 {
+
 	public static void main( String[] args ) throws Exception
 	{
 		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
@@ -43,7 +44,6 @@ public class Main
             @Override
             public void main(String[] args)
             {
-            	for(int i = 0; i < 10; ++i)
             	System.out.print(new Socket());
             }
         });
@@ -55,5 +55,9 @@ public class Main
         Thread.sleep(3000);
         app.stop().awaitUninterruptibly(5000);
         System.out.println("end.");
+		
+		
+
 	}
+
 }

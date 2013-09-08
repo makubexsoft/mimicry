@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.BaseEvent;
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.ControlFlow;
 import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventBridge;
 
 public class CFlowManager implements EventListener
@@ -62,13 +62,11 @@ public class CFlowManager implements EventListener
         controlFlows.clear();
     }
 
-    public ControlFlow createControlFlow(BaseEvent event)
+    public ControlFlow createControlFlow()
     {
         ControlFlow cflow = new ControlFlow();
         controlFlows.put(cflow.getId(), cflow);
-        event.setControlFlowId(cflow.getId());
-        event.setSourceApp(appId);
-        bridge.dispatchEventToStack(event);
+        // bridge.dispatchEventToStack(event);
         return cflow;
     }
 

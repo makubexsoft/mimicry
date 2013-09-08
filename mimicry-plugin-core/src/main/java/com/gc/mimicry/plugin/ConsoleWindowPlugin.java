@@ -11,10 +11,13 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;
 
-import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventBroker;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.apps.ApplicationRef;
+import com.gc.mimicry.engine.event.DefaultEventFactory;
+import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.ext.stdio.events.ConsoleInputEvent;
 import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
 
@@ -34,12 +37,18 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 	private JScrollPane				scrollPane;
 	private JTextArea				consoleOutput;
 	private JTextField				inputField;
+	private final Identity			identity;
+	private final EventFactory		eventFactory;
 
 	private ConsoleWindowPlugin(EventBroker broker, ApplicationRef appRef)
 	{
 		setTitle( "Console of Application[" + appRef.getApplicationId() + "]" );
 		this.broker = broker;
 		this.appRef = appRef;
+
+		identity = Identity.create( getTitle() );
+		eventFactory = DefaultEventFactory.create( identity );
+
 		setLayout( new BorderLayout() );
 		createComponents();
 		setSize( 600, 800 );
@@ -72,9 +81,11 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 			public void actionPerformed( ActionEvent e )
 			{
 				String input = inputField.getText() + "\n";
-				ConsoleInputEvent in = new ConsoleInputEvent( input.getBytes() );
-				in.setTargetApp( appRef.getApplicationId() );
-				broker.fireEvent( in, ConsoleWindowPlugin.this );
+
+				ConsoleInputEvent event = eventFactory.createEvent( ConsoleInputEvent.class, appRef.getApplicationId() );
+				event.setData( input.getBytes() );
+				broker.fireEvent( event, ConsoleWindowPlugin.this );
+
 				consoleOutput.append( input );
 				inputField.setText( "" );
 			}

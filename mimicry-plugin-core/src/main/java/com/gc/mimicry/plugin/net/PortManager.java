@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.ext.net.events.SocketBoundEvent;
@@ -52,22 +52,25 @@ public class PortManager extends EventHandlerBase
 	{
 		int port = bindRequest.getEndPoint().getPort();
 		boolean reusable = bindRequest.isReusePort();
+		UUID cflow = bindRequest.getAssociatedControlFlow();
+		UUID dest = bindRequest.getSourceApplication();
 
 		if ( port == 0 )
 		{
 			port = findFreePort( reusable );
 		}
+
 		if ( port == -1 )
 		{
-			// no port available at the moment
-			SocketErrorEvent evt = new SocketErrorEvent( "No port available at the moment." );
-			evt.setTargetApp( bindRequest.getSourceApplication() );
-			evt.setControlFlowId( bindRequest.getAssociatedControlFlow() );
-			sendUpstream( evt );
+			SocketErrorEvent event;
+			event = getEventFactory().createEvent( SocketErrorEvent.class, null, cflow, dest );
+			event.setMessage( "No port available at the moment." );
+			sendUpstream( event );
+
 			return;
 		}
 
-		tryAllocatePort( bindRequest.getSourceApplication(), bindRequest.getAssociatedControlFlow(), port, reusable );
+		tryAllocatePort( dest, cflow, port, reusable );
 	}
 
 	private void tryAllocatePort( UUID app, UUID cflow, int port, boolean reusable )
@@ -79,10 +82,11 @@ public class PortManager extends EventHandlerBase
 		else
 		{
 			allocatePort( app, port, reusable );
-			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
-			evt.setTargetApp( app );
-			evt.setControlFlowId( cflow );
-			sendUpstream( evt );
+
+			SocketBoundEvent event;
+			event = getEventFactory().createEvent( SocketBoundEvent.class, null, cflow, app );
+			event.setAddress( new InetSocketAddress( port ) );
+			sendUpstream( event );
 		}
 	}
 
@@ -91,18 +95,18 @@ public class PortManager extends EventHandlerBase
 		if ( reusable && isPortReusable( port ) )
 		{
 			allocatePort( app, port, REUSABLE );
-			SocketBoundEvent evt = new SocketBoundEvent( new InetSocketAddress( port ) );
-			evt.setTargetApp( app );
-			evt.setControlFlowId( cflow );
-			sendUpstream( evt );
+
+			SocketBoundEvent event;
+			event = getEventFactory().createEvent( SocketBoundEvent.class, null, cflow, app );
+			event.setAddress( new InetSocketAddress( port ) );
+			sendUpstream( event );
 		}
 		else
 		{
 			// port already in use
-			SocketErrorEvent evt = new SocketErrorEvent( "Port " + port + " already in use." );
-			evt.setTargetApp( app );
-			evt.setControlFlowId( cflow );
-			sendUpstream( evt );
+			SocketErrorEvent event = getEventFactory().createEvent( SocketErrorEvent.class, null, cflow, app );
+			event.setMessage( "Port " + port + " already in use." );
+			sendUpstream( event );
 		}
 	}
 

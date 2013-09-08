@@ -1,6 +1,8 @@
 package com.gc.mimicry.engine.stack;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.engine.timing.Scheduler;
@@ -55,4 +57,8 @@ public interface EventHandler
      *            The event passed upstream.
      */
     public void handleUpstream(Event evt);
+
+    public Identity getIdentity();
+
+    public EventFactory getEventFactory();
 }

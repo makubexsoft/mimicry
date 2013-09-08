@@ -1,5 +1,7 @@
 package com.gc.mimicry.engine;
 
+import com.gc.mimicry.engine.event.Event;
+
 
 /**
  * Implement this interface to register yourself as listener to the {@link EventBroker}.

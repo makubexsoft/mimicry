@@ -2,7 +2,7 @@ package com.gc.mimicry.ext.net.tcp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
 /**
  * This event indicates a newly established TCP/IP connection.
@@ -10,47 +10,25 @@ import com.gc.mimicry.engine.BaseEvent;
  * @author Marc-Christian Schulze
  * 
  */
-public class ConnectionEstablishedEvent extends BaseEvent
+public interface ConnectionEstablishedEvent extends Event
 {
-	private static final long		serialVersionUID	= 5351265649818558044L;
-	private final InetSocketAddress	clientAddress;
-	private final InetSocketAddress	serverAddress;
 
-	public ConnectionEstablishedEvent(InetSocketAddress clientAddress, InetSocketAddress serverAddress)
-	{
-		this.clientAddress = clientAddress;
-		this.serverAddress = serverAddress;
-	}
+    /**
+     * Returns the address of the peer that initiated the connection.
+     * 
+     * @return
+     */
+    public InetSocketAddress getClientAddress();
 
-	/**
-	 * Returns the address of the peer that initiated the connection.
-	 * 
-	 * @return
-	 */
-	public InetSocketAddress getClientAddress()
-	{
-		return clientAddress;
-	}
+    public void setClientAddress(InetSocketAddress value);
 
-	/**
-	 * Returns the address of the peer that accepted the incoming connection.
-	 * 
-	 * @return
-	 */
-	public InetSocketAddress getServerAddress()
-	{
-		return serverAddress;
-	}
+    /**
+     * Returns the address of the peer that accepted the incoming connection.
+     * 
+     * @return
+     */
+    public InetSocketAddress getServerAddress();
 
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "ConnectionEstablishedEvent [clientAddress=" );
-		builder.append( clientAddress );
-		builder.append( ", serverAddress=" );
-		builder.append( serverAddress );
-		builder.append( "]" );
-		return builder.toString();
-	}
+    public void setServerAddress(InetSocketAddress value);
+
 }

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
 import com.gc.mimicry.ext.net.tcp.events.SocketAwaitingConnectionEvent;
@@ -86,24 +86,21 @@ public class TCPConnectionManager extends EventHandlerBase
 
 	private void informApplication( SocketConnectionRequest request, int port, CFlowRef ref )
 	{
-		ConnectionEstablishedEvent commit;
-		commit = new ConnectionEstablishedEvent( request.getSource(), new InetSocketAddress( port ) );
-
-		commit.setTargetApp( ref.appId );
-		commit.setControlFlowId( ref.cflow );
-
-		sendUpstream( commit );
+		UUID source = request.getSourceApplication();
+		ConnectionEstablishedEvent event;
+		event = getEventFactory().createEvent( ConnectionEstablishedEvent.class, source, ref.cflow, ref.appId );
+		event.setClientAddress( request.getSource() );
+		event.setServerAddress( new InetSocketAddress( port ) );
+		sendUpstream( event );
 	}
 
 	private void informCaller( SocketConnectionRequest request, int port )
 	{
-		ConnectionEstablishedEvent response;
-		response = new ConnectionEstablishedEvent( request.getSource(), new InetSocketAddress( port ) );
-
-		response.setTargetApp( request.getSourceApplication() );
-		response.setControlFlowId( request.getAssociatedControlFlow() );
-
-		sendDownstream( response );
+		UUID cflow = request.getAssociatedControlFlow();
+		UUID dest = request.getSourceApplication();
+		ConnectionEstablishedEvent event;
+		event = getEventFactory().createEvent( ConnectionEstablishedEvent.class, null, cflow, dest );
+		sendDownstream( event );
 	}
 
 	private static class CFlowRef

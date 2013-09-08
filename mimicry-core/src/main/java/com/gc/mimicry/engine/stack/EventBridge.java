@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.events.SetApplicationActiveEvent;
 
 /**

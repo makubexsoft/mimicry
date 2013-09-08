@@ -10,9 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventBroker;
 import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.event.DefaultEventFactory;
+import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.nodes.events.CreateNodeEvent;
 import com.gc.mimicry.engine.nodes.events.NodeCreatedEvent;
 import com.gc.mimicry.engine.stack.Configurable;
@@ -39,6 +42,8 @@ public class NodeManager implements Closeable, EventListener
     private final EventBroker eventBroker;
     private final ClassPathConfiguration ctx;
     private final Clock clock;
+    private final Identity identity;
+    private final EventFactory eventFactory;
 
     public NodeManager(ClassPathConfiguration ctx, EventBroker eventBroker, Clock clock)
     {
@@ -49,6 +54,9 @@ public class NodeManager implements Closeable, EventListener
         this.ctx = ctx;
         this.eventBroker = eventBroker;
         this.clock = clock;
+
+        identity = Identity.create("NodeManager");
+        eventFactory = DefaultEventFactory.create(identity);
 
         eventBroker.addEventListener(this);
 
@@ -70,7 +78,11 @@ public class NodeManager implements Closeable, EventListener
         Node node = new Node(ctx, descriptor.getNodeName(), eventBroker, clock);
         initEventStack(node, descriptor);
         nodes.put(node.getId(), node);
-        eventBroker.fireEvent(new NodeCreatedEvent(new RemoteNodeRef(node.getId())), this);
+
+        NodeCreatedEvent event = eventFactory.createEvent(NodeCreatedEvent.class);
+        event.setNodeRef(new RemoteNodeRef(node.getId()));
+        eventBroker.fireEvent(event, this);
+
         logger.info("Node created: " + descriptor.getNodeName() + "/" + node.getId());
         return node;
     }
@@ -138,6 +150,7 @@ public class NodeManager implements Closeable, EventListener
     @Override
     public void handleEvent(Event evt)
     {
+        // TODO: merge event clock
         if (evt instanceof CreateNodeEvent)
         {
             CreateNodeEvent e = (CreateNodeEvent) evt;

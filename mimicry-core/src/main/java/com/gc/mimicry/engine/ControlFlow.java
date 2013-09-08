@@ -1,8 +1,8 @@
-package com.gc.mimicry.bridge.cflow;
+package com.gc.mimicry.engine;
 
 import java.util.UUID;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.util.concurrent.DefaultValueFuture;
 
 public class ControlFlow

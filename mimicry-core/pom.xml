@@ -4,7 +4,7 @@
 	<artifactId>core</artifactId>
 	<url>http://www.mimicry-framework.org</url>
 	<inceptionYear>2012</inceptionYear>
-	
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -63,6 +63,11 @@
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.12.1.GA</version>
 		</dependency>
 		<dependency>
 			<groupId>com.gc.transloader</groupId>

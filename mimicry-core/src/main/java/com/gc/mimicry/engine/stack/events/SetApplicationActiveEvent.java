@@ -1,15 +1,10 @@
 package com.gc.mimicry.engine.stack.events;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
-public class SetApplicationActiveEvent extends BaseEvent
+public interface SetApplicationActiveEvent extends Event
 {
+    public boolean isActive();
 
-    private boolean active;
-
-    public boolean isActive()
-    {
-        return active;
-    }
-
+    public void setActive(boolean value);
 }

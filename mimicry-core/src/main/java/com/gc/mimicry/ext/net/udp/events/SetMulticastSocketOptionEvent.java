@@ -2,48 +2,19 @@ package com.gc.mimicry.ext.net.udp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
-public class SetMulticastSocketOptionEvent extends BaseEvent
+public interface SetMulticastSocketOptionEvent extends Event
 {
-	private static final long			serialVersionUID	= 8856624267641794948L;
-	private final InetSocketAddress		socketAddress;
-	private final MulticastSocketOption	option;
-	private final Object				value;
+    public InetSocketAddress getSocketAddress();
 
-	public SetMulticastSocketOptionEvent(InetSocketAddress socketAddress, MulticastSocketOption option, Object value)
-	{
-		this.socketAddress = socketAddress;
-		this.option = option;
-		this.value = value;
-	}
+    public void setSocketAddress(InetSocketAddress value);
 
-	public InetSocketAddress getSocketAddress()
-	{
-		return socketAddress;
-	}
+    public MulticastSocketOption getOption();
 
-	public MulticastSocketOption getOption()
-	{
-		return option;
-	}
+    public void setOption(MulticastSocketOption value);
 
-	public Object getValue()
-	{
-		return value;
-	}
+    public Object getValue();
 
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "SetMulticastSocketOptionEvent [socketAddress=" );
-		builder.append( socketAddress );
-		builder.append( ", option=" );
-		builder.append( option );
-		builder.append( ", value=" );
-		builder.append( value );
-		builder.append( "]" );
-		return builder.toString();
-	}
+    public void setValue(Object value);
 }

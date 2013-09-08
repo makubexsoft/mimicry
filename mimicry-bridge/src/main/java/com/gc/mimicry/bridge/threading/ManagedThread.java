@@ -3,6 +3,9 @@ package com.gc.mimicry.bridge.threading;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
+import com.gc.mimicry.engine.event.DefaultEventFactory;
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.util.StructuredId;
 
 /**
@@ -109,6 +112,11 @@ public class ManagedThread extends Thread implements IManagedThread
         SimulatorBridge.getThreadManager().addThread(this);
     }
 
+    public static ManagedThread currentThread()
+    {
+        return (ManagedThread) Thread.currentThread();
+    }
+
     @Override
     public void run()
     {
@@ -168,6 +176,8 @@ public class ManagedThread extends Thread implements IManagedThread
     private void init()
     {
         super.setDaemon(true);
+        identity = Identity.create("ManagedThread-" + getName());
+        eventFactory = DefaultEventFactory.create(getIdentity());
         listener = new CopyOnWriteArrayList<ThreadShutdownListener>();
         assignId();
     }
@@ -192,6 +202,19 @@ public class ManagedThread extends Thread implements IManagedThread
         return "Managed" + super.toString();
     }
 
+    @Override
+    public Identity getIdentity()
+    {
+        return identity;
+    }
+
+    public EventFactory getEventFactory()
+    {
+        return eventFactory;
+    }
+
+    private EventFactory eventFactory;
+    private Identity identity;
     private volatile boolean shuttingDown;
     private StructuredId id;
     private CopyOnWriteArrayList<ThreadShutdownListener> listener;

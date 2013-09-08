@@ -70,7 +70,8 @@ public class ApplicationManager extends BaseResourceManager
      */
     public Application launchApplication(ApplicationBundleDescriptor appDesc) throws IOException
     {
-        ApplicationClassLoader loader = ApplicationClassLoader.create(null);// TODO:appDesc);
+        ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
+        ApplicationClassLoader loader = ApplicationClassLoader.create(config);// TODO: add app. class path
 
         ApplicationBridge bridge = createBridge(appDesc, loader);
 
@@ -92,25 +93,6 @@ public class ApplicationManager extends BaseResourceManager
         bridge.setClock(node.getClock());
         return bridge;
     }
-
-    // private ApplicationClassLoader createClassLoader(ApplicationBundleDescriptor appDesc) throws
-    // MalformedURLException
-    // {
-    // ClassLoader parentCL = Thread.currentThread().getContextClassLoader();
-    // MeFirstClassLoader outerClassLoader;
-    // outerClassLoader = new MeFirstClassLoader(context.getBridgeClassPath(), parentCL);
-    //
-    // List<URL> aspectUrls = new ArrayList<URL>();
-    // aspectUrls.addAll(context.getAspectClassPath());
-    //
-    // Set<URL> aspectJClassPath;
-    // aspectJClassPath = new HashSet<URL>();
-    // aspectJClassPath.addAll(context.getAspectClassPath());
-    // aspectJClassPath.addAll(context.getBridgeClassPath());
-    //
-    // ApplicationClassLoader loader = new ApplicationClassLoader(aspectJClassPath, aspectUrls, outerClassLoader);
-    // return loader;
-    // }
 
     private final Set<Application> applications;
     private final Node node;

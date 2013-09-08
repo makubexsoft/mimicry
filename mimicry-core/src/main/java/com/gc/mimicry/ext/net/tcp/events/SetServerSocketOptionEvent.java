@@ -2,52 +2,23 @@ package com.gc.mimicry.ext.net.tcp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.BaseEvent;
-import com.google.common.base.Preconditions;
+import com.gc.mimicry.engine.event.Event;
 
-public class SetServerSocketOptionEvent extends BaseEvent
+public interface SetServerSocketOptionEvent extends Event
 {
-	private static final long			serialVersionUID	= 2424920756699509261L;
-	private final InetSocketAddress		socketAddress;
-	private final ServerSocketOption	option;
-	private int							intValue;
-	private boolean						boolValue;
+    public InetSocketAddress getSocketAddress();
 
-	public SetServerSocketOptionEvent(InetSocketAddress socketAddress, ServerSocketOption option, int value)
-	{
-		Preconditions.checkNotNull( option );
+    public void setSocketAddress(InetSocketAddress value);
 
-		this.socketAddress = socketAddress;
-		this.option = option;
-		intValue = value;
-	}
+    public ServerSocketOption getOption();
 
-	public SetServerSocketOptionEvent(InetSocketAddress socketAddress, ServerSocketOption option, boolean value)
-	{
-		Preconditions.checkNotNull( option );
+    public void setOption(ServerSocketOption value);
 
-		this.socketAddress = socketAddress;
-		this.option = option;
-		boolValue = value;
-	}
+    public int getIntValue();
 
-	public InetSocketAddress getSocketAddress()
-	{
-		return socketAddress;
-	}
+    public void setIntValue(int value);
 
-	public ServerSocketOption getOption()
-	{
-		return option;
-	}
+    public boolean isBoolValue();
 
-	public int getIntValue()
-	{
-		return intValue;
-	}
-
-	public boolean isBoolValue()
-	{
-		return boolValue;
-	}
+    public void setBoolValue(boolean value);
 }

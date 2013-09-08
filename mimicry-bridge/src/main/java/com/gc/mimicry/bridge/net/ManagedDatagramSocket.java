@@ -15,10 +15,11 @@ import java.util.List;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
-import com.gc.mimicry.bridge.cflow.ControlFlow;
-import com.gc.mimicry.engine.BaseEvent;
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.bridge.threading.ManagedThread;
+import com.gc.mimicry.engine.ControlFlow;
 import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.ext.net.events.SocketBoundEvent;
 import com.gc.mimicry.ext.net.events.SocketClosedEvent;
@@ -139,20 +140,36 @@ public class ManagedDatagramSocket extends DatagramSocket
         InetAddress iaddr = epoint.getAddress();
         checkAddress(iaddr, "bind");
 
-        SocketBindRequestEvent evt = new SocketBindRequestEvent(epoint, SocketType.UDP, reuseAddress);
+        ControlFlow cflow = cflowMgr.createControlFlow();
+        SocketBindRequestEvent evt = createEvent(SocketBindRequestEvent.class, cflow);
+        evt.setEndPoint(epoint);
+        evt.setSocketType(SocketType.UDP);
+        evt.setReusePort(reuseAddress);
+        emitEvent(evt);
+        Event responseEvent = cflow.awaitTermination();
 
-        Event event = processEvent(evt);
-
-        if (event instanceof SocketBoundEvent)
+        if (responseEvent instanceof SocketBoundEvent)
         {
-            localAddress = ((SocketBoundEvent) event).getAddress();
+            localAddress = ((SocketBoundEvent) responseEvent).getAddress();
             bound = true;
         }
         else
         {
-            SocketErrorEvent error = (SocketErrorEvent) event;
+            SocketErrorEvent error = (SocketErrorEvent) responseEvent;
             throw new SocketException("Failed to bind socket: " + error.getMessage());
         }
+    }
+
+    private <T extends Event> T createEvent(Class<T> eventClass, ControlFlow cflow)
+    {
+        EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
+        return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId(), cflow.getId());
+    }
+
+    private <T extends Event> T createEvent(Class<T> eventClass)
+    {
+        EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
+        return eventFactory.createEvent(eventClass);
     }
 
     @Override
@@ -289,7 +306,13 @@ public class ManagedDatagramSocket extends DatagramSocket
             {
                 bind(new InetSocketAddress(0));
             }
-            emitEvent(new UDPPacketEvent(localAddress, (InetSocketAddress) p.getSocketAddress(), p.getData(), 255));
+
+            UDPPacketEvent event = createEvent(UDPPacketEvent.class);
+            event.setSource(localAddress);
+            event.setDestination((InetSocketAddress) p.getSocketAddress());
+            event.setData(p.getData());
+            event.setTimeToLive(255);
+            emitEvent(event);
         }
     }
 
@@ -357,7 +380,13 @@ public class ManagedDatagramSocket extends DatagramSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetDatagramSocketOptionEvent(localAddress, DatagramSocketOption.SO_TIMEOUT, timeout));
+
+        SetDatagramSocketOptionEvent event = createEvent(SetDatagramSocketOptionEvent.class);
+        event.setSocketAddres(localAddress);
+        event.setOption(DatagramSocketOption.SO_TIMEOUT);
+        event.setIntValue(timeout);
+        emitEvent(event);
+
         socketTimeout = timeout;
     }
 
@@ -384,7 +413,13 @@ public class ManagedDatagramSocket extends DatagramSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetDatagramSocketOptionEvent(localAddress, DatagramSocketOption.SEND_BUFFER_SIZE, size));
+
+        SetDatagramSocketOptionEvent event = createEvent(SetDatagramSocketOptionEvent.class);
+        event.setSocketAddres(localAddress);
+        event.setOption(DatagramSocketOption.SEND_BUFFER_SIZE);
+        event.setIntValue(size);
+        emitEvent(event);
+
         sendBufferSize = size;
     }
 
@@ -411,7 +446,13 @@ public class ManagedDatagramSocket extends DatagramSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetDatagramSocketOptionEvent(localAddress, DatagramSocketOption.RECEIVE_BUFFER_SIZE, size));
+
+        SetDatagramSocketOptionEvent event = createEvent(SetDatagramSocketOptionEvent.class);
+        event.setSocketAddres(localAddress);
+        event.setOption(DatagramSocketOption.RECEIVE_BUFFER_SIZE);
+        event.setIntValue(size);
+        emitEvent(event);
+
         receiveBufferSize = size;
     }
 
@@ -435,7 +476,12 @@ public class ManagedDatagramSocket extends DatagramSocket
             throw new SocketException("Socket is closed");
         }
 
-        emitEvent(new SetDatagramSocketOptionEvent(localAddress, DatagramSocketOption.REUSE_ADDRESS, on));
+        SetDatagramSocketOptionEvent event = createEvent(SetDatagramSocketOptionEvent.class);
+        event.setSocketAddres(localAddress);
+        event.setOption(DatagramSocketOption.REUSE_ADDRESS);
+        event.setBoolValue(on);
+        emitEvent(event);
+
         reuseAddress = on;
     }
 
@@ -458,7 +504,13 @@ public class ManagedDatagramSocket extends DatagramSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetDatagramSocketOptionEvent(localAddress, DatagramSocketOption.BROADCAST, on));
+
+        SetDatagramSocketOptionEvent event = createEvent(SetDatagramSocketOptionEvent.class);
+        event.setSocketAddres(localAddress);
+        event.setOption(DatagramSocketOption.BROADCAST);
+        event.setBoolValue(on);
+        emitEvent(event);
+
         broadcast = on;
     }
 
@@ -486,7 +538,13 @@ public class ManagedDatagramSocket extends DatagramSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetDatagramSocketOptionEvent(localAddress, DatagramSocketOption.TRAFFIC_CLASS, tc));
+
+        SetDatagramSocketOptionEvent event = createEvent(SetDatagramSocketOptionEvent.class);
+        event.setSocketAddres(localAddress);
+        event.setOption(DatagramSocketOption.TRAFFIC_CLASS);
+        event.setIntValue(tc);
+        emitEvent(event);
+
         trafficClass = tc;
     }
 
@@ -509,9 +567,10 @@ public class ManagedDatagramSocket extends DatagramSocket
         {
             return;
         }
-        SocketClosedEvent evt = new SocketClosedEvent();
-        emitEvent(evt);
-        cflowMgr.terminateAll(evt);
+
+        SocketClosedEvent event = createEvent(SocketClosedEvent.class);
+        emitEvent(event);
+        cflowMgr.terminateAll(event);
         closed = true;
     }
 
@@ -527,18 +586,9 @@ public class ManagedDatagramSocket extends DatagramSocket
         return null;
     }
 
-    protected Event processEvent(BaseEvent evt)
+    protected void emitEvent(Event evt)
     {
         assureInit();
-        ControlFlow controlFlow = cflowMgr.createControlFlow(evt);
-        Event event = controlFlow.awaitTermination();
-        return event;
-    }
-
-    protected void emitEvent(BaseEvent evt)
-    {
-        assureInit();
-        evt.setSourceApp(SimulatorBridge.getApplicationId());
         SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
     }
 
@@ -583,20 +633,21 @@ public class ManagedDatagramSocket extends DatagramSocket
                 UDPPacketEvent data = (UDPPacketEvent) evt;
 
                 // filtering by IP must be done in event handler
-                if (data.getDestination().getPort() == localAddress.getPort())
+                if (data.getDestination().getPort() != localAddress.getPort())
                 {
-                    synchronized (receiveBufferLock)
+                    return;
+                }
+
+                synchronized (receiveBufferLock)
+                {
+                    try
                     {
-                        try
-                        {
-                            receiveBuffer.add(new DatagramPacket(data.getData(), data.getData().length, data
-                                    .getSource()));
-                            SimulatorBridge.getClock().notifyAllOnTarget(receiveBufferLock);
-                        }
-                        catch (SocketException e)
-                        {
-                            // won't be the case
-                        }
+                        receiveBuffer.add(new DatagramPacket(data.getData(), data.getData().length, data.getSource()));
+                        SimulatorBridge.getClock().notifyAllOnTarget(receiveBufferLock);
+                    }
+                    catch (SocketException e)
+                    {
+                        // won't be the case
                     }
                 }
             }

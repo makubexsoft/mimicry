@@ -2,6 +2,7 @@ package com.gc.mimicry.engine;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventHandler;
 
 /**

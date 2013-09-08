@@ -1,20 +1,11 @@
 package com.gc.mimicry.engine.nodes.events;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.nodes.NodeRef;
 
-public class NodeCreatedEvent extends BaseEvent
+public interface NodeCreatedEvent extends Event
 {
-    private final NodeRef nodeRef;
+    public NodeRef getNodeRef();
 
-    public NodeCreatedEvent(NodeRef nodeRef)
-    {
-        super();
-        this.nodeRef = nodeRef;
-    }
-
-    public NodeRef getNodeRef()
-    {
-        return nodeRef;
-    }
+    public void setNodeRef(NodeRef value);
 }

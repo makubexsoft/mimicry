@@ -1,6 +1,6 @@
 package com.gc.mimicry.ext.timing.events;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 
 /**
  * Marker interface for all events related to the clock.

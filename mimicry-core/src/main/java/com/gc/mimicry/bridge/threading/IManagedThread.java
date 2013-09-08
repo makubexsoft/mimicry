@@ -1,5 +1,7 @@
 package com.gc.mimicry.bridge.threading;
 
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.util.StructuredId;
 
 /**
@@ -42,4 +44,8 @@ public interface IManagedThread
      * @param l
      */
     public void removeThreadShutdownListener(ThreadShutdownListener l);
+
+    public Identity getIdentity();
+
+    public EventFactory getEventFactory();
 }

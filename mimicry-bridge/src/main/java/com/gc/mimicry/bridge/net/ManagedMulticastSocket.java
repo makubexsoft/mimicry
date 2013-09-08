@@ -9,6 +9,9 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 
+import com.gc.mimicry.bridge.threading.ManagedThread;
+import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.net.udp.events.JoinMulticastGroupEvent;
 import com.gc.mimicry.ext.net.udp.events.LeaveMulticastGroupEvent;
 import com.gc.mimicry.ext.net.udp.events.MulticastSocketOption;
@@ -63,6 +66,12 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
 
     private int ttl;
 
+    private <T extends Event> T createEvent(Class<T> eventClass)
+    {
+        EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
+        return eventFactory.createEvent(eventClass);
+    }
+
     @Deprecated
     public void setTTL(byte ttl) throws IOException
     {
@@ -70,7 +79,13 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(), MulticastSocketOption.TTL, (int) ttl));
+
+        SetMulticastSocketOptionEvent event = createEvent(SetMulticastSocketOptionEvent.class);
+        event.setSocketAddress(getLocalInetSocketAddress());
+        event.setOption(MulticastSocketOption.TTL);
+        event.setValue(ttl);
+        emitEvent(event);
+
         this.ttl = ttl & 0xFF;
     }
 
@@ -84,7 +99,13 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
         {
             throw new SocketException("Socket is closed");
         }
-        emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(), MulticastSocketOption.TTL, ttl));
+
+        SetMulticastSocketOptionEvent event = createEvent(SetMulticastSocketOptionEvent.class);
+        event.setSocketAddress(getLocalInetSocketAddress());
+        event.setOption(MulticastSocketOption.TTL);
+        event.setValue(ttl);
+        emitEvent(event);
+
         this.ttl = ttl;
     }
 
@@ -131,7 +152,10 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
         // setNetworkInterface(defaultInterface);
         // }
 
-        emitEvent(new JoinMulticastGroupEvent(getLocalInetSocketAddress(), mcastaddr));
+        JoinMulticastGroupEvent event = createEvent(JoinMulticastGroupEvent.class);
+        event.setSocketAddress(getLocalInetSocketAddress());
+        event.setGroupAddress(mcastaddr);
+        emitEvent(event);
     }
 
     public void leaveGroup(InetAddress mcastaddr) throws IOException
@@ -148,7 +172,10 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
             throw new SocketException("Not a multicast address");
         }
 
-        emitEvent(new LeaveMulticastGroupEvent(getLocalInetSocketAddress(), mcastaddr));
+        LeaveMulticastGroupEvent event = createEvent(LeaveMulticastGroupEvent.class);
+        event.setSocketAddress(getLocalInetSocketAddress());
+        event.setGroupAddress(mcastaddr);
+        emitEvent(event);
     }
 
     public void joinGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
@@ -170,8 +197,11 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
             throw new SocketException("Not a multicast address");
         }
 
-        emitEvent(new JoinMulticastGroupEvent(getLocalInetSocketAddress(), netIf,
-                ((InetSocketAddress) mcastaddr).getAddress()));
+        JoinMulticastGroupEvent event = createEvent(JoinMulticastGroupEvent.class);
+        event.setSocketAddress(getLocalInetSocketAddress());
+        event.setNetworkInterface(netIf);
+        event.setGroupAddress(((InetSocketAddress) mcastaddr).getAddress());
+        emitEvent(event);
     }
 
     public void leaveGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
@@ -193,8 +223,11 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
             throw new SocketException("Not a multicast address");
         }
 
-        emitEvent(new LeaveMulticastGroupEvent(getLocalInetSocketAddress(), netIf,
-                ((InetSocketAddress) mcastaddr).getAddress()));
+        LeaveMulticastGroupEvent event = createEvent(LeaveMulticastGroupEvent.class);
+        event.setSocketAddress(getLocalInetSocketAddress());
+        event.setNetworkInterface(netIf);
+        event.setGroupAddress(((InetSocketAddress) mcastaddr).getAddress());
+        emitEvent(event);
     }
 
     public void setInterface(InetAddress inf) throws SocketException
@@ -206,8 +239,12 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
         checkAddress(inf, "setInterface");
         synchronized (infLock)
         {
-            emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(),
-                    MulticastSocketOption.IFC_BY_INET_ADDRESS, inf));
+            SetMulticastSocketOptionEvent event = createEvent(SetMulticastSocketOptionEvent.class);
+            event.setSocketAddress(getLocalInetSocketAddress());
+            event.setOption(MulticastSocketOption.IFC_BY_INET_ADDRESS);
+            event.setValue(inf);
+            emitEvent(event);
+
             infAddress = inf;
             interfaceSet = true;
         }
@@ -275,8 +312,12 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
     {
         synchronized (infLock)
         {
-            emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(),
-                    MulticastSocketOption.IFC_BY_NETWORK_INTERFACE, netIf));
+            SetMulticastSocketOptionEvent event = createEvent(SetMulticastSocketOptionEvent.class);
+            event.setSocketAddress(getLocalInetSocketAddress());
+            event.setOption(MulticastSocketOption.IFC_BY_NETWORK_INTERFACE);
+            event.setValue(netIf);
+            emitEvent(event);
+
             infAddress = null;
             interfaceSet = true;
             this.netIf = netIf;
@@ -302,8 +343,12 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
 
     public void setLoopbackMode(boolean disable) throws SocketException
     {
-        emitEvent(new SetMulticastSocketOptionEvent(getLocalInetSocketAddress(),
-                MulticastSocketOption.IP_MULTICAST_LOOP, disable));
+        SetMulticastSocketOptionEvent event = createEvent(SetMulticastSocketOptionEvent.class);
+        event.setSocketAddress(getLocalInetSocketAddress());
+        event.setOption(MulticastSocketOption.IP_MULTICAST_LOOP);
+        event.setValue(disable);
+        emitEvent(event);
+
         loopbackMode = disable;
     }
 
@@ -342,8 +387,12 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
                 }
             }
 
-            emitEvent(new UDPPacketEvent(getLocalInetSocketAddress(), (InetSocketAddress) p.getSocketAddress(),
-                    p.getData(), ttl));
+            UDPPacketEvent event = createEvent(UDPPacketEvent.class);
+            event.setSource(getLocalInetSocketAddress());
+            event.setDestination((InetSocketAddress) p.getSocketAddress());
+            event.setData(p.getData());
+            event.setTimeToLive(ttl);
+            emitEvent(event);
         }
     }
 }

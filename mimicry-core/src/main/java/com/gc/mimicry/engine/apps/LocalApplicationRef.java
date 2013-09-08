@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 
 public class LocalApplicationRef implements ApplicationRef
 {
+    private static final long serialVersionUID = 3540958629349184723L;
     private final Application app;
     private final UUID nodeId;
     private final UUID appId;

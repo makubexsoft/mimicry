@@ -3,7 +3,7 @@ package com.gc.mimicry.plugin.net.udp;
 import java.util.Set;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.udp.events.UDPPacketEvent;
 import com.gc.mimicry.plugin.net.PortManager;
@@ -29,23 +29,31 @@ public class SimpleUDPDataTransport extends EventHandlerBase
 	}
 
 	@Override
-	public void handleUpstream( Event evt )
+	public void handleUpstream( Event event )
 	{
-		if ( evt instanceof UDPPacketEvent )
+		if ( event instanceof UDPPacketEvent )
 		{
-			UDPPacketEvent packetEvt = (UDPPacketEvent) evt;
-			Set<UUID> apps = portMgr.getApplicationsOnPort( packetEvt.getDestination().getPort() );
-			for ( UUID appId : apps )
-			{
-				UDPPacketEvent evt2 = new UDPPacketEvent( packetEvt.getSource(), packetEvt.getDestination(),
-						packetEvt.getData(), packetEvt.getTimeToLive() );
-				evt2.setTargetApp( appId );
-				sendUpstream( evt2 );
-			}
+			UDPPacketEvent packet = (UDPPacketEvent) event;
+			handlePacket( packet );
 		}
 		else
 		{
-			sendUpstream( evt );
+			sendUpstream( event );
+		}
+	}
+
+	private void handlePacket( UDPPacketEvent packet )
+	{
+		// TODO: merge packet clock
+		Set<UUID> apps = portMgr.getApplicationsOnPort( packet.getDestination().getPort() );
+		for ( UUID appId : apps )
+		{
+			UDPPacketEvent event = getEventFactory().createEvent( UDPPacketEvent.class, appId );
+			event.setSource( packet.getSource() );
+			event.setDestination( packet.getDestination() );
+			event.setData( packet.getData() );
+			event.setTimeToLive( packet.getTimeToLive() );
+			sendUpstream( event );
 		}
 	}
 }

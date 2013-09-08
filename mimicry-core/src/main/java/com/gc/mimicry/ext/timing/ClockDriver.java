@@ -2,9 +2,9 @@ package com.gc.mimicry.ext.timing;
 
 import java.io.Closeable;
 
-import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventBroker;
 import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.engine.timing.DiscreteClock;
 import com.gc.mimicry.engine.timing.RealtimeClock;

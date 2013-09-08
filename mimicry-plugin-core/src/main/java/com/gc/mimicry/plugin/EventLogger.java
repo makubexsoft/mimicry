@@ -3,7 +3,7 @@ package com.gc.mimicry.plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 
 /**

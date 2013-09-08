@@ -1,9 +1,11 @@
 package com.gc.mimicry.ext.timing;
 
 import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.timing.events.ClockAdvanceEvent;
 import com.gc.mimicry.ext.timing.events.ClockStartEvent;
 import com.gc.mimicry.ext.timing.events.ClockStopEvent;
+import com.google.common.base.Preconditions;
 
 /**
  * This class allows remotely controling the clock of a simulation.
@@ -14,24 +16,34 @@ import com.gc.mimicry.ext.timing.events.ClockStopEvent;
 public class ClockController
 {
     private final EventBroker broker;
+    private final EventFactory eventFactory;
 
-    public ClockController(EventBroker broker)
+    public ClockController(EventBroker broker, EventFactory eventFactory)
     {
+        Preconditions.checkNotNull(broker);
+        Preconditions.checkNotNull(eventFactory);
+
         this.broker = broker;
+        this.eventFactory = eventFactory;
     }
 
     public void start(double multiplier)
     {
-        broker.fireEvent(new ClockStartEvent(multiplier));
+        ClockStartEvent event = eventFactory.createEvent(ClockStartEvent.class);
+        event.setMultiplier(multiplier);
+        broker.fireEvent(event);
     }
 
     public void stop()
     {
-        broker.fireEvent(new ClockStopEvent());
+        ClockStopEvent event = eventFactory.createEvent(ClockStopEvent.class);
+        broker.fireEvent(event);
     }
 
     public void advance(long deltaMillis)
     {
-        broker.fireEvent(new ClockAdvanceEvent(deltaMillis));
+        ClockAdvanceEvent event = eventFactory.createEvent(ClockAdvanceEvent.class);
+        event.setDeltaMillis(deltaMillis);
+        broker.fireEvent(event);
     }
 }

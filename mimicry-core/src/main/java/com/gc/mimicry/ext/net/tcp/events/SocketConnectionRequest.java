@@ -2,39 +2,15 @@ package com.gc.mimicry.ext.net.tcp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
-public class SocketConnectionRequest extends BaseEvent
+public interface SocketConnectionRequest extends Event
 {
-	private static final long		serialVersionUID	= 2238712155493335986L;
-	private final InetSocketAddress	source;
-	private final InetSocketAddress	destination;
+    public InetSocketAddress getSource();
 
-	public SocketConnectionRequest(InetSocketAddress source, InetSocketAddress destination)
-	{
-		this.source = source;
-		this.destination = destination;
-	}
+    public void setSource(InetSocketAddress value);
 
-	public InetSocketAddress getSource()
-	{
-		return source;
-	}
+    public InetSocketAddress getDestination();
 
-	public InetSocketAddress getDestination()
-	{
-		return destination;
-	}
-
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "SocketConnectionRequest [source=" );
-		builder.append( source );
-		builder.append( ", destination=" );
-		builder.append( destination );
-		builder.append( "]" );
-		return builder.toString();
-	}
+    public void setDestination(InetSocketAddress value);
 }

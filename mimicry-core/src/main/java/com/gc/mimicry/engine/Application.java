@@ -2,6 +2,7 @@ package com.gc.mimicry.engine;
 
 import java.io.Closeable;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
 import com.gc.mimicry.bridge.threading.ThreadManager;
@@ -9,13 +10,13 @@ import com.gc.mimicry.util.concurrent.Future;
 
 public class Application implements Closeable
 {
-    private final EntryPoint r;
+    private final EntryPoint entryPoint;
     private final ApplicationBridge bridge;
     private final ThreadManager threadManager;
 
-    Application(ApplicationContext ctx, EntryPoint runnable)
+    Application(ApplicationContext ctx, EntryPoint entryPoint)
     {
-        r = runnable;
+        this.entryPoint = entryPoint;
 
         threadManager = new ThreadManager(UUID.randomUUID());
 
@@ -25,16 +26,26 @@ public class Application implements Closeable
         bridge.setThreadManager(threadManager);
     }
 
+    public UUID getId()
+    {
+        return threadManager.getApplicationId();
+    }
+
     public void start(String... args)
     {
         try
         {
-            r.main(args);
+            entryPoint.main(args);
         }
         catch (Throwable e)
         {
             throw new RuntimeException("Failed to start application.", e);
         }
+    }
+
+    public Future<?> getTerminationFuture()
+    {
+        return threadManager.getShutdownFuture();
     }
 
     public Future<?> stop()
@@ -45,6 +56,6 @@ public class Application implements Closeable
     @Override
     public void close()
     {
-
+        stop().awaitUninterruptibly(10, TimeUnit.SECONDS);
     }
 }

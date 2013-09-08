@@ -1,8 +1,11 @@
 package com.gc.mimicry.engine.stack;
 
-import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventBroker;
 import com.gc.mimicry.engine.apps.Application;
+import com.gc.mimicry.engine.event.DefaultEventFactory;
+import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.engine.timing.Scheduler;
@@ -16,6 +19,12 @@ import com.google.common.base.Preconditions;
  */
 public class EventHandlerBase implements EventHandler
 {
+    protected EventHandlerBase()
+    {
+        identity = Identity.create();
+        eventFactory = DefaultEventFactory.create(getIdentity());
+    }
+
     @Override
     final public void init(EventHandlerContext ctx, Scheduler scheduler, Clock clock)
     {
@@ -107,6 +116,20 @@ public class EventHandlerBase implements EventHandler
     {
     }
 
+    @Override
+    public Identity getIdentity()
+    {
+        return identity;
+    }
+
+    @Override
+    public EventFactory getEventFactory()
+    {
+        return eventFactory;
+    }
+
+    private final EventFactory eventFactory;
+    private final Identity identity;
     private Scheduler scheduler;
     private Clock clock;
     private EventHandlerContext context;

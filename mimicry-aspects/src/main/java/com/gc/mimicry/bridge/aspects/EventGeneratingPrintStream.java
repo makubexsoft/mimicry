@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
+import com.gc.mimicry.bridge.threading.ManagedThread;
+import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
 
 public class EventGeneratingPrintStream extends PrintStream
@@ -18,9 +21,15 @@ public class EventGeneratingPrintStream extends PrintStream
 	
 	private void send(String text)
 	{
-		ConsoleOutputEvent evt = new ConsoleOutputEvent( text );
-		evt.setSourceApp( SimulatorBridge.getApplicationId() );
-		SimulatorBridge.getEventBridge().dispatchEventToStack( evt );
+		ConsoleOutputEvent event = createEvent( ConsoleOutputEvent.class );
+		event.setData( text );
+		SimulatorBridge.getEventBridge().dispatchEventToStack( event );
+	}
+	 
+	private <T extends Event> T createEvent(Class<T> eventClass)
+	{
+		EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
+		return eventFactory.createEvent(eventClass);
 	}
 
     @Override

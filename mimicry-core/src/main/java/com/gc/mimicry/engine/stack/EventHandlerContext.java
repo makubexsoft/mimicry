@@ -1,6 +1,6 @@
 package com.gc.mimicry.engine.stack;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 import com.google.common.base.Preconditions;
 
 /**

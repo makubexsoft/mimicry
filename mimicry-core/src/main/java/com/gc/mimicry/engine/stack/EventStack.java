@@ -7,10 +7,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventBroker;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.apps.Application;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.engine.timing.ClockBasedScheduler;
@@ -111,7 +111,6 @@ public class EventStack implements EventListener
 
     void sendUpstream(int index, final Event evt)
     {
-
         if (index > 0)
         {
             int nextIndex = index - 1;

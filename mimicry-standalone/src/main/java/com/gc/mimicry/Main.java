@@ -2,10 +2,6 @@ package com.gc.mimicry;
 
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
-import groovy.util.ResourceException;
-import groovy.util.ScriptException;
-
-import java.io.IOException;
 
 import javax.swing.UIManager;
 
@@ -20,6 +16,9 @@ import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.StandaloneSimulation;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
+import com.gc.mimicry.engine.event.DefaultEventFactory;
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.ext.timing.ClockController;
 import com.gc.mimicry.util.concurrent.Future;
 
@@ -31,7 +30,7 @@ public class Main
 		logger = LoggerFactory.getLogger( Main.class );
 	}
 
-	public static void main( String[] argv ) throws IOException, ResourceException, ScriptException
+	public static void main( String[] argv ) throws Exception
 	{
 		Arguments args = parseCmdArguments( argv );
 		if ( args == null )
@@ -58,12 +57,15 @@ public class Main
 	}
 
 	private static void runSimulationScript( Arguments args, ApplicationRepository appRepo, Simulation network )
-			throws IOException, ResourceException, ScriptException
+			throws Exception
 	{
+		EventFactory eventFactory = DefaultEventFactory.create( Identity.create( "Simulation-Script" ) );
+		ClockController clockController = new ClockController( network.getEventBroker(), eventFactory );
+
 		Binding binding = new Binding();
 		binding.setVariable( "simulation", network );
 		binding.setVariable( "repository", appRepo );
-		binding.setVariable( "timeline", new ClockController( network.getEventBroker() ) );
+		binding.setVariable( "timeline", clockController );
 
 		ImportCustomizer importCust = new ImportCustomizer();
 		importCust.addStarImports( "com.gc.mimicry.core.deployment" );

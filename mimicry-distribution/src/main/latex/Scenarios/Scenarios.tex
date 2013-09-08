@@ -1,0 +1,180 @@
+\documentclass[a4paper,oneside]{book}
+\title{Mimicry Usage Scenarios}
+\author{Marc-Christian Schulze}
+
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2
+}
+
+\definecolor{blue}{rgb}{0,0,1}
+\hypersetup{
+    colorlinks, linkcolor={blue},
+    citecolor={blue}, urlcolor={blue}
+}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\chapter{Scenarios}
+This chapter describes scenarios on what we can do with Mimicry.
+
+\section{Scenario: Re-Connection}
+\subsection{Story}
+Verify whether the client reconnects on a dropped connection within n time units.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can drop a connection
+\item That we can monitor connection establishments
+\item That we can measure the passed time.
+\end{itemize}
+
+
+\section{Scenario: Data Throughput}
+\subsection{Story}
+Verify whether a reliable multicast protocol is able to transfer a certain amount of data during a given period of time while the bandwidth of the connection is limited.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can limit the bandwidth of a connection
+\item That we can measure the passed time
+\item That we can measure the transferred data volume over time
+\item That we can read and "interpret" the transferred information
+\end{itemize}
+
+
+\section{Scenario: Comparing Network Topology}
+\subsection{Story}
+Chord: Verify that the network topology is constructed correctly. (cf. finger table)
+\subsection{Required Features}
+\begin{itemize}
+\item That we can represent, record and compare network topologies
+\item That we can read and "interpret" the transferred information
+\end{itemize}
+
+
+\section{Scenario: Repairing Network Topology}
+\subsection{Story}
+Chord: Verify that the network topology gets repaired if a node crashes.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can represent, record and compare network topologies
+\item That we can let a node crash
+\end{itemize}
+
+
+\section{Scenario: Forbidden IP ranges}
+\subsection{Story}
+Verify that an application does not contact certain IP address ranges.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can record and evaluate IP connections
+\end{itemize}
+
+
+\section{Scenario: Port Usage}
+\subsection{Story}
+Test whether two applications can connect to each other if their default ports are already used and can't be acquired.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can monitor connections.
+\item That we can mark a certain port as used.
+\end{itemize}
+
+
+\section{Scenario: Max/Min Number of Connections}
+\subsection{Story}
+Verify that an application has at least/at most n connections at the same time/within a certain time/overall established.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can monitor connections.
+\item That we record connection statistics.
+\end{itemize}
+
+
+\section{Scenario: Handover on Failure}
+\subsection{Story}
+Verify that an application switches to a backup node if the master crashes.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can monitor connections.
+\item That we can "crash" an application/node.
+\item We might need to "control" some logic of the application to verify a "working" handover.
+\end{itemize}
+
+
+\section{Scenario: Junk Resistance}
+\subsection{Story}
+Verify that an application doesn't crash or fall into "undefined behavior" when it receives junk on a UDP socket.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can inject/send junk to an UDP socket.
+\item That verify the "health"/behavior of an application.
+\item We might need to "monitor" in some kind the application logic to detect undefined/invalid behavior.
+\end{itemize}
+
+
+\section{Scenario: Stability of Reliable Multicast}
+\subsection{Story}
+Verify that a reliable multicast protocol can deal with timing issues on the connection link.
+\subsection{Required Features}
+\begin{itemize}
+\item We need some "monitoring" ability to determine whether the application/protocol actually did deal with the timing issues.
+\item Need to control the timeline in a discrete manner.
+\item Need to listen and wait for application specific events (e.g. based on UDP packet content)
+\item That we can drop/delay UDP packets.
+\end{itemize}
+
+
+\section{Scenario: Duplicate Packet Handling}
+\subsection{Story}
+Verify that a UDP based transport protocol can deal with duplicate packets.
+\subsection{Required Features}
+\begin{itemize}
+\item That we can duplicate certain UDP packets.
+\item That we can "monitor" the application whether it has the expected behavior or not.
+\end{itemize}
+
+
+\section{Scenario: Live View of Logical Network Topology}
+\subsection{Story}
+Watch the logical network topology (e.g. L4 connections) in a live-view to detect splitted P2P networks
+\subsection{Required Features}
+\begin{itemize}
+\item That we can monitor the logical network topology (e.g. Layer 4)
+\item That we can visualize the network topology incl. nodes
+\end{itemize}
+
+
+
+
+
+\begin{tabular}{l p{5cm} p{5cm} }
+As a & I want to & so that \\ \hline
+Student & visualize TCP connections between applications/nodes & I can see whether my routing is working.
+\end{tabular}
+
+
+\end{document}

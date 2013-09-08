@@ -2,63 +2,23 @@ package com.gc.mimicry.ext.net.udp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
-public class SetDatagramSocketOptionEvent extends BaseEvent
+public interface SetDatagramSocketOptionEvent extends Event
 {
-	private static final long			serialVersionUID	= 3357391817299136386L;
-	private final InetSocketAddress		socketAddres;
-	private final DatagramSocketOption	option;
-	private int							intValue;
-	private boolean						boolValue;
+    public InetSocketAddress getSocketAddres();
 
-	public SetDatagramSocketOptionEvent(InetSocketAddress socketAddres, DatagramSocketOption option, int intValue)
-	{
-		this.socketAddres = socketAddres;
-		this.option = option;
-		this.intValue = intValue;
-	}
+    public void setSocketAddres(InetSocketAddress value);
 
-	public SetDatagramSocketOptionEvent(InetSocketAddress socketAddres, DatagramSocketOption option, boolean boolValue)
-	{
-		this.socketAddres = socketAddres;
-		this.option = option;
-		this.boolValue = boolValue;
-	}
+    public DatagramSocketOption getOption();
 
-	public InetSocketAddress getSocketAddres()
-	{
-		return socketAddres;
-	}
+    public void setOption(DatagramSocketOption value);
 
-	public DatagramSocketOption getOption()
-	{
-		return option;
-	}
+    public int getIntValue();
 
-	public int getIntValue()
-	{
-		return intValue;
-	}
+    public void setIntValue(int value);
 
-	public boolean isBoolValue()
-	{
-		return boolValue;
-	}
+    public boolean isBoolValue();
 
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "SetDatagramSocketOptionEvent [socketAddres=" );
-		builder.append( socketAddres );
-		builder.append( ", option=" );
-		builder.append( option );
-		builder.append( ", intValue=" );
-		builder.append( intValue );
-		builder.append( ", boolValue=" );
-		builder.append( boolValue );
-		builder.append( "]" );
-		return builder.toString();
-	}
+    public void setBoolValue(boolean value);
 }

@@ -1,26 +1,16 @@
 package com.gc.mimicry.ext.timing.events;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
 /**
- * Starts the realtime clock if installed. This event is evaluated by all
- * ClockDriver instances.
+ * Starts the realtime clock if installed. This event is evaluated by all ClockDriver instances.
  * 
  * @author Marc-Christian Schulze
  * 
  */
-public class ClockStartEvent extends BaseEvent implements ClockEvent
+public interface ClockStartEvent extends Event, ClockEvent
 {
-	private static final long	serialVersionUID	= 348151174134667351L;
-	private final double		multiplier;
+    public double getMultiplier();
 
-	public ClockStartEvent(double multiplier)
-	{
-		this.multiplier = multiplier;
-	}
-
-	public double getMultiplier()
-	{
-		return multiplier;
-	}
+    public void setMultiplier(double value);
 }

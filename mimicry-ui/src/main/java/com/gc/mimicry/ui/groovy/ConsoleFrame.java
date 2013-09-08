@@ -25,6 +25,9 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import com.gc.mimicry.engine.Simulation;
+import com.gc.mimicry.engine.event.DefaultEventFactory;
+import com.gc.mimicry.engine.event.EventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.ext.timing.ClockController;
 import com.jidesoft.docking.DockableFrame;
 
@@ -132,9 +135,12 @@ public class ConsoleFrame extends DockableFrame implements RootPaneContainer
 	
 	private GroovyShell createShell( final Simulation simu )
 	{
+		EventFactory eventFactory = DefaultEventFactory.create( Identity.create( "Groovy-Shell" ) );
+		ClockController clockController = new ClockController( simu.getEventBroker(), eventFactory );
+
 		BuiltInBinding binding = new BuiltInBinding();
 		binding.defineBuiltInVariable( "simulation", simu );
-		binding.defineBuiltInVariable( "timeline", new ClockController( simu.getEventBroker() ) );
+		binding.defineBuiltInVariable( "timeline", clockController );
 
 		ImportCustomizer importCust = new ImportCustomizer();
 		importCust.addStarImports( "com.gc.mimicry.core.deployment" );

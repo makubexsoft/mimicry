@@ -1,17 +1,14 @@
 package com.gc.mimicry.ext.timing.events;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
 /**
- * Stops the real-time clock iff installed. This event is evaluated by all
- * ClockDriver instances.
+ * Stops the real-time clock iff installed. This event is evaluated by all ClockDriver instances.
  * 
  * @author Marc-Christian Schulze
  * 
  */
-public class ClockStopEvent extends BaseEvent implements ClockEvent
+public interface ClockStopEvent extends Event, ClockEvent
 {
-
-	private static final long	serialVersionUID	= -2218736486062497535L;
 
 }

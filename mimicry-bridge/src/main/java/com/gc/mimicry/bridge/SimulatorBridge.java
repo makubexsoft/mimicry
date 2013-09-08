@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import com.gc.mimicry.bridge.threading.ThreadManager;
-import com.gc.mimicry.engine.Event;
 import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.ext.stdio.events.ConsoleInputEvent;

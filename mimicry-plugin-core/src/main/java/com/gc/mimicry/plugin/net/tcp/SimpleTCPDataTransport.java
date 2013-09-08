@@ -1,10 +1,9 @@
 package com.gc.mimicry.plugin.net.tcp;
 
-import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.Event;
+import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.tcp.events.TCPReceivedDataEvent;
 import com.gc.mimicry.ext.net.tcp.events.TCPSendDataEvent;
@@ -45,23 +44,18 @@ public class SimpleTCPDataTransport extends EventHandlerBase
 		}
 	}
 
-	private void dispatchDataToApplications( TCPSendDataEvent dataEvent )
+	private void dispatchDataToApplications( TCPSendDataEvent packet )
 	{
-		int port = dataEvent.getDestinationSocket().getPort();
+		// TODO: merge packet clock
+		int port = packet.getDestinationSocket().getPort();
 		Set<UUID> applications = portMgr.getApplicationsOnPort( port );
 		for ( UUID appId : applications )
 		{
-			TCPReceivedDataEvent receiveEvt = createReceiveEvent( dataEvent );
-			receiveEvt.setTargetApp( appId );
-
-			sendUpstream( receiveEvt );
+			TCPReceivedDataEvent event = getEventFactory().createEvent( TCPReceivedDataEvent.class, appId );
+			event.setSourceSocket( packet.getSourceSocket() );
+			event.setDestinationSocket( packet.getDestinationSocket() );
+			event.setData( packet.getData() );
+			sendUpstream( event );
 		}
-	}
-
-	private TCPReceivedDataEvent createReceiveEvent( TCPSendDataEvent dataEvent )
-	{
-		InetSocketAddress source = dataEvent.getSourceSocket();
-		InetSocketAddress destination = dataEvent.getDestinationSocket();
-		return new TCPReceivedDataEvent( source, destination, dataEvent.getData() );
 	}
 }

@@ -2,48 +2,19 @@ package com.gc.mimicry.ext.net.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.BaseEvent;
+import com.gc.mimicry.engine.event.Event;
 
-public class SocketBindRequestEvent extends BaseEvent
+public interface SocketBindRequestEvent extends Event
 {
-	private static final long		serialVersionUID	= 1L;
-	private final InetSocketAddress	endpoint;
-	private final SocketType		socketType;
-	private final boolean			reusePort;
+    public InetSocketAddress getEndPoint();
 
-	public SocketBindRequestEvent(InetSocketAddress endpoint, SocketType socketType, boolean reusePort)
-	{
-		this.endpoint = endpoint;
-		this.socketType = socketType;
-		this.reusePort = reusePort;
-	}
+    public void setEndPoint(InetSocketAddress value);
 
-	public InetSocketAddress getEndPoint()
-	{
-		return endpoint;
-	}
+    public boolean isReusePort();
 
-	public boolean isReusePort()
-	{
-		return reusePort;
-	}
+    public void setReusePort(boolean value);
 
-	public SocketType getSocketType()
-	{
-		return socketType;
-	}
+    public SocketType getSocketType();
 
-	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "SocketBindRequestEvent [endpoint=" );
-		builder.append( endpoint );
-		builder.append( ", socketType=" );
-		builder.append( socketType );
-		builder.append( ", reusePort=" );
-		builder.append( reusePort );
-		builder.append( "]" );
-		return builder.toString();
-	}
+    public void setSocketType(SocketType value);
 }
