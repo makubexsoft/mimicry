@@ -145,6 +145,8 @@ public class DefaultEventFactory implements EventFactory
             createCtor3Args(implClass);
             createCtor4Args(implClass);
 
+            createToString(implClass, eventClass);
+
             Class<T> clazz = implClass.toClass();
             if (logger.isDebugEnabled())
             {
@@ -162,6 +164,24 @@ public class DefaultEventFactory implements EventFactory
             logger.error("Failed to generate event implementation.", e);
             throw new RuntimeException(e);
         }
+    }
+
+    private void createToString(CtClass implClass, Class<?> eventClass) throws NotFoundException,
+            CannotCompileException
+    {
+        StringBuilder source = new StringBuilder();
+        source.append("public String toString() {");
+        source.append("StringBuilder buffer = new StringBuilder(\"" + eventClass.getSimpleName() + "[\");");
+        source.append("buffer.append(super.toString());");
+        CtField[] fields = implClass.getFields();
+        for (CtField field : fields)
+        {
+            source.append("buffer.append(\", " + field.getName() + "='\" + " + field.getName() + " + \"'\");");
+        }
+        source.append("buffer.append(\"]\");");
+        source.append("return buffer.toString(); }");
+        CtMethod method = CtNewMethod.make(source.toString(), implClass);
+        implClass.addMethod(method);
     }
 
     private void createCtor4Args(CtClass implClass) throws NotFoundException, CannotCompileException

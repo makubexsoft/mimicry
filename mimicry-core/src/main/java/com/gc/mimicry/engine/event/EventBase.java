@@ -61,4 +61,17 @@ public abstract class EventBase implements Event
     {
         return destId;
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("controlFlow=");
+        builder.append(controlFlow);
+        builder.append(", sourceId=");
+        builder.append(sourceId);
+        builder.append(", destId=");
+        builder.append(destId);
+        return builder.toString();
+    }
 }
