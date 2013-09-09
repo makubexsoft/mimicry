@@ -166,17 +166,22 @@ public class DefaultEventFactory implements EventFactory
         }
     }
 
-    private void createToString(CtClass implClass, Class<?> eventClass) throws NotFoundException,
-            CannotCompileException
+    private void createToString(CtClass implClass, Class<?> eventClass) throws CannotCompileException
     {
         StringBuilder source = new StringBuilder();
         source.append("public String toString() {");
-        source.append("StringBuilder buffer = new StringBuilder(\"" + eventClass.getSimpleName() + "[\");");
+        source.append("StringBuilder buffer = new StringBuilder(\"");
+        source.append(eventClass.getSimpleName());
+        source.append("[\");");
         source.append("buffer.append(super.toString());");
         CtField[] fields = implClass.getFields();
         for (CtField field : fields)
         {
-            source.append("buffer.append(\", " + field.getName() + "='\" + " + field.getName() + " + \"'\");");
+            source.append("buffer.append(\", ");
+            source.append(field.getName());
+            source.append("='\" + ");
+            source.append(field.getName());
+            source.append(" + \"'\");");
         }
         source.append("buffer.append(\"]\");");
         source.append("return buffer.toString(); }");
