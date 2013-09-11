@@ -12,7 +12,7 @@ public abstract class EventBase implements Event
     private UUID sourceId;
     private UUID destId;
 
-    protected EventBase(VectorClock<UUID> clock, UUID controlFlow, UUID sourceId, UUID destId)
+    protected EventBase(VectorClock<UUID> clock, UUID sourceId, UUID controlFlow, UUID destId)
     {
         this.clock = clock;
         this.controlFlow = controlFlow;
@@ -20,7 +20,7 @@ public abstract class EventBase implements Event
         this.destId = destId;
     }
 
-    protected EventBase(VectorClock<UUID> clock, UUID controlFlow, UUID sourceId)
+    protected EventBase(VectorClock<UUID> clock, UUID sourceId, UUID controlFlow)
     {
         this.clock = clock;
         this.controlFlow = controlFlow;

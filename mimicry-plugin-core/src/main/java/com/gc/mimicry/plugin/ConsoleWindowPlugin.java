@@ -18,16 +18,16 @@ import com.gc.mimicry.engine.event.DefaultEventFactory;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
-import com.gc.mimicry.ext.stdio.events.ConsoleInputEvent;
-import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
+import com.gc.mimicry.ext.stdio.events.ConsoleStdinEvent;
+import com.gc.mimicry.ext.stdio.events.ConsoleStdoutEvent;
 
 /**
  * This plugin allows the user to interact with the command line of a certain
  * application using a graphical user interface.
  * 
  * @author Marc-Christian Schulze
- * @see ConsoleInputEvent
- * @see ConsoleOutputEvent
+ * @see ConsoleStdinEvent
+ * @see ConsoleStdoutEvent
  */
 public class ConsoleWindowPlugin extends JFrame implements EventListener
 {
@@ -82,7 +82,7 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 			{
 				String input = inputField.getText() + "\n";
 
-				ConsoleInputEvent event = eventFactory.createEvent( ConsoleInputEvent.class, appRef.getApplicationId() );
+				ConsoleStdinEvent event = eventFactory.createEvent( ConsoleStdinEvent.class, appRef.getApplicationId() );
 				event.setData( input.getBytes() );
 				broker.fireEvent( event, ConsoleWindowPlugin.this );
 
@@ -95,9 +95,9 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 	@Override
 	public void handleEvent( Event evt )
 	{
-		if ( evt instanceof ConsoleOutputEvent )
+		if ( evt instanceof ConsoleStdoutEvent )
 		{
-			final ConsoleOutputEvent out = (ConsoleOutputEvent) evt;
+			final ConsoleStdoutEvent out = (ConsoleStdoutEvent) evt;
 			if ( out.getSourceApplication() == appRef.getApplicationId() )
 			{
 				SwingUtilities.invokeLater( new Runnable()
@@ -106,7 +106,7 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 					@Override
 					public void run()
 					{
-						consoleOutput.append( out.getData() );
+						consoleOutput.append( new String( out.getData() ) );
 					}
 				} );
 			}

@@ -1,11 +1,11 @@
 package test.integration;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.Socket;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
@@ -17,21 +17,27 @@ import com.gc.mimicry.engine.EntryPoint;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Clock;
 import com.gc.mimicry.engine.timing.SystemClock;
+import com.gc.mimicry.util.concurrent.Future;
 
 public class TestApplicationClassLoader
 {
-    @Test
-    public void testRunEmptyApplication() throws MalformedURLException, ClassNotFoundException, NoSuchMethodException,
-            SecurityException
+    private ApplicationContext ctx;
+
+    @Before
+    public void setUp() throws Exception
     {
         ClassPathConfiguration classpath = createConfig();
         ApplicationClassLoader loader = ApplicationClassLoader.create(classpath, ClassLoader.getSystemClassLoader());
 
-        ApplicationContext ctx = new ApplicationContext();
+        ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(new SystemClock());
         ctx.setEventBridge(new EventBridge());
+    }
 
+    @Test
+    public void testRunEmptyApplication() throws Exception
+    {
         Application app = Applications.create(ctx, new EntryPoint()
         {
             @Override
@@ -45,15 +51,6 @@ public class TestApplicationClassLoader
     @Test
     public void testCanStopInifiteLoop() throws Exception
     {
-        ClassPathConfiguration clctx = createConfig();
-        ClassLoader loader = ApplicationClassLoader.create(clctx, ClassLoader.getSystemClassLoader());
-        EventBridge eventBridge = new EventBridge();
-
-        ApplicationContext ctx = new ApplicationContext();
-        ctx.setClassLoader(loader);
-        ctx.setClock(new SystemClock());
-        ctx.setEventBridge(eventBridge);
-
         Application app = Applications.create(ctx, new EntryPoint()
         {
             @Override
@@ -61,35 +58,34 @@ public class TestApplicationClassLoader
             {
                 for (;;)
                 {
-                    System.out.print(new Socket());
+                    // avoid optimization
+                    System.out.print("");
                 }
             }
         });
 
         app.start();
-        app.stop().awaitUninterruptibly(1000);
+        Future<?> future = app.stop();
+        future.awaitUninterruptibly(1000);
+
+        assertTrue(future.isSuccess());
     }
 
     @Test
     public void testLoadsCoreClassesAtStage2() throws Exception
     {
-        ClassPathConfiguration clctx = createConfig();
-        ClassLoader loader = ApplicationClassLoader.create(clctx, ClassLoader.getSystemClassLoader());
-        EventBridge eventBridge = new EventBridge();
+        Class<?> loadedClass = ctx.getClassLoader().loadClass(Clock.class.getName());
 
-        ApplicationContext ctx = new ApplicationContext();
-        ctx.setClassLoader(loader);
-        ctx.setClock(new SystemClock());
-        ctx.setEventBridge(eventBridge);
-
-        Class<?> class1 = ctx.getClassLoader().loadClass(Clock.class.getName());
-        assertEquals(System.identityHashCode(Clock.class), System.identityHashCode(class1));
+        assertTrue(Clock.class == loadedClass);
     }
 
-    private static ClassPathConfiguration createConfig() throws MalformedURLException
+    //
+    // Infrastructure
+    //
+    private ClassPathConfiguration createConfig() throws MalformedURLException
     {
-        File bridgeJar = new File("../mimicry-bridge/target/bridge-0.0.1-SNAPSHOT.jar");
-        File aspectJar = new File("../mimicry-aspects/target/aspects-0.0.1-SNAPSHOT.jar");
+        File bridgeJar = new File("../mimicry-bridge/target/classes");
+        File aspectJar = new File("../mimicry-aspects/target/classes");
 
         ClassPathConfiguration ctx = ClassPathConfiguration.createEmpty();
         ctx.addAspectClassPath(aspectJar.toURI().toURL());

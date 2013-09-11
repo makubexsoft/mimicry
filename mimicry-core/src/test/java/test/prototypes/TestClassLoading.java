@@ -60,24 +60,4 @@ public class TestClassLoading
 
         assertTrue(class1.equals(class2));
     }
-
-    @Test
-    public void test() throws MalformedURLException
-    {
-        URLClassLoader loader1 = new URLClassLoader(new URL[] { new File("target/test-classes").toURI().toURL() }, null);
-
-        final ExampleClass obj1 = new ExampleClass();
-        Thread.currentThread().setContextClassLoader(loader1);
-        Runnable r = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                ExampleClass obj2 = new ExampleClass();
-
-                assertFalse(obj1.getClass().equals(obj2.getClass()));
-            }
-        };
-        r.run();
-    }
 }

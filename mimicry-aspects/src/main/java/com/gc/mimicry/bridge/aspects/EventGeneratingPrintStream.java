@@ -10,26 +10,44 @@ import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.event.EventFactory;
-import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
+import com.gc.mimicry.ext.stdio.events.ConsoleStderrEvent;
+import com.gc.mimicry.ext.stdio.events.ConsoleStdoutEvent;
 
 public class EventGeneratingPrintStream extends PrintStream
 {
-	public EventGeneratingPrintStream()
+	private Stream stream;
+	
+	public EventGeneratingPrintStream(Stream stream)
     {
         super(new ByteArrayOutputStream());
+        this.stream = stream;
     }
 	
 	private void send(String text)
 	{
-		ConsoleOutputEvent event = createEvent( ConsoleOutputEvent.class );
-		event.setData( text );
-		SimulatorBridge.getEventBridge().dispatchEventToStack( event );
+		send( text.getBytes() );
+	}
+	
+	private void send(byte[] data)
+	{
+		if(stream == Stream.STDOUT)
+		{
+			ConsoleStdoutEvent event = createEvent( ConsoleStdoutEvent.class );
+			event.setData( data );
+			SimulatorBridge.getEventBridge().dispatchEventToStack( event );
+		}
+		else
+		{
+			ConsoleStderrEvent event = createEvent( ConsoleStderrEvent.class );
+			event.setData( data );
+			SimulatorBridge.getEventBridge().dispatchEventToStack( event );
+		}
 	}
 	 
 	private <T extends Event> T createEvent(Class<T> eventClass)
 	{
 		EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
-		return eventFactory.createEvent(eventClass);
+		return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId(), null);
 	}
 
     @Override
@@ -198,18 +216,23 @@ public class EventGeneratingPrintStream extends PrintStream
     @Override
     public void write(byte[] b) throws IOException
     {
-    	send(Arrays.asList(b).toString());
+    	send(b);
     }
 
     @Override
     public void write(byte[] buf, int off, int len)
     {
-    	send(Arrays.asList(Arrays.copyOfRange(buf, off, off + len)).toString());
+    	send(Arrays.copyOfRange(buf, off, off + len));
     }
 
     @Override
     public void write(int b)
     {
     	send("" + b);
+    }
+    
+    public static enum Stream
+    {
+    	STDOUT, STDERR
     }
 }

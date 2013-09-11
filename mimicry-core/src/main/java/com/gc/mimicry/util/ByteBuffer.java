@@ -24,7 +24,7 @@ public class ByteBuffer
 
 	public InputStream createStream()
 	{
-		return new MSInputStream();
+		return new ByteBufferInputStream();
 	}
 
 	public int read()
@@ -60,7 +60,7 @@ public class ByteBuffer
 		}
 	}
 
-	private class MSInputStream extends InputStream
+	private class ByteBufferInputStream extends InputStream
 	{
 		@Override
 		public int read() throws IOException

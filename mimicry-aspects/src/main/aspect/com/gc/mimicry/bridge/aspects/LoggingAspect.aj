@@ -4,6 +4,7 @@ import java.io.PrintStream;
 
 import com.gc.mimicry.bridge.LoggingPrintStream;
 import com.gc.mimicry.bridge.SimulatorBridge;
+import com.gc.mimicry.bridge.aspects.EventGeneratingPrintStream.Stream;
 
 public aspect LoggingAspect {
 
@@ -20,14 +21,14 @@ public aspect LoggingAspect {
 
 	Object around() : getOutStream() {
 		if (out == null) {
-			out = new EventGeneratingPrintStream();
+			out = new EventGeneratingPrintStream(Stream.STDOUT);
 		}
 		return out;
 	}
 
 	Object around() : getErrStream() {
 		if (err == null) {
-			err = new EventGeneratingPrintStream();
+			err = new EventGeneratingPrintStream(Stream.STDERR);
 		}
 		return err;
 	}

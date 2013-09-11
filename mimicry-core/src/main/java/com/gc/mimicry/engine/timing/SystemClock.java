@@ -68,7 +68,7 @@ public class SystemClock implements Clock
         long toWait = timeUntilInMillis - currentMillis();
         if (toWait > 0)
         {
-            waitOnUntil(target, toWait);
+            waitOnFor(target, toWait);
         }
     }
 }

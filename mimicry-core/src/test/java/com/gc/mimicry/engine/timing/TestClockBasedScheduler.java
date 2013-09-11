@@ -6,10 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.gc.mimicry.engine.timing.ClockBasedScheduler;
-import com.gc.mimicry.engine.timing.DiscreteClock;
-import com.gc.mimicry.engine.timing.SystemClock;
-
 public class TestClockBasedScheduler
 {
 
@@ -89,7 +85,7 @@ public class TestClockBasedScheduler
 
         clock.advance(200);
 
-        Mockito.verify(firstJob, Mockito.timeout(20000)).run();
+        Mockito.verify(firstJob, Mockito.timeout(500)).run();
         Mockito.verifyZeroInteractions(secondJob);
     }
 

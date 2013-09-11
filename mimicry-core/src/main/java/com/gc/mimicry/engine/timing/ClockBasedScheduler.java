@@ -160,9 +160,10 @@ public class ClockBasedScheduler implements Scheduler, Closeable
                 {
                     if (!jobs.isEmpty())
                     {
-                        ScheduledJob nextJob = jobs.poll();
+                        ScheduledJob nextJob = jobs.peek();
                         if (nextJob.timeInMillis <= clock.currentMillis())
                         {
+                            jobs.remove();
                             return nextJob.runnable;
                         }
                     }

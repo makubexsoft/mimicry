@@ -8,7 +8,7 @@ import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Clock;
-import com.gc.mimicry.ext.stdio.events.ConsoleInputEvent;
+import com.gc.mimicry.ext.stdio.events.ConsoleStdinEvent;
 import com.gc.mimicry.util.ByteBuffer;
 
 /**
@@ -88,9 +88,9 @@ public final class SimulatorBridge
             @Override
             public void handleEvent(Event evt)
             {
-                if (evt instanceof ConsoleInputEvent)
+                if (evt instanceof ConsoleStdinEvent)
                 {
-                    ConsoleInputEvent cie = (ConsoleInputEvent) evt;
+                    ConsoleStdinEvent cie = (ConsoleStdinEvent) evt;
                     inputBuffer.write(cie.getData());
                 }
             }
