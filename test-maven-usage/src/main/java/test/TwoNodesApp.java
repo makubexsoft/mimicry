@@ -34,7 +34,7 @@ public class TwoNodesApp
 
 		// per APPLICATION
 		//
-        ClassLoader loader = ApplicationClassLoader.create(config);
+        ClassLoader loader = ApplicationClassLoader.create(config, ClassLoader.getSystemClassLoader());
         ApplicationContext ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(new SystemClock());

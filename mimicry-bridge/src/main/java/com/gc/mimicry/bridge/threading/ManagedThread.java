@@ -24,7 +24,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super();
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     /**
@@ -34,7 +34,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super(target, name);
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     /**
@@ -46,7 +46,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super(target);
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     /**
@@ -58,7 +58,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super(name);
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     /**
@@ -71,7 +71,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super(group, target, name, stackSize);
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     /**
@@ -84,7 +84,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super(group, target, name);
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     /**
@@ -97,7 +97,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super(group, target);
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     /**
@@ -109,7 +109,7 @@ public class ManagedThread extends Thread implements IManagedThread
     {
         super(group, name);
         init();
-        SimulatorBridge.getThreadManager().addThread(this);
+        SimulatorBridge.getThreadManager().threadCreated(this);
     }
 
     public static ManagedThread currentThread()
@@ -208,6 +208,7 @@ public class ManagedThread extends Thread implements IManagedThread
         return identity;
     }
 
+    @Override
     public EventFactory getEventFactory()
     {
         return eventFactory;
@@ -218,4 +219,5 @@ public class ManagedThread extends Thread implements IManagedThread
     private volatile boolean shuttingDown;
     private StructuredId id;
     private CopyOnWriteArrayList<ThreadShutdownListener> listener;
+
 }

@@ -11,12 +11,12 @@ import com.google.common.base.Preconditions;
  * @author Marc-Christian Schulze
  * 
  */
-public class StructuredId
+public class StructuredId implements Comparable<StructuredId>
 {
 
     private StructuredId parent;
-    private String id;
-    private AtomicInteger numSubIds;
+    private final String id;
+    private final AtomicInteger numSubIds;
 
     public StructuredId()
     {
@@ -51,6 +51,7 @@ public class StructuredId
         return new StructuredId(this, id + "." + numSubIds.incrementAndGet());
     }
 
+    @Override
     public String toString()
     {
         return id;
@@ -79,19 +80,35 @@ public class StructuredId
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
+        }
         if (obj == null)
+        {
             return false;
+        }
         if (getClass() != obj.getClass())
+        {
             return false;
+        }
         StructuredId other = (StructuredId) obj;
         if (id == null)
         {
             if (other.id != null)
+            {
                 return false;
+            }
         }
         else if (!id.equals(other.id))
+        {
             return false;
+        }
         return true;
+    }
+
+    @Override
+    public int compareTo(StructuredId o)
+    {
+        return id.compareTo(o.id);
     }
 }

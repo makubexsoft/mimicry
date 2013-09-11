@@ -32,16 +32,13 @@ public class DefaultEventFactory implements EventFactory
     private static final Logger logger;
     private static final String IMPL_SUFFIX = "_Impl";
     private final Identity id;
-    private final ClassPool pool;
-    private final Map<Class<?>, Class<?>> cachedImpls;
+    private static final ClassPool pool = ClassPool.getDefault();
+    private static final Map<Class<?>, Class<?>> cachedImpls = new HashMap<Class<?>, Class<?>>();
 
     private DefaultEventFactory(Identity id)
     {
         Preconditions.checkNotNull(id);
         this.id = id;
-
-        pool = ClassPool.getDefault();
-        cachedImpls = new HashMap<Class<?>, Class<?>>();
     }
 
     public static EventFactory create(Identity id)
@@ -115,13 +112,16 @@ public class DefaultEventFactory implements EventFactory
 
     private <T extends Event> Class<?> getImplementation(Class<T> eventClass)
     {
-        Class<?> impl = cachedImpls.get(eventClass);
-        if (impl == null)
+        synchronized (cachedImpls)
         {
-            impl = createImplementation(eventClass);
-            cachedImpls.put(eventClass, impl);
+            Class<?> impl = cachedImpls.get(eventClass);
+            if (impl == null)
+            {
+                impl = createImplementation(eventClass);
+                cachedImpls.put(eventClass, impl);
+            }
+            return impl;
         }
-        return impl;
     }
 
     @SuppressWarnings("unchecked")
@@ -282,7 +282,14 @@ public class DefaultEventFactory implements EventFactory
         }
         catch (NotFoundException e)
         {
-            CtField field = new CtField(pool.get(method.getReturnType().getName()), propertyName, implClass);
+            String returnType = method.getReturnType().getName();
+            if (returnType == "void")
+            {
+                // we are within a setter
+                returnType = method.getParameterTypes()[0].getName();
+            }
+            CtClass fieldType = pool.get(returnType);
+            CtField field = new CtField(fieldType, propertyName, implClass);
             implClass.addField(field);
             return field;
         }

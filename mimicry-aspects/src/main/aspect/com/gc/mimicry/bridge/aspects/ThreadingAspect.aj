@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.net.ManagedSocket;
 import com.gc.mimicry.bridge.threading.ManagedThread;
+import com.gc.mimicry.bridge.threading.MonitorInterceptor;
 import com.gc.mimicry.bridge.threading.ThreadShouldTerminateException;
 
 /**
@@ -40,6 +41,27 @@ privileged aspect ThreadingAspect
 		execution(void ManagedThread+.run()) &&
 		!within(com.gc.mimicry..*) && 
 		this(t);
+	
+	public pointcut waitP( Object target, long millis ) : 
+		!within(com.gc.mimicry..*) && 
+		call(void *.wait(long)) && 
+		target(target) && 
+		args(millis);
+
+public pointcut waitP2( Object target ) : 
+		!within(com.gc.mimicry..*) && 
+		call(void *.wait()) && 
+		target(target);
+
+public pointcut notifyP( Object target ) :
+		!within(com.gc.mimicry..*) && 
+		call(void *.notify()) && 
+		target(target);
+
+public pointcut notifyAllP( Object target ) :
+		!within(com.gc.mimicry..*) && 
+		call(void *.notifyAll()) && 
+		target(target);
 
 	// ------------------------------------------------------------------------------------------
 	// Advices
@@ -67,6 +89,31 @@ privileged aspect ThreadingAspect
 	after( ManagedThread t) throwing(Throwable th ) : run(t)
 	{
 		SimulatorBridge.getThreadManager().threadTerminated( t, th );
+	}
+	
+	void around( Object target, long millis ) throws InterruptedException : waitP(target, millis)  
+	{
+		MonitorInterceptor.monitorWait( target, millis );
+	}
+
+	void around( Object target ) throws InterruptedException : waitP2(target)  
+	{
+		MonitorInterceptor.monitorWait( target );
+	}
+
+	void around( Object target ) : notifyP(target) 
+	{
+		MonitorInterceptor.monitorNotify( target );
+	}
+
+	void around( Object target ) : notifyAllP(target)  
+	{
+		MonitorInterceptor.monitorNotifyAll( target );
+	}
+	
+	after(Thread t) : !within(com.gc.mimicry..*) && call(void Thread+.start()) && target(t)
+	{
+		SimulatorBridge.getThreadManager().getScheduler().threadStarted((ManagedThread)t);
 	}
 
 	//

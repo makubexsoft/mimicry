@@ -33,6 +33,7 @@
     colorlinks, linkcolor={blue},
     citecolor={blue}, urlcolor={blue}
 }
+\usepackage[margin=1.0in]{geometry}
 
 \begin{document}
 \maketitle
@@ -362,20 +363,23 @@ It might be useful to implement a new aspect which automatically exposes Java ob
 \section{FileSystem Simulation}
 Depending on the kind of simulated application it might be necessary to run them in a chrooted environment. Therefore intercepting all file system accesses would help in isolating.
 
-\section{Checkpoints}
-A *checkpoint* represents a certain state in the simulation where all threads are either
+\section{Deterministic Thread Scheduling}
+In order to compare two runs of a simulation to each other mimicry introduces a custom thread scheduler which provides deterministic behavior. Figure \ref{threadScheduling} shows the different states a \textit{ManagedThread} can be into:
 \begin{itemize}
-	\item sleeping,
-	\item waiting on a monitor,
-	\item blocked by IO or
-	\item in the front of a synchronized block.
+  \item \textbf{Ready}: The thread is subject to the JVM scheduler and will run once CPU cycles are available.
+  \item \textbf{Running}: The thread has been scheduled by the JVM and has executed its next instruction.
+  \item \textbf{Blocked}: The thread has invoked \textit{Thread::sleep()} or \textit{Object::wait()} and is now blocked until either
+  \begin{itemize}
+    \item a timeout occurs or
+    \item a signal is raised
+  \end{itemize}
+  \item \textbf{Scheduled}: The thread has been notified to continue execution but has been put into the scheduled queue waiting for the custom scheduler to release it.
 \end{itemize}
-Having checkpoints enabled you can
-\begin{itemize}
-	\item monitor the application's CPU utilization
-	\item deterministically replay random numbers
-\end{itemize}
-But be aware that checkpoints decrease the application's performance.
+\begin{figure}
+\includegraphics[width=\textwidth]{ThreadScheduling.png}
+\caption{The Thread States}
+\label{threadScheduling}
+\end{figure}
 
 
 \bibliographystyle{alpha}

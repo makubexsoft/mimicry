@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.util.UUID;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
+import com.gc.mimicry.bridge.threading.CheckpointBasedScheduler;
 import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.engine.nodes.Node;
 import com.gc.mimicry.engine.timing.Clock;
@@ -41,7 +42,7 @@ public class Application implements Closeable
         this.clock = node.getClock();
         id = UUID.randomUUID();
 
-        ThreadManager mgr = new ThreadManager(id);
+        ThreadManager mgr = new ThreadManager(id, new CheckpointBasedScheduler(clock));
         bridge.setThreadManager(mgr);
         bridge.setClock(clock);
         bridge.setEventBridge(node.getEventBridge());

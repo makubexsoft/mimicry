@@ -1,18 +1,10 @@
 package com.gc.mimicry.bridge.weaving;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
 
 import org.aspectj.weaver.loadtime.WeavingURLClassLoader;
 import org.slf4j.Logger;
@@ -39,44 +31,64 @@ import com.gc.mimicry.util.ClassPathUtil;
  * @author Marc-Christian Schulze
  * 
  */
-public class ApplicationClassLoader extends WeavingURLClassLoader
+public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClassLoader // WeavingURLClassLoader
 {
     private static final Logger logger;
     static
     {
         logger = LoggerFactory.getLogger(ApplicationClassLoader.class);
     }
+    private final ByteCodeEnhancer enhancer;
 
-    public static ApplicationClassLoader create(ClassPathConfiguration config) throws MalformedURLException
+    ApplicationClassLoader(Collection<URL> classPath, Collection<URL> aspects, ClassLoader topLevelClassLoader)
+    {
+        super(ClassPathUtil.getSystemClassPath().toArray(new URL[0]), aspects.toArray(new URL[0]), new MyParentLoader(
+                classPath, aspects, topLevelClassLoader));
+        ((MyParentLoader) getParent()).setChild(this);
+
+        enhancer = new DefaultByteCodeEnhancer();
+    }
+
+    public static ApplicationClassLoader create(ClassPathConfiguration config, ClassLoader topLevelClassLoader)
+            throws MalformedURLException
     {
         Set<URL> classPath = new HashSet<URL>();
         classPath.addAll(config.getAspectClassPath());
         classPath.addAll(config.getBridgeClassPath());
 
-        return new ApplicationClassLoader(classPath, config.getAspectClassPath());
+        return new ApplicationClassLoader(classPath, config.getAspectClassPath(), topLevelClassLoader);
     }
 
-    public static ApplicationClassLoader create(ClassPathConfiguration config, Collection<URL> applicationClassPath)
-            throws MalformedURLException
+    public static ApplicationClassLoader create(ClassPathConfiguration config, Collection<URL> applicationClassPath,
+            ClassLoader topLevelClassLoader) throws MalformedURLException
     {
         Set<URL> classPath = new HashSet<URL>(applicationClassPath);
         classPath.addAll(config.getAspectClassPath());
         classPath.addAll(config.getBridgeClassPath());
 
-        return new ApplicationClassLoader(classPath, config.getAspectClassPath());
+        return new ApplicationClassLoader(classPath, config.getAspectClassPath(), topLevelClassLoader);
     }
 
-    ApplicationClassLoader(Collection<URL> classPath, Collection<URL> aspects)
+    @Override
+    protected byte[] postProcess(String name, byte[] byteCode)
     {
-        super(ClassPathUtil.getSystemClassPath().toArray(new URL[0]), aspects.toArray(new URL[0]), new MyParentLoader(
-                classPath, aspects));
-        ((MyParentLoader) getParent()).setChild(this);
+        if (byteCode != null && !name.startsWith("org.aspectj") && !name.startsWith("javassist"))
+        {
+            int formerSize = byteCode.length;
+            byteCode = enhancer.enhance(name, byteCode);
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(name + " has been enhanced by " + (byteCode.length - formerSize) + " bytes up to "
+                        + byteCode.length + " bytes.");
+            }
+        }
+        return byteCode;
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException
     {
-        if (name.startsWith("com.gc.mimicry."))
+        if (name.startsWith("com.gc.mimicry.") || name.startsWith("org.aspectj") || name.startsWith("javassist"))
         {
             throw new ClassNotFoundException(name);
         }
@@ -88,45 +100,22 @@ public class ApplicationClassLoader extends WeavingURLClassLoader
         return c;
     }
 
+    /**
+     * Important override otherwise would the [STAGE-1] directly ask [STAGE-2] instead of first asking [STAGE-0].
+     */
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException
     {
         return getParent().loadClass(name);
     }
 
-    private static byte[] removeFinalizer(byte[] bytes) throws IOException, RuntimeException, CannotCompileException
-    {
-        CtClass clazz = new ClassPool().makeClass(new ByteArrayInputStream(bytes));
-        if (clazz.isInterface())
-        {
-            return bytes;
-        }
-
-        try
-        {
-            CtMethod method = clazz.getMethod("finalize", "()V");
-            if (null != method && !method.isEmpty())
-            {
-                clazz.removeMethod(method);
-                bytes = clazz.toBytecode();
-            }
-        }
-        catch (NotFoundException ignore)
-        {
-        }
-
-        return bytes;
-    }
-
     private static class MyParentLoader extends WeavingURLClassLoader
     {
         private ApplicationClassLoader child;
 
-        public MyParentLoader(Collection<URL> classpath, Collection<URL> aspects)
+        public MyParentLoader(Collection<URL> classpath, Collection<URL> aspects, ClassLoader topLevelClassLoader)
         {
-            super(classpath.toArray(new URL[0]), aspects.toArray(new URL[0]), ApplicationClassLoader.class
-                    .getClassLoader());
-
+            super(classpath.toArray(new URL[0]), aspects.toArray(new URL[0]), topLevelClassLoader);
         }
 
         public void setChild(ApplicationClassLoader child)
@@ -151,7 +140,7 @@ public class ApplicationClassLoader extends WeavingURLClassLoader
             }
             catch (ClassNotFoundException e)
             {
-                // ignore - parent (System Class Loader) will pick it up
+                // ignore - [STAGE-1] and [STAGE-2] (parent) still there
             }
 
             //
@@ -173,7 +162,7 @@ public class ApplicationClassLoader extends WeavingURLClassLoader
             }
             catch (ClassNotFoundException e)
             {
-                // ignore - parent (System Class Loader) will pick it up
+                // ignore - [STAGE-2] (parent - System Class Loader) will pick it up
             }
 
             //

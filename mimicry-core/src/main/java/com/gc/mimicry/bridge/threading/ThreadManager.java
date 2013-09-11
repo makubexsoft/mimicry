@@ -3,6 +3,9 @@ package com.gc.mimicry.bridge.threading;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gc.mimicry.util.concurrent.DefaultFuture;
 import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
@@ -20,39 +23,69 @@ public class ThreadManager
      * 
      * @param appId
      */
-    public ThreadManager(UUID appId)
+    public ThreadManager(UUID appId, ThreadScheduler scheduler)
     {
         Preconditions.checkNotNull(appId);
+        Preconditions.checkNotNull(scheduler);
+
         this.appId = appId;
+        this.scheduler = scheduler;
 
         threads = new CopyOnWriteArrayList<IManagedThread>();
         shutdownFuture = new DefaultFuture();
     }
 
-    public void addThread(IManagedThread thread)
+    /**
+     * Invoked by {@link IManagedThread} in the constructor.
+     * 
+     * @param thread
+     */
+    public void threadCreated(IManagedThread thread)
     {
         threads.add(thread);
+        scheduler.threadCreated(thread);
     }
 
+    /**
+     * Invoked if a thread terminates normally.
+     * 
+     * @param thread
+     */
     public void threadTerminated(IManagedThread thread)
     {
         threads.remove(thread);
+        scheduler.threadTerminated(thread);
         if (threads.size() == 0)
         {
             shutdownFuture.setSuccess();
         }
     }
 
+    /**
+     * Invoked if a thread terminates due to an exception.
+     * 
+     * @param thread
+     * @param th
+     */
     public void threadTerminated(IManagedThread thread, Throwable th)
     {
-        // TODO: we can evaluate the exception
+        if (!(th instanceof ThreadDeath))
+        {
+            logger.info("Thread terminated due to exception.", th);
+        }
         threads.remove(thread);
+        scheduler.threadTerminated(thread);
         if (threads.size() == 0)
         {
             shutdownFuture.setSuccess();
         }
     }
 
+    /**
+     * Returns the id of the application this thread belongs to.
+     * 
+     * @return
+     */
     public UUID getApplicationId()
     {
         return appId;
@@ -86,7 +119,18 @@ public class ThreadManager
         return shutdownFuture;
     }
 
+    public ThreadScheduler getScheduler()
+    {
+        return scheduler;
+    }
+
+    private final ThreadScheduler scheduler;
     private final CopyOnWriteArrayList<IManagedThread> threads;
     private final UUID appId;
     private final Future<?> shutdownFuture;
+    private static final Logger logger;
+    static
+    {
+        logger = LoggerFactory.getLogger(ThreadManager.class);
+    }
 }

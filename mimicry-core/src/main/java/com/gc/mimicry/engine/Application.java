@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
+import com.gc.mimicry.bridge.threading.CheckpointBasedScheduler;
 import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.util.concurrent.Future;
 
@@ -18,7 +19,7 @@ public class Application implements Closeable
     {
         this.entryPoint = entryPoint;
 
-        threadManager = new ThreadManager(UUID.randomUUID());
+        threadManager = new ThreadManager(UUID.randomUUID(), new CheckpointBasedScheduler(ctx.getClock()));
 
         bridge = new ApplicationBridge(ctx.getClassLoader());
         bridge.setClock(ctx.getClock());

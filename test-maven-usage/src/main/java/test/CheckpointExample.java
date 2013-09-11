@@ -13,7 +13,7 @@ import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.SystemClock;
 
-public class Main
+public class CheckpointExample
 {
 	public static void main( String[] args ) throws Exception
 	{
@@ -44,7 +44,17 @@ public class Main
             public void main(String[] args)
             {
             	for(int i = 0; i < 10; ++i)
-            	System.out.print(new Socket());
+            	{
+            		try
+					{
+						Thread.sleep( 20 );
+					}
+					catch ( InterruptedException e )
+					{
+						e.printStackTrace();
+					}
+            		System.out.print(new Socket());
+            	}
             }
         });
         

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
+import com.gc.mimicry.engine.timing.SystemClock;
 
 public class TestThreadManager
 {
@@ -17,7 +18,8 @@ public class TestThreadManager
     @Before
     public void setUp()
     {
-        SimulatorBridge.setThreadManager(new ThreadManager(UUID.randomUUID()));
+        SimulatorBridge
+                .setThreadManager(new ThreadManager(UUID.randomUUID(), new BasicScheduler(new SystemClock())));
 
         mgr = SimulatorBridge.getThreadManager();
     }

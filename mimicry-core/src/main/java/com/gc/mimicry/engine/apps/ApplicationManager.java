@@ -71,7 +71,11 @@ public class ApplicationManager extends BaseResourceManager
     public Application launchApplication(ApplicationBundleDescriptor appDesc) throws IOException
     {
         ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
-        ApplicationClassLoader loader = ApplicationClassLoader.create(config);// TODO: add app. class path
+        ApplicationClassLoader loader = ApplicationClassLoader.create(config, ClassLoader.getSystemClassLoader());// TODO:
+                                                                                                                  // add
+                                                                                                                  // app.
+                                                                                                                  // class
+                                                                                                                  // path
 
         ApplicationBridge bridge = createBridge(appDesc, loader);
 

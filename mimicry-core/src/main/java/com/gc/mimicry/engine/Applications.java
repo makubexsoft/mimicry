@@ -8,7 +8,7 @@ import com.googlecode.transloader.ObjectWrapper;
 import com.googlecode.transloader.Transloader;
 import com.googlecode.transloader.clone.CloningStrategy;
 import com.googlecode.transloader.clone.reflect.CloningDecisionStrategy;
-import com.googlecode.transloader.clone.reflect.MaximalCloningDecisionStrategy;
+import com.googlecode.transloader.clone.reflect.MinimalCloningDecisionStrategy;
 import com.googlecode.transloader.clone.reflect.ObjenesisInstantiationStrategy;
 import com.googlecode.transloader.clone.reflect.ReflectionCloningStrategy;
 
@@ -51,17 +51,19 @@ public class Applications
 
     private static EntryPoint bridge(ClassLoader loader, EntryPoint runnable)
     {
-        CloningDecisionStrategy cloneStrategy = new MaximalCloningDecisionStrategy();
+        CloningDecisionStrategy cloneStrategy = new MinimalCloningDecisionStrategy();
         ObjenesisInstantiationStrategy createStrategy = new ObjenesisInstantiationStrategy();
-        ReflectionCloningStrategy strategy;
-        strategy = new ReflectionCloningStrategy(cloneStrategy, createStrategy, CloningStrategy.MAXIMAL);
-        Transloader transloader = new DefaultTransloader(strategy);
-        ObjectWrapper someObjectWrapped = transloader.wrap(runnable);
 
+        ReflectionCloningStrategy strategy;
+        strategy = new ReflectionCloningStrategy(cloneStrategy, createStrategy, CloningStrategy.MINIMAL);
+
+        Transloader transloader = new DefaultTransloader(strategy);
+
+        ObjectWrapper someObjectWrapped = transloader.wrap(runnable);
         return (EntryPoint) someObjectWrapped.cloneWith(loader);
     }
 
-    public static Application create(ApplicationContext ctx, String mainClassName) throws NoSuchMethodException,
+    public static Application create(final ApplicationContext ctx, String mainClassName) throws NoSuchMethodException,
             SecurityException, ClassNotFoundException
     {
         Class<?> mainClass = ctx.getClassLoader().loadClass(mainClassName);
@@ -90,6 +92,7 @@ public class Applications
                         }
                     }
                 });
+                thread.setContextClassLoader(ctx.getClassLoader());
                 thread.start();
             }
         };

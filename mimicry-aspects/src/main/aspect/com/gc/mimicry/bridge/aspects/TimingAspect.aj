@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
+import com.gc.mimicry.bridge.threading.ManagedThread;
+import com.gc.mimicry.bridge.threading.ThreadScheduler;
 
 /**
  * This aspect controls the time line of the simulated application.
@@ -31,26 +33,7 @@ public aspect TimingAspect
 					call(void Thread.sleep(long)) && 
 					args(millis);
 
-	public pointcut waitP( Object target, long millis ) : 
-					!within(com.gc.mimicry..*) && 
-					call(void *.wait(long)) && 
-					target(target) && 
-					args(millis);
-
-	public pointcut waitP2( Object target ) : 
-					!within(com.gc.mimicry..*) && 
-					call(void *.wait()) && 
-					target(target);
-
-	public pointcut notifyP( Object target ) :
-					!within(com.gc.mimicry..*) && 
-					call(void *.notify()) && 
-					target(target);
-
-	public pointcut notifyAllP( Object target ) :
-					!within(com.gc.mimicry..*) && 
-					call(void *.notifyAll()) && 
-					target(target);
+	
 
 	public pointcut newCalendar( Calendar cal ) : 
 					!within(com.gc.mimicry..*) && 
@@ -80,27 +63,11 @@ public aspect TimingAspect
 
 	void around( long millis ) throws InterruptedException : sleep(millis)  
 	{
+		//ThreadScheduler threadScheduler = SimulatorBridge.getThreadManager().getScheduler();
+		
+		//threadScheduler.threadBlocked( ManagedThread.currentThread(), null, millis );
 		SimulatorBridge.getClock().sleepFor( millis );
-	}
-
-	void around( Object target, long millis ) throws InterruptedException : waitP(target, millis)  
-	{
-		SimulatorBridge.getClock().waitOnFor( target, millis );
-	}
-
-	void around( Object target ) throws InterruptedException : waitP2(target)  
-	{
-		SimulatorBridge.getClock().waitOn( target );
-	}
-
-	void around( Object target ) : notifyP(target) 
-	{
-		SimulatorBridge.getClock().notifyOnTarget( target );
-	}
-
-	void around( Object target ) : notifyAllP(target)  
-	{
-		SimulatorBridge.getClock().notifyAllOnTarget( target );
+		//threadScheduler.threadRunning( ManagedThread.currentThread() );
 	}
 
 	after( Calendar cal ) : newCalendar(cal) {

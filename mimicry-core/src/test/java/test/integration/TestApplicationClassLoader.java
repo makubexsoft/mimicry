@@ -25,7 +25,7 @@ public class TestApplicationClassLoader
             SecurityException
     {
         ClassPathConfiguration classpath = createConfig();
-        ApplicationClassLoader loader = ApplicationClassLoader.create(classpath);
+        ApplicationClassLoader loader = ApplicationClassLoader.create(classpath, ClassLoader.getSystemClassLoader());
 
         ApplicationContext ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
@@ -46,7 +46,7 @@ public class TestApplicationClassLoader
     public void testCanStopInifiteLoop() throws Exception
     {
         ClassPathConfiguration clctx = createConfig();
-        ClassLoader loader = ApplicationClassLoader.create(clctx);
+        ClassLoader loader = ApplicationClassLoader.create(clctx, ClassLoader.getSystemClassLoader());
         EventBridge eventBridge = new EventBridge();
 
         ApplicationContext ctx = new ApplicationContext();
@@ -74,7 +74,7 @@ public class TestApplicationClassLoader
     public void testLoadsCoreClassesAtStage2() throws Exception
     {
         ClassPathConfiguration clctx = createConfig();
-        ClassLoader loader = ApplicationClassLoader.create(clctx);
+        ClassLoader loader = ApplicationClassLoader.create(clctx, ClassLoader.getSystemClassLoader());
         EventBridge eventBridge = new EventBridge();
 
         ApplicationContext ctx = new ApplicationContext();

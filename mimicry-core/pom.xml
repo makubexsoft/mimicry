@@ -36,6 +36,11 @@
 			<artifactId>asm-util</artifactId>
 			<version>4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-all</artifactId>
+			<version>4.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -75,6 +80,13 @@
 			<version>0.4.0</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/libs/transloader-0.4.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.gc.mimicry</groupId>
+			<artifactId>precompiled</artifactId>
+			<version>0.0.1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/precompiled.jar</systemPath>
 		</dependency>
 
 		<!-- Testing -->
