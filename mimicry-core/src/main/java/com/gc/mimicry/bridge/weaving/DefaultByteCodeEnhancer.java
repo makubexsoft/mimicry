@@ -17,6 +17,13 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A default byte code enhancer run after AspectJ has woven the application classes. It removes finalizers and replaces
+ * <code>monitorenter</code> and <code>monitorexit</code> byte code {@link InstructionSelect#}
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class DefaultByteCodeEnhancer implements ByteCodeEnhancer
 {
     private static final Logger logger;
@@ -81,18 +88,8 @@ public class DefaultByteCodeEnhancer implements ByteCodeEnhancer
         ClassReader reader = new ClassReader(byteCode);
         ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
 
-        ModifierClassWriter modifier = new ModifierClassWriter(Opcodes.ASM4, writer); // new CheckClassAdapter(writer));
+        ModifierClassWriter modifier = new ModifierClassWriter(Opcodes.ASM4, writer);
         reader.accept(modifier, ClassReader.EXPAND_FRAMES);
-
-        // StringWriter sw = new StringWriter();
-        // PrintWriter pw = new PrintWriter(sw);
-        // CheckClassAdapter.verify(new ClassReader(writer.toByteArray()), false, pw);
-        // System.out.println(sw.toString());
-
-        // ClassReader classReader = new ClassReader(writer.toByteArray());
-        // PrintWriter printWriter = new PrintWriter(System.out);
-        // TraceClassVisitor traceClassVisitor = new TraceClassVisitor(printWriter);
-        // classReader.accept(traceClassVisitor, ClassReader.SKIP_DEBUG);
 
         return writer.toByteArray();
     }
@@ -122,35 +119,11 @@ class ModifierClassWriter extends ClassVisitor
                 {
                     case Opcodes.MONITORENTER:
                     {
-                        // GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
-                        // LDC "test"
-                        // INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
-
-                        // super.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-                        // super.visitLdcInsn("test");
-                        // super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "print",
-                        // "(Ljava/lang/String;)V");
-
                         super.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS_NAME, "monitorEnter", "(Ljava/lang/Object;)V");
-
-                        // super.visitInsn(Opcodes.DUP);
-                        // super.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS_NAME, "beforeMonitorEnter",
-                        // "(Ljava/lang/Object;)V");
-                        // super.visitInsn(Opcodes.DUP);
-                        // super.visitInsn(opcode);
-                        // super.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS_NAME, "afterMonitorEnter",
-                        // "(Ljava/lang/Object;)V");
                         break;
                     }
                     case Opcodes.MONITOREXIT:
                     {
-                        // super.visitInsn(Opcodes.DUP);
-                        // super.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS_NAME, "beforeMonitorExit",
-                        // "(Ljava/lang/Object;)V");
-                        // super.visitInsn(Opcodes.DUP);
-                        // super.visitInsn(opcode);
-                        // super.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS_NAME, "afterMonitorExit",
-                        // "(Ljava/lang/Object;)V");
                         super.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS_NAME, "monitorExit", "(Ljava/lang/Object;)V");
                         break;
                     }

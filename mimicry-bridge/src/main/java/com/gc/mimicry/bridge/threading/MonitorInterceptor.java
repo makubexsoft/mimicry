@@ -2,6 +2,13 @@ package com.gc.mimicry.bridge.threading;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
 
+/**
+ * Static interception point that is invoked by the aspects and replace monitor byte code instructions to implement
+ * custom thread scheduling.
+ * 
+ * @author Marc-Christian Schulze
+ * @see ThreadScheduler
+ */
 public class MonitorInterceptor
 {
     public static void monitorEnter(Object monitor)

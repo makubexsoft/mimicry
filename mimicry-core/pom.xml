@@ -81,13 +81,6 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/libs/transloader-0.4.jar</systemPath>
 		</dependency>
-		<dependency>
-			<groupId>com.gc.mimicry</groupId>
-			<artifactId>precompiled</artifactId>
-			<version>0.0.1</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/libs/precompiled.jar</systemPath>
-		</dependency>
 
 		<!-- Testing -->
 		<dependency>

@@ -95,7 +95,7 @@ public class CheckpointBasedScheduler extends BasicScheduler
                 }
                 else
                 {
-                    // FIXME: It might be that the first thread removed it's entry and started running
+                    // It might be that the first thread removed its entry and started running
                     // the second thread now receives the signal but the monitor is locked.
                     // So in case the thread state of the monitor owner is RUNNING we need to wait for another signal!
                     while (threadStates.get(owner) == ThreadState.RUNNING)

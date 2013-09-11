@@ -31,7 +31,7 @@ import com.gc.mimicry.util.ClassPathUtil;
  * @author Marc-Christian Schulze
  * 
  */
-public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClassLoader // WeavingURLClassLoader
+public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClassLoader
 {
     private static final Logger logger;
     static
