@@ -4,7 +4,7 @@ import junit.framework.TestSuite;
 
 import org.junit.runner.RunWith;
 
-@RunWith(NetSimTestRunner.class)
+@RunWith(MimicryTestRunner.class)
 public class NetSimTestSuite extends TestSuite {
 
 	
