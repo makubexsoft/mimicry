@@ -216,6 +216,81 @@ public class TestThreadScheduler
         }
         assertEquals("600", errReader.readLine());
     }
+    
+    @Test
+    public void testCheckpointsWithStaticSyncMethods() throws Exception
+    {
+        Application app = Applications.create(ctx, new EntryPoint()
+        {
+            @Override
+            public void main(String[] args)
+            {
+                Runnable target = new StaticMethodRunnable();
+                Thread t1 = new Thread(target, "1");
+                Thread t2 = new Thread(target, "2");
+
+                t1.start();
+                t2.start();
+                
+                try
+                {
+                    // TODO: currently the main thread is not reported as RUNNING
+                    // to the thread scheduler which is why this doesn't deadlock.
+                    // We need to define the scheduling behavior for join operations.
+                    t1.join();
+                    t2.join();
+                }
+                catch ( InterruptedException e )
+                {
+                    e.printStackTrace();
+                }
+
+                System.err.println(StaticMethodRunnable.value);
+            }
+        });
+
+        createStreams(app.getId());
+        // TODO: this invocation of start should also be reported to the scheduler.
+        app.start(); 
+        app.getTerminationFuture().await( 3000 );
+        
+        // Test thread 1 is always executed before thread 2 and the number is incremented atomically
+        for(int i = 0; i < 600; i+=2)
+        {
+            String line;
+            String[] split;
+            
+            line = outReader.readLine();
+            split = line.split( "\\:" );
+            assertEquals( "1", split[0] );
+            assertEquals( "" + i, split[1] );
+
+            line = outReader.readLine();
+            split = line.split( "\\:" );
+            assertEquals( "2", split[0] );
+            assertEquals( "" + (i + 1), split[1] );
+        }
+        assertEquals("600", errReader.readLine());
+    }
+}
+
+class StaticMethodRunnable implements Runnable
+{
+	public static int value;
+	
+    @Override
+    public void run()
+    {
+        for (int i = 0; i < 300; ++i)
+        {
+           count();
+        }
+    }
+    
+    private static synchronized void count()
+    {
+    	System.out.println(Thread.currentThread().getName() + ":" + value++);
+    }
 }
 
 class IntContainer{

@@ -40,6 +40,7 @@ public class DefaultByteCodeEnhancer implements ByteCodeEnhancer
             logger.debug("Enhancing: " + className);
         }
         byteCode = removeFinalizer(className, byteCode);
+        byteCode = transformSyncMethodsToBlocks(className, byteCode);
         byteCode = enhanceWithMonitorHandling(className, byteCode);
         return byteCode;
     }
@@ -88,19 +89,117 @@ public class DefaultByteCodeEnhancer implements ByteCodeEnhancer
         ClassReader reader = new ClassReader(byteCode);
         ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
 
-        ModifierClassWriter modifier = new ModifierClassWriter(Opcodes.ASM4, writer);
+        MonitorInterceptingVisitor modifier = new MonitorInterceptingVisitor(Opcodes.ASM4, writer);
+        reader.accept(modifier, ClassReader.EXPAND_FRAMES);
+
+        return writer.toByteArray();
+    }
+
+    private static byte[] transformSyncMethodsToBlocks(String className, byte[] byteCode)
+    {
+        ClassReader reader = new ClassReader(byteCode);
+        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
+
+        SyncMethodInterceptingVisitor modifier = new SyncMethodInterceptingVisitor(Opcodes.ASM4, writer);
         reader.accept(modifier, ClassReader.EXPAND_FRAMES);
 
         return writer.toByteArray();
     }
 }
 
-class ModifierClassWriter extends ClassVisitor
+class SyncMethodInterceptingVisitor extends ClassVisitor
+{
+    private final int api;
+    private String className;
+
+    public SyncMethodInterceptingVisitor(int api, ClassVisitor cv)
+    {
+        super(api, cv);
+        this.api = api;
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces)
+    {
+        super.visit(version, access, name, signature, superName, interfaces);
+        className = name;
+    }
+
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName, int access)
+    {
+        super.visitInnerClass(name, outerName, innerName, access);
+        className = name;
+    }
+
+    @Override
+    public void visitOuterClass(String owner, String name, String desc)
+    {
+        super.visitOuterClass(owner, name, desc);
+        className = name;
+    }
+
+    @Override
+    public MethodVisitor visitMethod(final int access, final String name, String desc, String signature,
+            String[] exceptions)
+    {
+        if ((access & Opcodes.ACC_SYNCHRONIZED) == 0)
+        {
+            return super.visitMethod(access, name, desc, signature, exceptions);
+        }
+        MethodVisitor mv = super.visitMethod(access & ~Opcodes.ACC_SYNCHRONIZED, name, desc, signature, exceptions);
+        return new MethodVisitor(api, mv)
+        {
+            @Override
+            public void visitCode()
+            {
+                super.visitCode();
+                if ((access & Opcodes.ACC_STATIC) == 0)
+                {
+                    // load "this"
+                    super.visitVarInsn(Opcodes.ALOAD, 0);
+                }
+                else
+                {
+                    // load ".class"
+                    super.visitLdcInsn("L" + className + ";.class");
+                }
+                super.visitInsn(Opcodes.MONITORENTER);
+            }
+
+            @Override
+            public void visitInsn(final int opcode)
+            {
+                switch (opcode)
+                {
+                    case Opcodes.ATHROW:
+                    case Opcodes.RETURN:
+                    {
+                        if ((access & Opcodes.ACC_STATIC) == 0)
+                        {
+                            // load "this"
+                            super.visitVarInsn(Opcodes.ALOAD, 0);
+                        }
+                        else
+                        {
+                            // load ".class"
+                            super.visitLdcInsn("L" + className + ";.class");
+                        }
+                        super.visitInsn(Opcodes.MONITOREXIT);
+                    }
+                }
+                super.visitInsn(opcode);
+            }
+        };
+    }
+}
+
+class MonitorInterceptingVisitor extends ClassVisitor
 {
     private final int api;
     private static final String CLASS_NAME = "com/gc/mimicry/bridge/threading/MonitorInterceptor";
 
-    public ModifierClassWriter(int api, ClassVisitor cv)
+    public MonitorInterceptingVisitor(int api, ClassVisitor cv)
     {
         super(api, cv);
         this.api = api;
