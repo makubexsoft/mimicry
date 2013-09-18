@@ -174,4 +174,19 @@ public class IOUtils
             closeSilently(out);
         }
     }
+
+    public static void deleteRecursivly(File workspace)
+    {
+        for (File file : workspace.listFiles())
+        {
+            if (file.isDirectory())
+            {
+                deleteRecursivly(file);
+            }
+            else
+            {
+                file.delete();
+            }
+        }
+    }
 }

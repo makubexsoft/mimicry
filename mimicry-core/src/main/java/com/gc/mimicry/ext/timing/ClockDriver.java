@@ -2,10 +2,10 @@ package com.gc.mimicry.ext.timing;
 
 import java.io.Closeable;
 
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.engine.timing.DiscreteClock;
 import com.gc.mimicry.engine.timing.RealtimeClock;
 import com.gc.mimicry.ext.timing.events.ClockAdvanceEvent;
@@ -25,8 +25,8 @@ import com.google.common.base.Preconditions;
  */
 public class ClockDriver implements Closeable, EventListener
 {
-    private final EventBroker broker;
-    private final Clock clock;
+    private final EventEngine broker;
+    private final Timeline clock;
 
     /**
      * Registers a listener on the given event broker and adjusts the clock if necessary.
@@ -36,7 +36,7 @@ public class ClockDriver implements Closeable, EventListener
      * @param clock
      *            The clock to adjust
      */
-    public ClockDriver(EventBroker broker, Clock clock)
+    public ClockDriver(EventEngine broker, Timeline clock)
     {
         Preconditions.checkNotNull(broker);
         Preconditions.checkNotNull(clock);

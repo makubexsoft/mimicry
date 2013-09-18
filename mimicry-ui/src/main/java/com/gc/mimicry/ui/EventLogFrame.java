@@ -12,6 +12,6 @@ public class EventLogFrame extends DockableFrame
 		setTitle("Event Log");
 		setLayout( new BorderLayout() );
 		
-		add( new EventLogView( simulation.getEventBroker() ) , BorderLayout.CENTER);
+		add( new EventLogView( simulation.getEventEngine() ) , BorderLayout.CENTER);
 	}
 }

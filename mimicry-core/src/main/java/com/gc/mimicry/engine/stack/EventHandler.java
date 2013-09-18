@@ -3,12 +3,12 @@ package com.gc.mimicry.engine.stack;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
-import com.gc.mimicry.engine.nodes.Node;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.local.LocalNode;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.engine.timing.Scheduler;
 
 /**
- * An {@link EventHandler} is part of an {@link EventStack} attached to a {@link Node}. It's highly recommended not to
+ * An {@link EventHandler} is part of an {@link EventStack} attached to a {@link LocalNode}. It's highly recommended not to
  * create any threads within an {@link EventHandler}, instead use the given {@link Scheduler}. As long as the event
  * handler is using only the given {@link Scheduler} instance for performing asynchronous tasks it has not to consider
  * any thread synchronisation. By default all methods invoked on this event handler are performed in a dedicated thread
@@ -30,7 +30,7 @@ public interface EventHandler
      *            A clock to obtain the current time of the simulation. Note that this clock is not necessarily
      *            synchronized with the real-time.
      */
-    public void init(EventHandlerContext ctx, Scheduler scheduler, Clock clock);
+    public void init(EventHandlerContext ctx, Scheduler scheduler, Timeline clock);
 
     public Scheduler getScheduler();
 

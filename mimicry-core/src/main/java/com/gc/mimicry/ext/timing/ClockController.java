@@ -1,6 +1,6 @@
 package com.gc.mimicry.ext.timing;
 
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.timing.events.ClockAdvanceEvent;
 import com.gc.mimicry.ext.timing.events.ClockStartEvent;
@@ -15,10 +15,10 @@ import com.google.common.base.Preconditions;
  */
 public class ClockController
 {
-    private final EventBroker broker;
+    private final EventEngine broker;
     private final EventFactory eventFactory;
 
-    public ClockController(EventBroker broker, EventFactory eventFactory)
+    public ClockController(EventEngine broker, EventFactory eventFactory)
     {
         Preconditions.checkNotNull(broker);
         Preconditions.checkNotNull(eventFactory);

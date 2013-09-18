@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.ControlFlow;
+import com.gc.mimicry.bridge.ControlFlow;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventBridge;
@@ -42,12 +42,18 @@ public class CFlowManager implements EventListener
                 controlFlow.terminate(evt);
             }
         }
-        List<EventListener> list = listener.get(evt.getClass());
-        if (list != null)
+        for (Map.Entry<Class<? extends Event>, List<EventListener>> entry : listener.entrySet())
         {
-            for (EventListener l : list)
+            if (entry.getKey().isAssignableFrom(evt.getClass()))
             {
-                l.handleEvent(evt);
+                List<EventListener> list = entry.getValue();
+                if (list != null)
+                {
+                    for (EventListener l : list)
+                    {
+                        l.handleEvent(evt);
+                    }
+                }
             }
         }
     }
@@ -66,7 +72,6 @@ public class CFlowManager implements EventListener
     {
         ControlFlow cflow = new ControlFlow();
         controlFlows.put(cflow.getId(), cflow);
-        // bridge.dispatchEventToStack(event);
         return cflow;
     }
 

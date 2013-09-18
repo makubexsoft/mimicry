@@ -63,11 +63,7 @@ public aspect TimingAspect
 
 	void around( long millis ) throws InterruptedException : sleep(millis)  
 	{
-		//ThreadScheduler threadScheduler = SimulatorBridge.getThreadManager().getScheduler();
-		
-		//threadScheduler.threadBlocked( ManagedThread.currentThread(), null, millis );
 		SimulatorBridge.getClock().sleepFor( millis );
-		//threadScheduler.threadRunning( ManagedThread.currentThread() );
 	}
 
 	after( Calendar cal ) : newCalendar(cal) {

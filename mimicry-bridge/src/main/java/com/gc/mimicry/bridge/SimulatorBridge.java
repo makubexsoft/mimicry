@@ -7,7 +7,7 @@ import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventBridge;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.ext.stdio.events.ConsoleStdinEvent;
 import com.gc.mimicry.util.ByteBuffer;
 
@@ -21,7 +21,7 @@ import com.gc.mimicry.util.ByteBuffer;
 public final class SimulatorBridge
 {
     private static UUID applicationId;
-    private static Clock clock;
+    private static Timeline clock;
     private static EventBridge eventBridge;
     private static ThreadManager threadManager;
     private static ClassLoader systemClassLoader;
@@ -70,7 +70,7 @@ public final class SimulatorBridge
     /**
      * Gets invoked by the {@link ApplicationBridge}.
      */
-    public static void setClock(Clock clock)
+    public static void setClock(Timeline clock)
     {
         SimulatorBridge.clock = clock;
     }
@@ -108,7 +108,7 @@ public final class SimulatorBridge
         return applicationId;
     }
 
-    public static Clock getClock()
+    public static Timeline getClock()
     {
         return clock;
     }

@@ -11,7 +11,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
 import com.jidesoft.swing.Searchable;
@@ -22,7 +22,7 @@ public class EventLogView extends JPanel
 {
 	private JTextArea txtEventLog;
 	
-	public EventLogView(EventBroker eventBroker)
+	public EventLogView(EventEngine eventBroker)
 	{
 		setLayout( new BorderLayout( 0, 0 ) );
 

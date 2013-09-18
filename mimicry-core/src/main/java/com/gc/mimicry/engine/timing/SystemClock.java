@@ -6,7 +6,7 @@ package com.gc.mimicry.engine.timing;
  * @author Marc-Christian Schulze
  * 
  */
-public class SystemClock implements Clock
+public class SystemClock implements Timeline
 {
     @Override
     public long currentMillis()
@@ -15,9 +15,8 @@ public class SystemClock implements Clock
     }
 
     @Override
-    public void sleepFor(long untilInMillis) throws InterruptedException
+    public void sleepFor(long waitTime) throws InterruptedException
     {
-        long waitTime = untilInMillis - System.currentTimeMillis();
         if (waitTime > 0)
         {
             Thread.sleep(waitTime);

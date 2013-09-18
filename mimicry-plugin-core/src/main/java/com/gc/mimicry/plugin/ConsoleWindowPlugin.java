@@ -3,6 +3,7 @@ package com.gc.mimicry.plugin;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.UUID;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -11,9 +12,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;
 
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.apps.ApplicationRef;
 import com.gc.mimicry.engine.event.DefaultEventFactory;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.event.EventFactory;
@@ -31,18 +31,18 @@ import com.gc.mimicry.ext.stdio.events.ConsoleStdoutEvent;
  */
 public class ConsoleWindowPlugin extends JFrame implements EventListener
 {
-	private static final long		serialVersionUID	= 120529917436479426L;
-	private final EventBroker		broker;
-	private final ApplicationRef	appRef;
-	private JScrollPane				scrollPane;
-	private JTextArea				consoleOutput;
-	private JTextField				inputField;
-	private final Identity			identity;
-	private final EventFactory		eventFactory;
+	private static final long	serialVersionUID	= 120529917436479426L;
+	private final EventEngine	broker;
+	private final UUID			appRef;
+	private JScrollPane			scrollPane;
+	private JTextArea			consoleOutput;
+	private JTextField			inputField;
+	private final Identity		identity;
+	private final EventFactory	eventFactory;
 
-	private ConsoleWindowPlugin(EventBroker broker, ApplicationRef appRef)
+	private ConsoleWindowPlugin(EventEngine broker, UUID appRef)
 	{
-		setTitle( "Console of Application[" + appRef.getApplicationId() + "]" );
+		setTitle( "Console of Application[" + appRef + "]" );
 		this.broker = broker;
 		this.appRef = appRef;
 
@@ -55,7 +55,7 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 		setVisible( true );
 	}
 
-	public static void attach( EventBroker broker, ApplicationRef appRef )
+	public static void attach( EventEngine broker, UUID appRef )
 	{
 		ConsoleWindowPlugin window = new ConsoleWindowPlugin( broker, appRef );
 		broker.addEventListener( window );
@@ -82,7 +82,7 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 			{
 				String input = inputField.getText() + "\n";
 
-				ConsoleStdinEvent event = eventFactory.createEvent( ConsoleStdinEvent.class, appRef.getApplicationId() );
+				ConsoleStdinEvent event = eventFactory.createEvent( ConsoleStdinEvent.class, appRef );
 				event.setData( input.getBytes() );
 				broker.fireEvent( event, ConsoleWindowPlugin.this );
 
@@ -98,7 +98,7 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 		if ( evt instanceof ConsoleStdoutEvent )
 		{
 			final ConsoleStdoutEvent out = (ConsoleStdoutEvent) evt;
-			if ( out.getSourceApplication() == appRef.getApplicationId() )
+			if ( out.getSourceApplication().equals( appRef ) )
 			{
 				SwingUtilities.invokeLater( new Runnable()
 				{

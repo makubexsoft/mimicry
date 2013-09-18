@@ -1,13 +1,13 @@
 package com.gc.mimicry.engine;
 
 import com.gc.mimicry.engine.stack.EventBridge;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.Timeline;
 
 public class ApplicationContext
 {
     private ClassLoader classLoader;
     private EventBridge eventBridge;
-    private Clock clock;
+    private Timeline clock;
 
     public EventBridge getEventBridge()
     {
@@ -19,12 +19,12 @@ public class ApplicationContext
         this.eventBridge = eventBridge;
     }
 
-    public Clock getClock()
+    public Timeline getClock()
     {
         return clock;
     }
 
-    public void setClock(Clock clock)
+    public void setClock(Timeline clock)
     {
         this.clock = clock;
     }

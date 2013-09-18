@@ -11,7 +11,7 @@ import com.gc.mimicry.engine.stack.EventHandler;
  * @author Marc-Christian Schulze
  * 
  */
-public class SimpleEventBroker implements EventBroker
+public class SimpleEventBroker implements EventEngine
 {
     private final CopyOnWriteArrayList<EventListener> listener;
 

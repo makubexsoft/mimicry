@@ -7,7 +7,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -47,7 +47,7 @@ public class BasicScheduler implements ThreadScheduler
     /**
      * The clock used to wait for a given time using the simulation timeline.
      */
-    private final Clock clock;
+    private final Timeline clock;
 
     /**
      * Creates a new scheduler that is based on the timing behavior of the given clock.
@@ -55,7 +55,7 @@ public class BasicScheduler implements ThreadScheduler
      * @param clock
      *            The clock specifying the timeline behavior.
      */
-    public BasicScheduler(Clock clock)
+    public BasicScheduler(Timeline clock)
     {
         Preconditions.checkNotNull(clock);
         this.clock = clock;

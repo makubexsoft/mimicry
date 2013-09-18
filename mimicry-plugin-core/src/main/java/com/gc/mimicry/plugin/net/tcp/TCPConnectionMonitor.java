@@ -8,7 +8,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListModel;
 
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
@@ -20,11 +20,11 @@ import com.jgoodies.common.collect.ArrayListModel;
 
 public class TCPConnectionMonitor extends JDialog
 {
-	private final EventBroker							broker;
+	private final EventEngine							broker;
 	private final ArrayListModel<TCPConnectionInfo>		model;
 	private final SelectionInList<TCPConnectionInfo>	selection;
 
-	public TCPConnectionMonitor(EventBroker broker)
+	public TCPConnectionMonitor(EventEngine broker)
 	{
 		Preconditions.checkNotNull( broker );
 		this.broker = broker;

@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Implement this interface by your {@link EventHandler} to allow configuration using the
- * {@link EventHandlerConfiguration}.
+ * {@link EventHandlerParameters}.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -17,7 +17,7 @@ public interface Configurable
      * gets initialized.
      * 
      * @param configuration
-     *            The configuration as specified in the {@link EventHandlerConfiguration} set up in the simulation
+     *            The configuration as specified in the {@link EventHandlerParameters} set up in the simulation
      *            script.
      */
     public void configure(Map<String, String> configuration);

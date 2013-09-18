@@ -20,10 +20,10 @@ public class ClockBasedScheduler implements Scheduler, Closeable
 {
     private volatile boolean shouldRun = true;
     private final Thread thread;
-    private final Clock clock;
+    private final Timeline clock;
     private final PriorityQueue<ScheduledJob> jobs;
 
-    public ClockBasedScheduler(Clock clock)
+    public ClockBasedScheduler(Timeline clock)
     {
         Preconditions.checkNotNull(clock);
 

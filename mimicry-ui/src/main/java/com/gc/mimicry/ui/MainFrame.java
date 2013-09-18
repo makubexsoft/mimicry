@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.UUID;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -14,165 +16,187 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
 
+import com.gc.mimicry.engine.AlwaysFirstNodeStrategy;
+import com.gc.mimicry.engine.Session;
+import com.gc.mimicry.engine.SimpleEventBroker;
 import com.gc.mimicry.engine.Simulation;
+import com.gc.mimicry.engine.SimulationParameters;
+import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
+import com.gc.mimicry.engine.local.LocalEngine;
+import com.gc.mimicry.engine.timing.TimelineType;
 import com.gc.mimicry.ui.groovy.ConsoleFrame;
 import com.jidesoft.docking.DefaultDockableHolder;
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import com.jidesoft.docking.DockingManagerGroup;
 
 public class MainFrame extends DefaultDockableHolder
 {
-	private static final long	serialVersionUID	= -1396222277201712462L;
+    private static final long serialVersionUID = -1396222277201712462L;
 
-	public MainFrame()
-	{
-		setTitle( "The Mimicry Framework" );
-		setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
+    public MainFrame()
+    {
+        setTitle("The Mimicry Framework");
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-		configureDockingManager();
-		createSimulationAndFrames();
+        configureDockingManager();
+        createSimulationAndFrames();
 
-		setJMenuBar( createMenuBar() );
+        setJMenuBar(createMenuBar());
 
-		setSize( 800, 600 );
-		setVisible( true );
-	}
+        setSize(800, 600);
+        setVisible(true);
+    }
 
-	private void configureDockingManager()
-	{
-		getDockingManager().setInitSplitPriority( DockingManager.SPLIT_EAST_WEST_SOUTH_NORTH );
-		getDockingManager().setCrossDraggingAllowed( true );
-		getDockingManager().setCrossDroppingAllowed( true );
-		getDockingManager().setEasyTabDock( true );
-		getDockingManager().getWorkspace().setAcceptDockableFrame( true );
-		getDockingManager().getWorkspace().setLayout( new BorderLayout() );
-	}
+    private void configureDockingManager()
+    {
+        getDockingManager().setInitSplitPriority(DockingManager.SPLIT_EAST_WEST_SOUTH_NORTH);
+        getDockingManager().setCrossDraggingAllowed(true);
+        getDockingManager().setCrossDroppingAllowed(true);
+        getDockingManager().setEasyTabDock(true);
+        getDockingManager().getWorkspace().setAcceptDockableFrame(true);
+        getDockingManager().getWorkspace().setLayout(new BorderLayout());
+    }
 
-	private void createSimulationAndFrames()
-	{
-		try
-		{
-			Simulation simulation = SimulationFactory.getDefault().createSimulation();
-			createFrames( simulation );
-		}
-		catch ( IOException e )
-		{
-			String message = "Failed to create a simulation.\nReason: " + e.getMessage();
-			JOptionPane.showMessageDialog( this, message, "Simulation failed.", JOptionPane.ERROR_MESSAGE );
-		}
-	}
+    private void createSimulationAndFrames()
+    {
+        try
+        {
+            // Global configuration
+            LocalApplicationRepository appRepo = new LocalApplicationRepository();
+            File workspace = new File("C:/tmp/mimicry");
 
-	private void createFrames( Simulation simulation )
-	{
-		DockableFrame eventLogFrame = new EventLogFrame( simulation );
-		eventLogFrame.setKey( "mimicry.eventLog" );
-		eventLogFrame.getContext().setInitMode( DockContext.STATE_FRAMEDOCKED );
-		eventLogFrame.getContext().setInitSide( DockContext.DOCK_SIDE_SOUTH );
+            // Infrastructure
+            SimpleEventBroker broker = new SimpleEventBroker();
+            LocalEngine engine = new LocalEngine(broker, appRepo, workspace);
 
-		DockableFrame consoleFrame = new ConsoleFrame( simulation );
-		consoleFrame.setKey( "mimicry.consoleFrame" );
-		consoleFrame.getContext().setInitMode( DockContext.STATE_FRAMEDOCKED );
-		consoleFrame.getContext().setInitSide( DockContext.DOCK_SIDE_CENTER );
+            // Simulation specific configuration
+            SimulationParameters simuParams = new SimulationParameters();
+            simuParams.setTimelineType(TimelineType.SYSTEM);
 
-		NetworkBrowserFrame networkBrowser = new NetworkBrowserFrame();
-		networkBrowser.setKey( "mimicry.networkBrowser" );
-		networkBrowser.getContext().setInitMode( DockContext.STATE_FRAMEDOCKED );
-		networkBrowser.getContext().setInitSide( DockContext.DOCK_SIDE_WEST );
+            // Setup
+            HashSet<Session> sessions = new HashSet<Session>();
+            sessions.add(engine.createSession(UUID.randomUUID(), simuParams));
+            Simulation simu = new Simulation(sessions, new AlwaysFirstNodeStrategy());
 
-		ApplicationRepositoryFrame appRepo = new ApplicationRepositoryFrame();
-		appRepo.setKey( "mimicry.applicationRepository" );
-		appRepo.getContext().setInitMode( DockContext.STATE_FRAMEDOCKED );
-		appRepo.getContext().setInitSide( DockContext.DOCK_SIDE_WEST );
+            createFrames(simu);
+        }
+        catch (IOException e)
+        {
+            String message = "Failed to create a simulation.\nReason: " + e.getMessage();
+            JOptionPane.showMessageDialog(this, message, "Simulation failed.", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-		getDockingManager().beginLoadLayoutData();
-		getDockingManager().addFrame( consoleFrame );
-		getDockingManager().addFrame( eventLogFrame );
-		getDockingManager().addFrame( networkBrowser );
-		getDockingManager().addFrame( appRepo );
-		getDockingManager().loadLayoutData();
-	}
+    private void createFrames(Simulation simulation)
+    {
+        DockableFrame eventLogFrame = new EventLogFrame(simulation);
+        eventLogFrame.setKey("mimicry.eventLog");
+        eventLogFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
+        eventLogFrame.getContext().setInitSide(DockContext.DOCK_SIDE_SOUTH);
 
-	private JMenuBar createMenuBar()
-	{
-		JMenuBar menuBar = new JMenuBar();
+        DockableFrame consoleFrame = new ConsoleFrame(simulation);
+        consoleFrame.setKey("mimicry.consoleFrame");
+        consoleFrame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
+        consoleFrame.getContext().setInitSide(DockContext.DOCK_SIDE_CENTER);
 
-		JMenu menuFile = new JMenu( "File" );
-		JMenuItem itmExit = new JMenuItem( "Exit" );
+        NetworkBrowserFrame networkBrowser = new NetworkBrowserFrame();
+        networkBrowser.setKey("mimicry.networkBrowser");
+        networkBrowser.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
+        networkBrowser.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
 
-		JMenu menuView = new JMenu( "View" );
-		JCheckBoxMenuItem itmEventLog = new JCheckBoxMenuItem("Event Log");
-		JCheckBoxMenuItem itmSimulationConsole = new JCheckBoxMenuItem("Simulation Console");
-		JCheckBoxMenuItem itmNetworkBrowser= new JCheckBoxMenuItem("Network Browser");
-		JCheckBoxMenuItem itmAppRepo= new JCheckBoxMenuItem("Application Repository");
+        ApplicationRepositoryFrame appRepo = new ApplicationRepositoryFrame();
+        appRepo.setKey("mimicry.applicationRepository");
+        appRepo.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
+        appRepo.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
 
-		JMenu menuHelp = new JMenu( "Help" );
-		JMenuItem itmManual = new JMenuItem( "Show Manual" );
-		JMenuItem itmAbout = new JMenuItem( "About Mimicry ..." );
+        getDockingManager().beginLoadLayoutData();
+        getDockingManager().addFrame(consoleFrame);
+        getDockingManager().addFrame(eventLogFrame);
+        getDockingManager().addFrame(networkBrowser);
+        getDockingManager().addFrame(appRepo);
+        getDockingManager().loadLayoutData();
+    }
 
-		menuBar.add( menuFile );
-		menuFile.add( itmExit );
+    private JMenuBar createMenuBar()
+    {
+        JMenuBar menuBar = new JMenuBar();
 
-		menuBar.add( menuView );
-		menuView.add(itmEventLog);
-		menuView.add(itmSimulationConsole);
-		menuView.add(itmNetworkBrowser);
-		menuView.add(itmAppRepo);
+        JMenu menuFile = new JMenu("File");
+        JMenuItem itmExit = new JMenuItem("Exit");
 
-		menuBar.add( menuHelp );
-		menuHelp.add( itmManual );
-		menuHelp.add( itmAbout );
+        JMenu menuView = new JMenu("View");
+        JCheckBoxMenuItem itmEventLog = new JCheckBoxMenuItem("Event Log");
+        JCheckBoxMenuItem itmSimulationConsole = new JCheckBoxMenuItem("Simulation Console");
+        JCheckBoxMenuItem itmNetworkBrowser = new JCheckBoxMenuItem("Network Browser");
+        JCheckBoxMenuItem itmAppRepo = new JCheckBoxMenuItem("Application Repository");
 
-		itmAbout.addActionListener( new ActionListener()
-		{
-			@Override
-			public void actionPerformed( ActionEvent e )
-			{
-				AboutDialog dlg = new AboutDialog();
-				UIUtils.centerOnScreen( dlg );
-				dlg.setModal( true );
-				dlg.setVisible( true );
-			}
-		} );
-		itmManual.addActionListener( new ActionListener()
-		{
-			@Override
-			public void actionPerformed( ActionEvent e )
-			{
-				if ( Desktop.isDesktopSupported() )
-				{
-					try
-					{
-						File myFile = new File( "Mimicry.pdf" );
-						Desktop.getDesktop().open( myFile );
-					}
-					catch ( IOException ex )
-					{
-						// no application registered for PDFs
-						JOptionPane.showMessageDialog( MainFrame.this,
-								"Can't open PDF file. Opening containing folder instead." );
-						try
-						{
-							Desktop.getDesktop().open( new File( "." ) );
-						}
-						catch ( IOException e1 )
-						{
-							String message = "I'm afraid. I can't open the folder containing the PDF for you. "
-									+ "But it's located at:\n" + new File( "./Mimicry.pdf" ).getAbsolutePath();
-							JOptionPane.showMessageDialog( MainFrame.this, message );
-						}
-					}
-				}
-				else
-				{
-					String message = "I'm afraid. I can't open the PDF for you. But it's located at:\n"
-							+ new File( "./Mimicry.pdf" ).getAbsolutePath();
-					JOptionPane.showMessageDialog( MainFrame.this, message );
-				}
-			}
-		} );
+        JMenu menuHelp = new JMenu("Help");
+        JMenuItem itmManual = new JMenuItem("Show Manual");
+        JMenuItem itmAbout = new JMenuItem("About Mimicry ...");
 
-		return menuBar;
-	}
+        menuBar.add(menuFile);
+        menuFile.add(itmExit);
+
+        menuBar.add(menuView);
+        menuView.add(itmEventLog);
+        menuView.add(itmSimulationConsole);
+        menuView.add(itmNetworkBrowser);
+        menuView.add(itmAppRepo);
+
+        menuBar.add(menuHelp);
+        menuHelp.add(itmManual);
+        menuHelp.add(itmAbout);
+
+        itmAbout.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                AboutDialog dlg = new AboutDialog();
+                UIUtils.centerOnScreen(dlg);
+                dlg.setModal(true);
+                dlg.setVisible(true);
+            }
+        });
+        itmManual.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                if (Desktop.isDesktopSupported())
+                {
+                    try
+                    {
+                        File myFile = new File("Mimicry.pdf");
+                        Desktop.getDesktop().open(myFile);
+                    }
+                    catch (IOException ex)
+                    {
+                        // no application registered for PDFs
+                        JOptionPane.showMessageDialog(MainFrame.this,
+                                "Can't open PDF file. Opening containing folder instead.");
+                        try
+                        {
+                            Desktop.getDesktop().open(new File("."));
+                        }
+                        catch (IOException e1)
+                        {
+                            String message = "I'm afraid. I can't open the folder containing the PDF for you. "
+                                    + "But it's located at:\n" + new File("./Mimicry.pdf").getAbsolutePath();
+                            JOptionPane.showMessageDialog(MainFrame.this, message);
+                        }
+                    }
+                }
+                else
+                {
+                    String message = "I'm afraid. I can't open the PDF for you. But it's located at:\n"
+                            + new File("./Mimicry.pdf").getAbsolutePath();
+                    JOptionPane.showMessageDialog(MainFrame.this, message);
+                }
+            }
+        });
+
+        return menuBar;
+    }
 }

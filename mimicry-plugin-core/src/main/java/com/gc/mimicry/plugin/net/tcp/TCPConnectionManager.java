@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
@@ -45,12 +46,29 @@ public class TCPConnectionManager extends EventHandlerBase
 	}
 
 	@Override
-	public void handleUpstream( Event evt )
+	public void handleUpstream( final Event evt )
 	{
 		if ( evt instanceof SocketConnectionRequest )
 		{
 			SocketConnectionRequest request = (SocketConnectionRequest) evt;
 			handleIncomingConnection( request );
+		}
+		else if ( evt instanceof TCPPortUnreachable )
+		{
+			getScheduler().schedule( new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					SocketConnectionRequest event = getEventFactory().createEvent( SocketConnectionRequest.class,
+							evt.getTargetApplication(), evt.getAssociatedControlFlow(), evt.getSourceApplication() );
+					event.setDestination( ((TCPPortUnreachable) evt).getSource() );
+					event.setSource( ((TCPPortUnreachable) evt).getDestination() );
+					sendDownstream( event );
+				}
+				// Retry connection attempt every 500 milliseconds
+			}, 500, TimeUnit.MILLISECONDS );
 		}
 		else
 		{
@@ -71,6 +89,11 @@ public class TCPConnectionManager extends EventHandlerBase
 		else
 		{
 			// sorry - nobody here to pick up the connection
+			TCPPortUnreachable event = getEventFactory().createEvent( TCPPortUnreachable.class,
+					request.getTargetApplication(), request.getAssociatedControlFlow(), request.getSourceApplication() );
+			event.setSource( request.getDestination() );
+			event.setDestination( request.getSource() );
+			sendDownstream( event );
 		}
 	}
 

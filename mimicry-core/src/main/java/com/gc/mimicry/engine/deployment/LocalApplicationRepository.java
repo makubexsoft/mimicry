@@ -30,7 +30,7 @@ public class LocalApplicationRepository implements ApplicationRepository
         DEFAULT_APP_REPOSITORY = ".mimicry" + File.separator + "repository";
     }
 
-    private final Map<String, ApplicationBundleDescriptor> loadedDescriptors;
+    private final Map<String, ApplicationBundle> loadedDescriptors;
     private final File repositoryPath;
 
     public LocalApplicationRepository() throws IOException
@@ -48,11 +48,11 @@ public class LocalApplicationRepository implements ApplicationRepository
             throw new IOException("Failed to create directories of repository: " + repositoryPath);
         }
 
-        loadedDescriptors = new HashMap<String, ApplicationBundleDescriptor>();
+        loadedDescriptors = new HashMap<String, ApplicationBundle>();
     }
 
     @Override
-    public Set<String> getApplicationNames()
+    public Set<String> listBundles()
     {
         Set<String> appNames = new HashSet<String>();
         for (File f : repositoryPath.listFiles())
@@ -66,25 +66,13 @@ public class LocalApplicationRepository implements ApplicationRepository
     }
 
     @Override
-    public ApplicationBundleDescriptor getApplicationDescriptor(String applicationName)
+    public byte[] loadBundle(String applicationName)
     {
-        ApplicationBundleDescriptor descriptor = loadedDescriptors.get(applicationName);
-        if (descriptor == null)
-        {
-            try
-            {
-                descriptor = loadDescriptor(applicationName);
-                loadedDescriptors.put(applicationName, descriptor);
-            }
-            catch (IOException e)
-            {
-                logger.warn("Failed to load the application descriptor of " + applicationName, e);
-            }
-        }
-        return descriptor;
+        ApplicationBundle bundle = findBundle(applicationName);
+        return IOUtils.readIntoByteArray(bundle.getLocalLocation());
     }
 
-    private ApplicationBundleDescriptor loadDescriptor(String appName) throws IOException
+    private ApplicationBundle loadDescriptor(String appName) throws IOException
     {
         File bundleFile = new File(repositoryPath, appName + ".zip");
         final ZipFile zipFile = new ZipFile(bundleFile);
@@ -98,14 +86,18 @@ public class LocalApplicationRepository implements ApplicationRepository
             Properties props = new Properties();
             props.load(zipFile.getInputStream(entry));
 
-            ApplicationDescriptorBuilder builder = ApplicationDescriptorBuilder.newDescriptor(appName);
-            builder.withBundleLocation(bundleFile);
+            ApplicationBundle.Builder builder = new ApplicationBundle.Builder();
+            builder.withName(appName);
             builder.withMainClass(props.getProperty("Main-Class"));
-            builder.withRunnableJar(props.getProperty("Runnable-Jar"));
             builder.withClassPath(props.getProperty("Class-Path"));
-            for (String s : Splitter.on(",").split(props.getProperty("Supported-OS")))
+            builder.withLocalLocation(bundleFile);
+            String supportedOSs = props.getProperty("Supported-OS");
+            if (supportedOSs != null && !supportedOSs.isEmpty())
             {
-                builder.withSupportedOS(s);
+                for (String s : Splitter.on(",").split(supportedOSs))
+                {
+                    builder.withSupportedOS(s);
+                }
             }
             return builder.build();
         }
@@ -116,14 +108,30 @@ public class LocalApplicationRepository implements ApplicationRepository
     }
 
     @Override
-    public void storeApplication(String appName, InputStream bundleStream) throws IOException
+    public void storeBundle(String appName, InputStream bundleStream) throws IOException
     {
         File bundleFile = new File(repositoryPath, appName + ".zip");
         if (bundleFile.exists())
         {
-            throw new IOException("Application already present in repository at " + bundleFile);
+            bundleFile.delete();
         }
         bundleFile.createNewFile();
         IOUtils.writeToFile(bundleStream, bundleFile);
+    }
+
+    @Override
+    public ApplicationBundle findBundle(String applicationName)
+    {
+        ApplicationBundle descriptor = null;
+        try
+        {
+            descriptor = loadDescriptor(applicationName);
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return descriptor;
     }
 }

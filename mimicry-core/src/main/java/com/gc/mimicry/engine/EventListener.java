@@ -4,7 +4,7 @@ import com.gc.mimicry.engine.event.Event;
 
 
 /**
- * Implement this interface to register yourself as listener to the {@link EventBroker}.
+ * Implement this interface to register yourself as listener to the {@link EventEngine}.
  * 
  * @author Marc-Christian Schulze
  * 

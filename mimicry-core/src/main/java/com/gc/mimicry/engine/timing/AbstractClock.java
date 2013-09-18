@@ -15,7 +15,7 @@ import com.gc.mimicry.bridge.threading.ThreadShutdownListener;
  * @author Marc-Christian Schulze
  * 
  */
-public abstract class AbstractClock implements Clock, ThreadShutdownListener
+public abstract class AbstractClock implements Timeline, ThreadShutdownListener
 {
 
     private static long STATE_CHECKING_DELAY_IN_MILLIS = 10;

@@ -25,6 +25,10 @@ public class FileNameExtensionFilter implements java.io.FilenameFilter
     @Override
     public boolean accept(File dir, String name)
     {
+        if (new File(dir, name).isDirectory())
+        {
+            return true;
+        }
         return name.toLowerCase().endsWith(extension.toLowerCase());
     }
 

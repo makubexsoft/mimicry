@@ -39,6 +39,7 @@ public class ClassPathConfiguration
         this.eventHandlerClassLoader = loader;
         aspectClassPath = new ArrayList<URL>();
         bridgeClassPath = new ArrayList<URL>();
+        appClassPath = new ArrayList<URL>();
         coreClassPath = new ArrayList<URL>();
     }
 
@@ -52,14 +53,19 @@ public class ClassPathConfiguration
         return Collections.unmodifiableList(aspectClassPath);
     }
 
+    public List<URL> getCoreClassPath()
+    {
+        return Collections.unmodifiableList(coreClassPath);
+    }
+
     public List<URL> getBridgeClassPath()
     {
         return Collections.unmodifiableList(bridgeClassPath);
     }
 
-    public List<URL> getCoreClassPath()
+    public List<URL> getAppClassPath()
     {
-        return Collections.unmodifiableList(coreClassPath);
+        return Collections.unmodifiableList(appClassPath);
     }
 
     public void addAspectClassPath(URL p)
@@ -67,18 +73,24 @@ public class ClassPathConfiguration
         aspectClassPath.add(p);
     }
 
+    public void addCoreClassPath(URL p)
+    {
+        coreClassPath.add(p);
+    }
+
     public void addBridgeClassPath(URL p)
     {
         bridgeClassPath.add(p);
     }
 
-    public void addCoreClassPath(URL p)
+    public void addAppClassPath(URL p)
     {
-        coreClassPath.add(p);
+        appClassPath.add(p);
     }
 
     private final ClassLoader eventHandlerClassLoader;
     private final List<URL> aspectClassPath;
     private final List<URL> bridgeClassPath;
     private final List<URL> coreClassPath;
+    private final List<URL> appClassPath;
 }

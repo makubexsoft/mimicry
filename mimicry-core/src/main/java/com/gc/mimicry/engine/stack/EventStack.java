@@ -7,14 +7,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.apps.Application;
 import com.gc.mimicry.engine.event.Event;
-import com.gc.mimicry.engine.nodes.Node;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.local.LocalNode;
 import com.gc.mimicry.engine.timing.ClockBasedScheduler;
 import com.gc.mimicry.engine.timing.Scheduler;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.util.ProxyFactory;
 import com.gc.mimicry.util.concurrent.ValueFuture;
 import com.google.common.base.Preconditions;
@@ -22,27 +21,27 @@ import com.google.common.base.Preconditions;
 /**
  * This is a stack of {@link EventHandler} which define the actual behaviour of the simulated infrastructure.
  * Information is passing the {@link EventStack} as so-called {@link Event}s. When events are passed down in the stack,
- * e.g. from the application to the {@link EventBroker}, they are called downstream events. {@link Event}s that are
- * passed up in the stack, e.g. from the {@link EventBroker} to the {@link Application}, are called upstream events.
- * Each handler within the stack is able to forward, suppress, multiple or demultiplex events. On top of each
+ * e.g. from the application to the {@link EventEngine}, they are called downstream events. {@link Event}s that are
+ * passed up in the stack, e.g. from the {@link EventEngine} to the {@link LocalJVMApplication}, are called upstream
+ * events. Each handler within the stack is able to forward, suppress, multiple or demultiplex events. On top of each
  * {@link EventStack} a so-called {@link EventBridge} is located which filters and dispatches events for the
- * {@link Application}s running on the {@link Node}. Events that are not targeted for an application are discarded by
- * the event bridge.
+ * {@link LocalJVMApplication}s running on the {@link LocalNode}. Events that are not targeted for an application are
+ * discarded by the event bridge.
  * 
  * @author Marc-Christian Schulze
  * 
  */
 public class EventStack implements EventListener
 {
-    private final Node node;
+    private final LocalNode node;
     private final List<EventHandler> handlerList;
-    private final EventBroker eventBroker;
+    private final EventEngine eventBroker;
     private final EventBridge eventBridge;
     private final EventListener brokerListener;
 
     /**
-     * Constructs an empty event stack associated to the given {@link Node} and {@link EventBridge}. This instance will
-     * itself register as listener to and passes all downstream events finally to the given {@link EventBroker}.
+     * Constructs an empty event stack associated to the given {@link LocalNode} and {@link EventBridge}. This instance
+     * will itself register as listener to and passes all downstream events finally to the given {@link EventEngine}.
      * 
      * @param node
      *            The node to associate the event stack with.
@@ -51,7 +50,7 @@ public class EventStack implements EventListener
      * @param eventBridge
      *            The event bridge to use for dispatching upstream events towards the applications.
      */
-    public EventStack(Node node, EventBroker eventBroker, EventBridge eventBridge)
+    public EventStack(LocalNode node, EventEngine eventBroker, EventBridge eventBridge)
     {
         Preconditions.checkNotNull(node);
         Preconditions.checkNotNull(eventBroker);
@@ -67,7 +66,7 @@ public class EventStack implements EventListener
             @Override
             public void handleEvent(Event evt)
             {
-                sendUpstream(handlerList.size() - 1, evt);
+                sendUpstream(handlerList.size(), evt);
             }
         };
         eventBroker.addEventListener(brokerListener);
@@ -81,7 +80,7 @@ public class EventStack implements EventListener
      * 
      * @return The associated node of this stack.
      */
-    public Node getNode()
+    public LocalNode getNode()
     {
         return node;
     }
@@ -206,7 +205,7 @@ public class EventStack implements EventListener
      * 
      * @param clock
      */
-    public void init(Clock clock)
+    public void init(Timeline clock)
     {
         int index = 0;
         for (EventHandler handler : handlerList)

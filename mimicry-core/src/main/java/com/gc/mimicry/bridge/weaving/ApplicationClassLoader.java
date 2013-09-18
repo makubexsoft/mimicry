@@ -2,6 +2,7 @@ package com.gc.mimicry.bridge.weaving;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.util.ClassPathUtil;
+import com.gc.mimicry.util.Collections;
 
 /**
  * Specialized class loader for simulated applications. It applies the given aspects to the loaded classes. Internally
@@ -40,10 +42,13 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
     }
     private final ByteCodeEnhancer enhancer;
 
-    ApplicationClassLoader(Collection<URL> classPath, Collection<URL> aspects, ClassLoader topLevelClassLoader)
+    ApplicationClassLoader(Collection<URL> appCP, Collection<URL> classPath, Collection<URL> aspects,
+            ClassLoader topLevelClassLoader)
     {
-        super(ClassPathUtil.getSystemClassPath().toArray(new URL[0]), aspects.toArray(new URL[0]), new MyParentLoader(
-                classPath, aspects, topLevelClassLoader));
+        /* ClassPathUtil.getSystemClassPath() */
+        super(Collections.merge(new ArrayList<URL>(ClassPathUtil.getSystemClassPath()), new ArrayList<URL>(appCP))
+                .toArray(new URL[0]), aspects.toArray(new URL[0]), new MyParentLoader(classPath, aspects,
+                topLevelClassLoader));
         ((MyParentLoader) getParent()).setChild(this);
 
         enhancer = new DefaultByteCodeEnhancer();
@@ -56,7 +61,8 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
         classPath.addAll(config.getAspectClassPath());
         classPath.addAll(config.getBridgeClassPath());
 
-        return new ApplicationClassLoader(classPath, config.getAspectClassPath(), topLevelClassLoader);
+        return new ApplicationClassLoader(config.getAppClassPath(), classPath, config.getAspectClassPath(),
+                topLevelClassLoader);
     }
 
     public static ApplicationClassLoader create(ClassPathConfiguration config, Collection<URL> applicationClassPath,
@@ -66,7 +72,8 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
         classPath.addAll(config.getAspectClassPath());
         classPath.addAll(config.getBridgeClassPath());
 
-        return new ApplicationClassLoader(classPath, config.getAspectClassPath(), topLevelClassLoader);
+        return new ApplicationClassLoader(config.getAppClassPath(), classPath, config.getAspectClassPath(),
+                topLevelClassLoader);
     }
 
     @Override
@@ -88,7 +95,7 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException
     {
-        if (name.startsWith("com.gc.mimicry.") || name.startsWith("org.aspectj") || name.startsWith("javassist"))
+        if (name.startsWith("com.gc.mimicry.") || name.startsWith("javassist") || name.startsWith("org.aspectj"))
         {
             throw new ClassNotFoundException(name);
         }
@@ -169,7 +176,7 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
             // STAGE-2
             //
             Class<?> c = getParent().loadClass(name);
-            if (logger.isDebugEnabled())
+            if (c != null && logger.isDebugEnabled())
             {
                 logger.debug("[STAGE-2] " + name);
             }

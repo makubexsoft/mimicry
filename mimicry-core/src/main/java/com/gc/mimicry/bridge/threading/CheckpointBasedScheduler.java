@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.Timeline;
 
 /**
  * A thread scheduler based on checkpoints. A checkpoint is reached when all threads are either:
@@ -36,7 +36,7 @@ public class CheckpointBasedScheduler extends BasicScheduler
     private Deque<IManagedThread> monitorAcquireOrder;
     private final Object checkpointSignal = new Object();
 
-    public CheckpointBasedScheduler(Clock clock)
+    public CheckpointBasedScheduler(Timeline clock)
     {
         super(clock);
         threadStates = new ConcurrentHashMap<IManagedThread, ThreadState>();

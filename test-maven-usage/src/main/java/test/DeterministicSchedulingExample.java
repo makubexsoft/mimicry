@@ -7,14 +7,14 @@ import org.aspectj.weaver.tools.Trace;
 import org.aspectj.weaver.tools.TraceFactory;
 import org.aspectj.weaver.tools.WeavingAdaptor;
 
+import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
-import com.gc.mimicry.engine.Application;
 import com.gc.mimicry.engine.ApplicationContext;
-import com.gc.mimicry.engine.Applications;
 import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.engine.EntryPoint;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.local.Applications;
+import com.gc.mimicry.engine.local.LocalApplication;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.SystemClock;
 
@@ -52,7 +52,7 @@ public class DeterministicSchedulingExample
         ctx.setClock(new SystemClock());
         ctx.setEventBridge(eventBridge);
         Thread.currentThread().setContextClassLoader( loader );
-        Application app = Applications.create(ctx, new EntryPoint()
+        LocalApplication app = Applications.create(ctx, new EntryPoint()
         {
             @Override
             public void main(String[] args)

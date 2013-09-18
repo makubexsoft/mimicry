@@ -16,8 +16,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import com.gc.mimicry.engine.Simulation;
-import com.gc.mimicry.engine.timing.Clock;
-import com.gc.mimicry.engine.timing.ClockType;
+import com.gc.mimicry.engine.timing.Timeline;
+import com.gc.mimicry.engine.timing.TimelineType;
 import com.gc.mimicry.engine.timing.DiscreteClock;
 import com.gc.mimicry.engine.timing.RealtimeClock;
 import com.gc.mimicry.ext.timing.ClockController;
@@ -41,7 +41,7 @@ public class TimelineWindowPlugin extends JDialog
 {
 	private static final long		serialVersionUID	= -4651671250679512290L;
 	private boolean					clockRunning;
-	private Clock					localClock;
+	private Timeline					localClock;
 	private final ClockDriver		clockDriver;
 	private Thread					updateThread;
 	private final Simulation	network;
@@ -61,9 +61,9 @@ public class TimelineWindowPlugin extends JDialog
 		this.network = network;
 		this.clockCtrl = clockCtrl;
 		createUIComponents();
-		long initialMillis = network.getConfig().getInitialTimeMillis();
+		long initialMillis = network.getParameters().getInitialTimeMillis();
 
-		if ( network.getConfig().getClockType() == ClockType.REALTIME )
+		if ( network.getParameters().getTimelineType() == TimelineType.REALTIME )
 		{
 			localClock = new RealtimeClock( initialMillis );
 			setupRealtimeBehaviour();
@@ -75,7 +75,7 @@ public class TimelineWindowPlugin extends JDialog
 			setupDiscreteBehaviour();
 			tabbedPane.remove( panRealtime );
 		}
-		clockDriver = new ClockDriver( network.getEventBroker(), localClock );
+		clockDriver = new ClockDriver( network.getEventEngine(), localClock );
 
 		startCurrentTimeUpdateThread();
 

@@ -13,10 +13,10 @@ import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gc.mimicry.bridge.ControlFlow;
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.threading.ManagedThread;
-import com.gc.mimicry.engine.ControlFlow;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.event.EventFactory;

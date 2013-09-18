@@ -3,53 +3,62 @@ package test.com.gc.mimicry.bridge.threading;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.netsim.junit.MimicryTestRunner;
 
+import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.threading.CheckpointBasedScheduler;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
-import com.gc.mimicry.engine.Application;
 import com.gc.mimicry.engine.ApplicationContext;
-import com.gc.mimicry.engine.Applications;
 import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.engine.EntryPoint;
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
+import com.gc.mimicry.engine.NodeParameters;
 import com.gc.mimicry.engine.SimpleEventBroker;
-import com.gc.mimicry.engine.nodes.Node;
-import com.gc.mimicry.engine.nodes.NodeConfiguration;
-import com.gc.mimicry.engine.nodes.NodeManager;
+import com.gc.mimicry.engine.SimulationParameters;
+import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
+import com.gc.mimicry.engine.local.Applications;
+import com.gc.mimicry.engine.local.LocalApplication;
+import com.gc.mimicry.engine.local.LocalEngine;
+import com.gc.mimicry.engine.local.LocalNode;
+import com.gc.mimicry.engine.local.LocalSession;
 import com.gc.mimicry.engine.timing.SystemClock;
+import com.gc.mimicry.engine.timing.TimelineType;
 import com.gc.mimicry.ext.stdio.ConsoleInputStream;
 
 //@RunWith(MimicryTestRunner.class)
-public class TestThreadScheduler
+public class TestThreadScheduler implements Serializable
 {
-	private  ApplicationContext ctx;
-	private  EventBroker broker;
-	private  BufferedReader errReader;
-	private  BufferedReader outReader;
+	private transient  ApplicationContext ctx;
+	private transient  EventEngine broker;
+	private transient  BufferedReader errReader;
+	private transient  BufferedReader outReader;
 	
 	@Before
 	public void setUp() throws Exception
 	{
-		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
+		// Global configuration
+        LocalApplicationRepository appRepo = new LocalApplicationRepository();
+        File workspace = new File("C:/tmp/mimicry");
+
+        // Infrastructure
         broker = new SimpleEventBroker();
+        
+		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
         SystemClock clock = new SystemClock();
-        NodeManager nodeMgr = new NodeManager(config, broker, clock);
-        Node node = nodeMgr.createNode(new NodeConfiguration("myNode"));
+        LocalNode node = new LocalNode("myNode", broker, new SystemClock(), appRepo, workspace );
 
         ClassLoader loader = ApplicationClassLoader.create(config, TestThreadScheduler.class.getClassLoader());
-         ctx = new ApplicationContext();
+        ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(clock);
         ctx.setEventBridge(node.getEventBridge());
         Thread.currentThread().setContextClassLoader(loader);
-	}
+	} 
 	
 	/**
 	 * Tests whether thread 1 is always executed before thread 2 and the number is incremented atomically 
@@ -125,7 +134,7 @@ public class TestThreadScheduler
     
     private void runTest(final TestRunnable target) throws Exception
     {
-    	Application app = Applications.create(ctx, new EntryPoint()
+    	LocalApplication app = Applications.create(ctx, new EntryPoint()
         {
             @Override
             public void main(String[] args)

@@ -3,6 +3,10 @@ package com.gc.mimicry;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 
+import java.io.File;
+import java.util.HashSet;
+import java.util.UUID;
+
 import javax.swing.UIManager;
 
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
@@ -11,14 +15,18 @@ import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.gc.mimicry.engine.ClassPathConfiguration;
+import com.gc.mimicry.engine.AlwaysFirstNodeStrategy;
+import com.gc.mimicry.engine.Session;
+import com.gc.mimicry.engine.SimpleEventBroker;
 import com.gc.mimicry.engine.Simulation;
-import com.gc.mimicry.engine.StandaloneSimulation;
+import com.gc.mimicry.engine.SimulationParameters;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
 import com.gc.mimicry.engine.event.DefaultEventFactory;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
+import com.gc.mimicry.engine.local.LocalEngine;
+import com.gc.mimicry.engine.timing.TimelineType;
 import com.gc.mimicry.ext.timing.ClockController;
 import com.gc.mimicry.util.concurrent.Future;
 
@@ -43,16 +51,26 @@ public class Main
 
 		setLaF();
 
-		// Create context
-		ClassPathConfiguration ctx = ClassPathConfiguration.deriveFromClassPath();
+		// Global configuration
+		LocalApplicationRepository appRepo = new LocalApplicationRepository();
+		File workspace = new File( "C:/tmp/mimicry" );
 
-		// Create simulation
-		Simulation network = new StandaloneSimulation( ctx );
+		// Infrastructure
+		SimpleEventBroker broker = new SimpleEventBroker();
+		LocalEngine engine = new LocalEngine( broker, appRepo, workspace );
 
-		ApplicationRepository appRepo = new LocalApplicationRepository();
-		runSimulationScript( args, appRepo, network );
+		// Simulation specific configuration
+		SimulationParameters simuParams = new SimulationParameters();
+		simuParams.setTimelineType( TimelineType.SYSTEM );
 
-		Future<?> endFuture = network.getSimulationEndFuture();
+		// Setup
+		HashSet<Session> sessions = new HashSet<Session>();
+		sessions.add( engine.createSession( UUID.randomUUID(), simuParams ) );
+		Simulation simu = new Simulation( sessions, new AlwaysFirstNodeStrategy() );
+
+		runSimulationScript( args, appRepo, simu );
+
+		Future<?> endFuture = simu.getSimulationEndFuture();
 		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
 	}
 
@@ -60,7 +78,7 @@ public class Main
 			throws Exception
 	{
 		EventFactory eventFactory = DefaultEventFactory.create( Identity.create( "Simulation-Script" ) );
-		ClockController clockController = new ClockController( network.getEventBroker(), eventFactory );
+		ClockController clockController = new ClockController( network.getEventEngine(), eventFactory );
 
 		Binding binding = new Binding();
 		binding.setVariable( "simulation", network );

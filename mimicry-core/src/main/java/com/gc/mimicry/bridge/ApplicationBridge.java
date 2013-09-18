@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.engine.stack.EventBridge;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.google.common.base.Preconditions;
 
 /**
@@ -34,7 +34,7 @@ public class ApplicationBridge
         {
             bridgeClass = classLoader.loadClass(BRIDGE_CLASS_NAME);
             setIdMethod = bridgeClass.getDeclaredMethod(SET_ID_METHOD_NAME, ThreadManager.class);
-            setClockMethod = bridgeClass.getDeclaredMethod(SET_CLOCK_METHOD_NAME, Clock.class);
+            setClockMethod = bridgeClass.getDeclaredMethod(SET_CLOCK_METHOD_NAME, Timeline.class);
             setEventBridgeMethod = bridgeClass.getDeclaredMethod(SET_EVENT_BRIDGE_METHOD_NAME, EventBridge.class);
         }
         catch (Exception e)
@@ -56,7 +56,7 @@ public class ApplicationBridge
         }
     }
 
-    public void setClock(Clock c)
+    public void setTimeline(Timeline c)
     {
         Preconditions.checkNotNull(c);
         try

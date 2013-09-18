@@ -8,14 +8,14 @@ import java.net.MalformedURLException;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
-import com.gc.mimicry.engine.Application;
 import com.gc.mimicry.engine.ApplicationContext;
-import com.gc.mimicry.engine.Applications;
 import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.engine.EntryPoint;
+import com.gc.mimicry.engine.local.Applications;
+import com.gc.mimicry.engine.local.LocalApplication;
 import com.gc.mimicry.engine.stack.EventBridge;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.engine.timing.SystemClock;
 import com.gc.mimicry.util.concurrent.Future;
 
@@ -38,7 +38,7 @@ public class TestApplicationClassLoader
     @Test
     public void testRunEmptyApplication() throws Exception
     {
-        Application app = Applications.create(ctx, new EntryPoint()
+        LocalApplication app = Applications.create(ctx, new EntryPoint()
         {
             @Override
             public void main(String[] args)
@@ -51,7 +51,7 @@ public class TestApplicationClassLoader
     @Test
     public void testCanStopInifiteLoop() throws Exception
     {
-        Application app = Applications.create(ctx, new EntryPoint()
+        LocalApplication app = Applications.create(ctx, new EntryPoint()
         {
             @Override
             public void main(String[] args)
@@ -74,9 +74,9 @@ public class TestApplicationClassLoader
     @Test
     public void testLoadsCoreClassesAtStage2() throws Exception
     {
-        Class<?> loadedClass = ctx.getClassLoader().loadClass(Clock.class.getName());
+        Class<?> loadedClass = ctx.getClassLoader().loadClass(Timeline.class.getName());
 
-        assertTrue(Clock.class == loadedClass);
+        assertTrue(Timeline.class == loadedClass);
     }
 
     //

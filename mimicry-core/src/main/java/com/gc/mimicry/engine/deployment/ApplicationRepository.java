@@ -12,10 +12,11 @@ import java.util.Set;
  */
 public interface ApplicationRepository
 {
+    public Set<String> listBundles();
 
-    public Set<String> getApplicationNames();
+    public ApplicationBundle findBundle(String applicationName);
 
-    public ApplicationBundleDescriptor getApplicationDescriptor(String applicationName);
+    public byte[] loadBundle(String applicationName);
 
-    public void storeApplication(String appName, InputStream bundleStream) throws IOException;
+    public void storeBundle(String appName, InputStream bundleStream) throws IOException;
 }

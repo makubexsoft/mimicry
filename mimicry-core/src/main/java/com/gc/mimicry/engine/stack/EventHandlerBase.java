@@ -1,14 +1,13 @@
 package com.gc.mimicry.engine.stack;
 
-import com.gc.mimicry.engine.EventBroker;
-import com.gc.mimicry.engine.apps.Application;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.event.DefaultEventFactory;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
-import com.gc.mimicry.engine.nodes.Node;
-import com.gc.mimicry.engine.timing.Clock;
+import com.gc.mimicry.engine.local.LocalNode;
 import com.gc.mimicry.engine.timing.Scheduler;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.google.common.base.Preconditions;
 
 /**
@@ -26,7 +25,7 @@ public class EventHandlerBase implements EventHandler
     }
 
     @Override
-    final public void init(EventHandlerContext ctx, Scheduler scheduler, Clock clock)
+    final public void init(EventHandlerContext ctx, Scheduler scheduler, Timeline clock)
     {
         Preconditions.checkNotNull(ctx);
         Preconditions.checkNotNull(scheduler);
@@ -45,7 +44,7 @@ public class EventHandlerBase implements EventHandler
         return scheduler;
     }
 
-    final public Clock getClock()
+    final public Timeline getClock()
     {
         return clock;
     }
@@ -86,7 +85,7 @@ public class EventHandlerBase implements EventHandler
      * 
      * @param evt
      *            The event received either from an {@link EventHandler} higher in the {@link EventStack} or one of the
-     *            {@link Application} running this {@link Node}.
+     *            {@link LocalJVMApplication} running this {@link LocalNode}.
      */
     protected void sendUpstream(Event evt)
     {
@@ -95,13 +94,13 @@ public class EventHandlerBase implements EventHandler
 
     /**
      * Send the given event to the next event handler downstream in the {@link EventStack}. Once the bottom of the
-     * {@link EventStack} is reached the event is dispatched using the {@link EventBroker} to the event stacks of all
+     * {@link EventStack} is reached the event is dispatched using the {@link EventEngine} to the event stacks of all
      * other nodes.If you override this method make sure that you pass all events not of your interest downstream.
      * Otherwise you would suppress the event.
      * 
      * @param evt
      *            The event received either from an {@link EventHandler} lower in the {@link EventStack} or the
-     *            {@link EventBroker}.
+     *            {@link EventEngine}.
      */
     protected void sendDownstream(Event evt)
     {
@@ -131,6 +130,6 @@ public class EventHandlerBase implements EventHandler
     private final EventFactory eventFactory;
     private final Identity identity;
     private Scheduler scheduler;
-    private Clock clock;
+    private Timeline clock;
     private EventHandlerContext context;
 }

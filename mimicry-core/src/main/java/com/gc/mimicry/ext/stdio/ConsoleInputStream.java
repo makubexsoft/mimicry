@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.EventBroker;
+import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
@@ -15,14 +15,14 @@ import com.google.common.base.Preconditions;
 
 public class ConsoleInputStream extends InputStream
 {
-    private final EventBroker eventBroker;
+    private final EventEngine eventBroker;
     private final UUID applicationId;
     private final EventReceiver receiver;
     private final ByteBuffer buffer;
     private final InputStream bufferStream;
     private final boolean stdout;
 
-    private ConsoleInputStream(EventBroker eventBroker, UUID applicationId, boolean stdout)
+    private ConsoleInputStream(EventEngine eventBroker, UUID applicationId, boolean stdout)
     {
         Preconditions.checkNotNull(eventBroker);
         Preconditions.checkNotNull(applicationId);
@@ -38,12 +38,12 @@ public class ConsoleInputStream extends InputStream
         eventBroker.addEventListener(receiver);
     }
 
-    public static ConsoleInputStream attachStdout(EventBroker eventBroker, UUID applicationId)
+    public static ConsoleInputStream attachStdout(EventEngine eventBroker, UUID applicationId)
     {
         return new ConsoleInputStream(eventBroker, applicationId, true);
     }
 
-    public static ConsoleInputStream attachStderr(EventBroker eventBroker, UUID applicationId)
+    public static ConsoleInputStream attachStderr(EventEngine eventBroker, UUID applicationId)
     {
         return new ConsoleInputStream(eventBroker, applicationId, false);
     }
