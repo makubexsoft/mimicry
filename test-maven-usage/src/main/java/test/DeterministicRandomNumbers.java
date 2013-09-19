@@ -33,7 +33,7 @@ public class DeterministicRandomNumbers
             	if(evt instanceof ConsoleOutputEvent)
             	{
             		ConsoleOutputEvent e = (ConsoleOutputEvent)evt;
-            		System.out.println("[console] " + new String(e.getData()));
+            		System.out.print("[console] " + new String(e.getData()));
             	}
             }
         });
@@ -47,7 +47,7 @@ public class DeterministicRandomNumbers
         LocalApplication app = Applications.create(ctx, new RandomNumberTest());
         
         app.start();
-        app.getTerminationFuture().awaitUninterruptibly(50000);
+        app.getTerminationFuture().awaitUninterruptibly(5000);
 	}
 }
 

@@ -1,6 +1,6 @@
 package com.gc.mimicry.bridge.threading;
 
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,7 +60,11 @@ public class BasicScheduler implements ThreadScheduler
         Preconditions.checkNotNull(clock);
         this.clock = clock;
 
-        monitorOwnerships = new HashMap<Object, MonitorState>();
+        // Important not to use the typical HashMap since
+        // the user code might synchronize on mutable data structures
+        // which leads to changing hash codes over time so that
+        // we no longer can match our monitors!
+        monitorOwnerships = new IdentityHashMap<Object, MonitorState>();
         waitingThreads = HashBasedTable.create();
     }
 
