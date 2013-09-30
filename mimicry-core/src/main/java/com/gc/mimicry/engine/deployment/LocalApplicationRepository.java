@@ -51,6 +51,11 @@ public class LocalApplicationRepository implements ApplicationRepository
         loadedDescriptors = new HashMap<String, ApplicationBundle>();
     }
 
+    public static File getDefaultPath()
+    {
+        return new File(System.getProperty("user.home"), DEFAULT_APP_REPOSITORY);
+    }
+
     @Override
     public Set<String> listBundles()
     {

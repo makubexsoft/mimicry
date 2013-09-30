@@ -4,7 +4,6 @@ import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.UUID;
 
 import javax.swing.UIManager;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.gc.mimicry.engine.AlwaysFirstNodeStrategy;
-import com.gc.mimicry.engine.Session;
 import com.gc.mimicry.engine.SimpleEventBroker;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.SimulationParameters;
@@ -64,9 +62,12 @@ public class Main
 		simuParams.setTimelineType( TimelineType.SYSTEM );
 
 		// Setup
-		HashSet<Session> sessions = new HashSet<Session>();
-		sessions.add( engine.createSession( UUID.randomUUID(), simuParams ) );
-		Simulation simu = new Simulation( sessions, new AlwaysFirstNodeStrategy() );
+		Simulation.Builder builder = new Simulation.Builder();
+		builder.withNodeDistributionStrategy( new AlwaysFirstNodeStrategy() );
+		builder.withEventEngine( broker );
+		builder.withSimulationParameters( simuParams );
+		builder.addSession( engine.createSession( UUID.randomUUID(), simuParams ) );
+		Simulation simu = builder.build();
 
 		runSimulationScript( args, appRepo, simu );
 

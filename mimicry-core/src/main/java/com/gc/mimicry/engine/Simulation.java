@@ -1,6 +1,10 @@
 package com.gc.mimicry.engine;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
@@ -14,23 +18,65 @@ public class Simulation
 {
     private final Set<Session> sessions;
     private final NodeDistributionStrategy distStrategy;
+    private final EventEngine engine;
+    private final SimulationParameters params;
+    private final List<Node> nodes;
 
-    public Simulation(Set<Session> sessions, NodeDistributionStrategy distStrategy)
+    private Simulation(Set<Session> sessions, NodeDistributionStrategy distStrategy, EventEngine engine,
+            SimulationParameters params)
     {
         Preconditions.checkNotNull(sessions);
         Preconditions.checkNotNull(distStrategy);
+        Preconditions.checkNotNull(engine);
+        Preconditions.checkNotNull(params);
+
         this.sessions = sessions;
         this.distStrategy = distStrategy;
+        this.engine = engine;
+        this.params = params;
+
+        nodes = new ArrayList<Node>();
+    }
+
+    public List<Node> getNodes()
+    {
+        return nodes;
+    }
+
+    public Node getNodeByName(String name)
+    {
+        for (Node node : nodes)
+        {
+            if (node.getName().equals(name))
+            {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public Node getNodeById(UUID id)
+    {
+        for (Node node : nodes)
+        {
+            if (node.getId().equals(id))
+            {
+                return node;
+            }
+        }
+        return null;
     }
 
     public Node createNode(NodeParameters params)
     {
-        return distStrategy.createNode(sessions, params);
+        Node node = distStrategy.createNode(sessions, params);
+        nodes.add(node);
+        return node;
     }
 
     public SimulationParameters getParameters()
     {
-        return null;
+        return params;
     }
 
     /**
@@ -41,7 +87,7 @@ public class Simulation
      */
     public EventEngine getEventEngine()
     {
-        return null;
+        return engine;
     }
 
     /**
@@ -62,5 +108,42 @@ public class Simulation
     public Future<?> getSimulationEndFuture()
     {
         return null;
+    }
+
+    public static class Builder
+    {
+        private NodeDistributionStrategy strategy;
+        private final Set<Session> sessions = new HashSet<Session>();
+        private EventEngine engine;
+        private SimulationParameters params;
+
+        public Builder withNodeDistributionStrategy(NodeDistributionStrategy strategy)
+        {
+            this.strategy = strategy;
+            return this;
+        }
+
+        public Builder withSimulationParameters(SimulationParameters params)
+        {
+            this.params = params;
+            return this;
+        }
+
+        public Builder withEventEngine(EventEngine engine)
+        {
+            this.engine = engine;
+            return this;
+        }
+
+        public Builder addSession(Session session)
+        {
+            sessions.add(session);
+            return this;
+        }
+
+        public Simulation build()
+        {
+            return new Simulation(sessions, strategy, engine, params);
+        }
     }
 }

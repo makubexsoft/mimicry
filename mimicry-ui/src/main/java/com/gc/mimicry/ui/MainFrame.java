@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.UUID;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -17,7 +16,6 @@ import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
 
 import com.gc.mimicry.engine.AlwaysFirstNodeStrategy;
-import com.gc.mimicry.engine.Session;
 import com.gc.mimicry.engine.SimpleEventBroker;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.SimulationParameters;
@@ -63,8 +61,10 @@ public class MainFrame extends DefaultDockableHolder
         try
         {
             // Global configuration
-            LocalApplicationRepository appRepo = new LocalApplicationRepository();
-            File workspace = new File("C:/tmp/mimicry");
+            String defaultPath = LocalApplicationRepository.getDefaultPath().getAbsolutePath();
+            File repoPath = new File(Settings.getValue(Settings.REPO_PATH, defaultPath));
+            LocalApplicationRepository appRepo = new LocalApplicationRepository(repoPath);
+            File workspace = new File(Settings.getValue(Settings.WORKSPACE_PATH));
 
             // Infrastructure
             SimpleEventBroker broker = new SimpleEventBroker();
@@ -75,11 +75,14 @@ public class MainFrame extends DefaultDockableHolder
             simuParams.setTimelineType(TimelineType.SYSTEM);
 
             // Setup
-            HashSet<Session> sessions = new HashSet<Session>();
-            sessions.add(engine.createSession(UUID.randomUUID(), simuParams));
-            Simulation simu = new Simulation(sessions, new AlwaysFirstNodeStrategy());
+            Simulation.Builder builder = new Simulation.Builder();
+            builder.withNodeDistributionStrategy(new AlwaysFirstNodeStrategy());
+            builder.withEventEngine(broker);
+            builder.withSimulationParameters(simuParams);
+            builder.addSession(engine.createSession(UUID.randomUUID(), simuParams));
+            Simulation simu = builder.build();
 
-            createFrames(simu);
+            createFrames(simu, appRepo);
         }
         catch (IOException e)
         {
@@ -88,7 +91,7 @@ public class MainFrame extends DefaultDockableHolder
         }
     }
 
-    private void createFrames(Simulation simulation)
+    private void createFrames(Simulation simulation, LocalApplicationRepository repo)
     {
         DockableFrame eventLogFrame = new EventLogFrame(simulation);
         eventLogFrame.setKey("mimicry.eventLog");
@@ -105,7 +108,7 @@ public class MainFrame extends DefaultDockableHolder
         networkBrowser.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         networkBrowser.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);
 
-        ApplicationRepositoryFrame appRepo = new ApplicationRepositoryFrame();
+        ApplicationRepositoryFrame appRepo = new ApplicationRepositoryFrame(repo);
         appRepo.setKey("mimicry.applicationRepository");
         appRepo.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         appRepo.getContext().setInitSide(DockContext.DOCK_SIDE_WEST);

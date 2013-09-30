@@ -11,4 +11,11 @@ public interface Node
     public UUID getId();
 
     public String getName();
+
+    /**
+     * Returns information on the engine that hosts this node.
+     * 
+     * @return
+     */
+    public EngineInfo getEngineInfo();
 }

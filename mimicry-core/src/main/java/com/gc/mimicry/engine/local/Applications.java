@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import com.gc.mimicry.bridge.EntryPoint;
+import com.gc.mimicry.bridge.threading.CheckpointBasedScheduler;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.googlecode.transloader.DefaultTransloader;
 import com.googlecode.transloader.ObjectWrapper;
@@ -16,8 +17,8 @@ import com.googlecode.transloader.clone.reflect.ReflectionCloningStrategy;
 
 public class Applications
 {
-    public static LocalApplication create(final ApplicationContext ctx, EntryPoint runnable) throws ClassNotFoundException,
-            NoSuchMethodException, SecurityException
+    public static LocalApplication create(final ApplicationContext ctx, EntryPoint runnable)
+            throws ClassNotFoundException, NoSuchMethodException, SecurityException
     {
         final EntryPoint entryPoint = bridge(ctx.getClassLoader(), runnable);
 
@@ -48,7 +49,7 @@ public class Applications
                 thread.start();
             }
         };
-        return new LocalApplication(ctx, r);
+        return new LocalApplication(ctx, r, new CheckpointBasedScheduler(ctx.getClock()));
     }
 
     private static EntryPoint bridge(ClassLoader loader, EntryPoint runnable)
@@ -65,8 +66,8 @@ public class Applications
         return (EntryPoint) someObjectWrapped.cloneWith(loader);
     }
 
-    public static LocalApplication create(final ApplicationContext ctx, String mainClassName) throws NoSuchMethodException,
-            SecurityException, ClassNotFoundException
+    public static LocalApplication create(final ApplicationContext ctx, String mainClassName)
+            throws NoSuchMethodException, SecurityException, ClassNotFoundException
     {
         Class<?> mainClass = ctx.getClassLoader().loadClass(mainClassName);
         final Method mainMethod = mainClass.getMethod("main", String[].class);
@@ -98,6 +99,6 @@ public class Applications
                 thread.start();
             }
         };
-        return new LocalApplication(ctx, r);
+        return new LocalApplication(ctx, r, new CheckpointBasedScheduler(ctx.getClock()));
     }
 }

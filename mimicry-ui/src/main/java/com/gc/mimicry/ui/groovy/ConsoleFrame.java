@@ -3,19 +3,21 @@ package com.gc.mimicry.ui.groovy;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.GroovyShell;
-import groovy.swing.SwingBuilder;
 import groovy.ui.Console;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -40,51 +42,18 @@ public class ConsoleFrame extends DockableFrame implements RootPaneContainer
 {
     private static final long serialVersionUID = 3114381363570076039L;
 
+    private Console console;
     private JTree treeScriptDir;
 
     public ConsoleFrame(final Simulation simu)
     {
         setTitle("Simulation Console");
+        setLayout(new BorderLayout());
 
         Console.setCaptureStdErr(false);
         Console.setCaptureStdOut(false);
 
-        final Console console = new Console()
-        {
-            @Override
-            public void newScript(ClassLoader parent, Binding binding)
-            {
-                setShell(createShell(simu));
-            };
-
-            @Override
-            public void exit(EventObject evt)
-            {
-                /* suppress */
-            }
-
-            @Override
-            public void exit()
-            {
-                /* suppress */
-            }
-
-            @Override
-            public void fileNewWindow()
-            {
-                /*
-                 * we don't support multiple console instances due to threading issues
-                 */
-            }
-
-            @Override
-            public void fileNewWindow(EventObject evt)
-            {
-                /*
-                 * we don't support multiple console instances due to threading issues
-                 */
-            }
-        };
+        console = new MyConsole(simu);
 
         Map<String, Object> config = new HashMap<String, Object>();
         config.put("rootContainerDelegate", new Closure<DockableFrame>(this)
@@ -104,24 +73,68 @@ public class ConsoleFrame extends DockableFrame implements RootPaneContainer
             @Override
             public Void call(Object... args)
             {
-                SwingBuilder builder = console.getSwing();
-                setJMenuBar((JMenuBar) (builder.build((Class<?>) args[0])));
+                // SwingBuilder builder = console.getSwing();
+                // setJMenuBar((JMenuBar) (builder.build((Class<?>) args[0])));
                 return null;
             }
         });
 
         console.setShowScriptInOutput(false);
-        console.setShell(createShell(simu));
+        console.setShowToolbar(false);
         console.run(config);
+        console.getStatusLabel().setText("");
+
+        JPanel toolbar = createToolbar();
 
         // Add additional splitter for script directory view
         JSplitPane hsplit = console.getSplitPane();
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(BorderLayout.NORTH, toolbar);
+        p.add(BorderLayout.CENTER, hsplit);
         JSplitPane vsplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         vsplit.setLeftComponent(createScriptDirView());
-        vsplit.setRightComponent(hsplit);
+        vsplit.setRightComponent(p);
         add(vsplit, BorderLayout.CENTER);
 
-        // enable auto-scroll
+        enableAutoScroll();
+    }
+
+    private JPanel createToolbar()
+    {
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        JButton btnRun = new JButton("Execute");
+        btnRun.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                console.runScript();
+            }
+        });
+        toolbar.add(btnRun);
+
+        JButton btnStop = new JButton();
+        btnStop.setHideActionText(true);
+        btnStop.setAction(console.getInterruptAction());
+        toolbar.add(btnStop);
+
+        JButton btnVariables = new JButton("Variables");
+        btnVariables.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                console.inspectVariables();
+            }
+        });
+        toolbar.add(btnVariables);
+
+        return toolbar;
+    }
+
+    private void enableAutoScroll()
+    {
         DefaultCaret caret = (DefaultCaret) console.getOutputArea().getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
@@ -144,17 +157,66 @@ public class ConsoleFrame extends DockableFrame implements RootPaneContainer
 
         return panel;
     }
+}
 
-    private GroovyShell createShell(final Simulation simu)
+class MyConsole extends Console
+{
+    private Simulation simulation;
+
+    public MyConsole(Simulation simulation)
+    {
+        this.simulation = simulation;
+        setShell(createShell(simulation));
+    }
+
+    @Override
+    public void newScript(ClassLoader parent, Binding binding)
+    {
+        if (simulation != null)
+        {
+            setShell(createShell(simulation));
+        }
+    };
+
+    @Override
+    public void exit(EventObject evt)
+    {
+        /* suppress */
+    }
+
+    @Override
+    public void exit()
+    {
+        /* suppress */
+    }
+
+    @Override
+    public void fileNewWindow()
+    {
+        /*
+         * we don't support multiple console instances due to threading issues
+         */
+    }
+
+    @Override
+    public void fileNewWindow(EventObject evt)
+    {
+        /*
+         * we don't support multiple console instances due to threading issues
+         */
+    }
+
+    private GroovyShell createShell(final Simulation simulation)
     {
         EventFactory eventFactory = DefaultEventFactory.create(Identity.create("Groovy-Shell"));
-        ClockController clockController = new ClockController(simu.getEventEngine(), eventFactory);
+        ClockController clockController = new ClockController(simulation.getEventEngine(), eventFactory);
 
         BuiltInBinding binding = new BuiltInBinding();
-        binding.defineBuiltInVariable("simulation", simu);
+        binding.defineBuiltInVariable("simulation", simulation);
         binding.defineBuiltInVariable("timeline", clockController);
 
         ImportCustomizer importCust = new ImportCustomizer();
+        importCust.addStarImports("com.gc.mimicry.engine");
         importCust.addStarImports("com.gc.mimicry.core.deployment");
         importCust.addStarImports("com.gc.mimicry.core.runtime");
         importCust.addStarImports("com.gc.mimicry.core.timing");

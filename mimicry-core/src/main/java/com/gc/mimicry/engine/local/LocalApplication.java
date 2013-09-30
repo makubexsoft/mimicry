@@ -6,23 +6,30 @@ import java.util.concurrent.TimeUnit;
 
 import com.gc.mimicry.bridge.ApplicationBridge;
 import com.gc.mimicry.bridge.EntryPoint;
-import com.gc.mimicry.bridge.threading.CheckpointBasedScheduler;
 import com.gc.mimicry.bridge.threading.ThreadManager;
+import com.gc.mimicry.bridge.threading.ThreadScheduler;
 import com.gc.mimicry.engine.Application;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.util.concurrent.Future;
+import com.google.common.base.Preconditions;
 
 public class LocalApplication implements Closeable, Application
 {
+    private final UUID id;
     private final EntryPoint entryPoint;
     private final ApplicationBridge bridge;
     private final ThreadManager threadManager;
 
-    public LocalApplication(ApplicationContext ctx, EntryPoint entryPoint)
+    public LocalApplication(ApplicationContext ctx, EntryPoint entryPoint, ThreadScheduler scheduler)
     {
+        Preconditions.checkNotNull(ctx);
+        Preconditions.checkNotNull(entryPoint);
+        Preconditions.checkNotNull(scheduler);
+
         this.entryPoint = entryPoint;
 
-        threadManager = new ThreadManager(UUID.randomUUID(), new CheckpointBasedScheduler(ctx.getClock()));
+        id = UUID.randomUUID();
+        threadManager = new ThreadManager(id, scheduler);
 
         bridge = new ApplicationBridge(ctx.getClassLoader());
         bridge.setTimeline(ctx.getClock());
@@ -33,7 +40,7 @@ public class LocalApplication implements Closeable, Application
     @Override
     public UUID getId()
     {
-        return threadManager.getApplicationId();
+        return id;
     }
 
     @Override

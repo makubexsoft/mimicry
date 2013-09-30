@@ -1,10 +1,9 @@
 package test;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import org.aspectj.weaver.tools.WeavingAdaptor;
 
 import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
@@ -23,8 +22,9 @@ public class DeterministicRandomNumbers
 	public static void main( String[] args ) throws Exception
 	{       
 		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
-		
+		ClassLoader loader = ApplicationClassLoader.create(config,  ClassLoader.getSystemClassLoader());
 		EventBridge eventBridge = new EventBridge();
+		
 		eventBridge.addDownstreamEventListener(new EventListener()
         {
             @Override
@@ -38,7 +38,6 @@ public class DeterministicRandomNumbers
             }
         });
 
-		final ClassLoader loader = ApplicationClassLoader.create(config,  ClassLoader.getSystemClassLoader());
         ApplicationContext ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(new SystemClock());
@@ -60,7 +59,7 @@ class RandomNumberTest implements EntryPoint
 	{
 		for(int i =0; i < 100; ++i)
 		{
-			jobs.add( new TestJob() );
+			jobs.add( new TestJob(i) );
 		}
 		
 		Runnable scheduleTask = new Runnable()
@@ -104,10 +103,17 @@ class RandomNumberTest implements EntryPoint
 
 class TestJob implements Runnable
 {
+	private int id;
+	
+	public TestJob(int id)
+	{
+		this.id = id;
+	}
+	
 	@Override
 	public void run()
 	{
-		Random rand = new Random(System.currentTimeMillis());
-		System.out.println("Thread [" + Thread.currentThread().getName() + "] " + rand.nextInt( 10 ));
+		Random rand = new SecureRandom(); // System.currentTimeMillis()
+		System.out.println("Thread [" + Thread.currentThread().getName() + "] Job ["+id+"] " + rand.nextInt( 10 ));
 	}
 }

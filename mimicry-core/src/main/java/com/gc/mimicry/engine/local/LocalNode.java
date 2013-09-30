@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.ClassPathConfiguration;
+import com.gc.mimicry.engine.EngineInfo;
 import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.Node;
 import com.gc.mimicry.engine.deployment.ApplicationBundle;
@@ -169,5 +170,11 @@ public class LocalNode extends BaseResourceManager implements Node
         applications.add(application);
         attachResource(application);
         return application;
+    }
+
+    @Override
+    public EngineInfo getEngineInfo()
+    {
+        return EngineInfo.fromLocalJVM();
     }
 }

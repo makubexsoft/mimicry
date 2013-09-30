@@ -61,9 +61,12 @@ public class TestSetup {
 		simuParams.setTimelineType(TimelineType.SYSTEM);
 		
 		// Setup
-		HashSet<Session> sessions = new HashSet<Session>();
-		sessions.add(engine.createSession(UUID.randomUUID(), simuParams));
-		Simulation simu = new Simulation(sessions, new AlwaysFirstNodeStrategy());
+		Simulation.Builder builder = new Simulation.Builder();
+        builder.withNodeDistributionStrategy(new AlwaysFirstNodeStrategy());
+        builder.withEventEngine(broker);
+        builder.withSimulationParameters(simuParams);
+        builder.addSession(engine.createSession(UUID.randomUUID(), simuParams));
+        Simulation simu = builder.build();
 
 		// Simulation
 		NodeParameters params = new NodeParameters("MyNode-1");

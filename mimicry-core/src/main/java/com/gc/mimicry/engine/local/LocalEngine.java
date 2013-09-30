@@ -15,6 +15,8 @@ import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.SessionInfo;
 import com.gc.mimicry.engine.SimulationParameters;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
+import com.gc.mimicry.engine.event.DefaultEventFactory;
+import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.engine.timing.TimelineFactory;
 import com.gc.mimicry.util.IOUtils;
@@ -59,7 +61,8 @@ public class LocalEngine implements Engine
 
         NodeFactory nodeFactory = new NodeFactory(broker, timeline, ehLoader, appRepo);
 
-        LocalSession session = new LocalSession(nodeFactory, sessionDir);
+        LocalSession session = new LocalSession(nodeFactory, sessionDir, broker, DefaultEventFactory.create(Identity
+                .create("Session " + sessionId)));
         sessions.put(sessionId, session);
         return session;
     }
