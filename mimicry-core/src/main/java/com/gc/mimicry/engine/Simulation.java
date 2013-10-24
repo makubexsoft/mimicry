@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.gc.mimicry.cep.CEPEngine;
 import com.gc.mimicry.util.concurrent.Future;
 import com.google.common.base.Preconditions;
 
@@ -18,21 +19,21 @@ public class Simulation
 {
     private final Set<Session> sessions;
     private final NodeDistributionStrategy distStrategy;
-    private final EventEngine engine;
+    private final CEPEngine eventEngine;
     private final SimulationParameters params;
     private final List<Node> nodes;
 
-    private Simulation(Set<Session> sessions, NodeDistributionStrategy distStrategy, EventEngine engine,
+    private Simulation(Set<Session> sessions, NodeDistributionStrategy distStrategy, CEPEngine eventEngine,
             SimulationParameters params)
     {
         Preconditions.checkNotNull(sessions);
         Preconditions.checkNotNull(distStrategy);
-        Preconditions.checkNotNull(engine);
+        Preconditions.checkNotNull(eventEngine);
         Preconditions.checkNotNull(params);
 
         this.sessions = sessions;
         this.distStrategy = distStrategy;
-        this.engine = engine;
+        this.eventEngine = eventEngine;
         this.params = params;
 
         nodes = new ArrayList<Node>();
@@ -85,9 +86,9 @@ public class Simulation
      * 
      * @return
      */
-    public EventEngine getEventEngine()
+    public CEPEngine getEventEngine()
     {
-        return engine;
+        return eventEngine;
     }
 
     /**
@@ -114,7 +115,7 @@ public class Simulation
     {
         private NodeDistributionStrategy strategy;
         private final Set<Session> sessions = new HashSet<Session>();
-        private EventEngine engine;
+        private CEPEngine eventEngine;
         private SimulationParameters params;
 
         public Builder withNodeDistributionStrategy(NodeDistributionStrategy strategy)
@@ -129,9 +130,9 @@ public class Simulation
             return this;
         }
 
-        public Builder withEventEngine(EventEngine engine)
+        public Builder withEventEngine(CEPEngine eventEngine)
         {
-            this.engine = engine;
+            this.eventEngine = eventEngine;
             return this;
         }
 
@@ -143,7 +144,7 @@ public class Simulation
 
         public Simulation build()
         {
-            return new Simulation(sessions, strategy, engine, params);
+            return new Simulation(sessions, strategy, eventEngine, params);
         }
     }
 }

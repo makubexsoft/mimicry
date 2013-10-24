@@ -16,7 +16,7 @@ public class EngineFinder
     public static final long DEFAULT_FIND_DELAY = 500;
     private volatile long advertismentMillis;
     private final Thread thread;
-    private final List<AdvertismentListener> listener;
+    private final List<AdvertisementListener> listener;
     private volatile boolean running;
     private final String multicastAddress = "239.1.2.3";
     private final int port = 18000;
@@ -30,17 +30,17 @@ public class EngineFinder
     {
         this.advertismentMillis = advertismentMillis;
         running = true;
-        listener = new CopyOnWriteArrayList<AdvertismentListener>();
-        thread = new Thread(new Advertiser(), "EngineFinder");
+        listener = new CopyOnWriteArrayList<AdvertisementListener>();
+        thread = new Thread(new Discoverer(), "EngineFinder");
         thread.setDaemon(true);
     }
 
-    public void addAdvertismentListener(AdvertismentListener l)
+    public void addAdvertismentListener(AdvertisementListener l)
     {
         listener.add(l);
     }
 
-    public void removeAdvertismentListener(AdvertismentListener l)
+    public void removeAdvertismentListener(AdvertisementListener l)
     {
         listener.remove(l);
     }
@@ -56,7 +56,7 @@ public class EngineFinder
         thread.interrupt();
     }
 
-    private class Advertiser implements Runnable
+    private class Discoverer implements Runnable
     {
         private MulticastSocket socket;
         private final byte[] buffer = new byte[4096];
@@ -75,7 +75,7 @@ public class EngineFinder
             }
             while (running)
             {
-                listen();
+                receivePacket();
                 try
                 {
                     Thread.sleep(advertismentMillis);
@@ -86,7 +86,7 @@ public class EngineFinder
             }
         }
 
-        private void listen()
+        private void receivePacket()
         {
             try
             {
@@ -95,7 +95,7 @@ public class EngineFinder
                 ByteArrayInputStream in = new ByteArrayInputStream(buffer, 0, packet.getLength());
                 ObjectInputStream bin = new ObjectInputStream(in);
                 EngineInfo info = (EngineInfo) bin.readObject();
-                notifyListener(info);
+                notifyListener(info, packet.getAddress());
             }
             catch (IOException e)
             {
@@ -105,14 +105,13 @@ public class EngineFinder
             {
                 e.printStackTrace();
             }
-
         }
 
-        private void notifyListener(EngineInfo info)
+        private void notifyListener(EngineInfo info, InetAddress nodeAddress)
         {
-            for (AdvertismentListener l : listener)
+            for (AdvertisementListener l : listener)
             {
-                l.engineFound(info);
+                l.advertisementReceived(info, nodeAddress);
             }
         }
     }

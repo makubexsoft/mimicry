@@ -3,7 +3,7 @@ package com.gc.mimicry.plugin.net.udp;
 import java.util.Set;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.udp.events.UDPPacketEvent;
 import com.gc.mimicry.plugin.net.PortManager;
@@ -29,7 +29,7 @@ public class SimpleUDPDataTransport extends EventHandlerBase
 	}
 
 	@Override
-	public void handleUpstream( Event event )
+	public void handleUpstream( ApplicationEvent event )
 	{
 		if ( event instanceof UDPPacketEvent )
 		{

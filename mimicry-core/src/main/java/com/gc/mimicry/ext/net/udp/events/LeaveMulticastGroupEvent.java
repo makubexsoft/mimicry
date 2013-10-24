@@ -4,9 +4,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface LeaveMulticastGroupEvent extends Event
+public interface LeaveMulticastGroupEvent extends ApplicationEvent
 {
     public NetworkInterface getNetworkInterface();
 

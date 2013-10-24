@@ -2,7 +2,7 @@ package com.gc.mimicry.ext.net.tcp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
 /**
  * This event indicates a newly established TCP/IP connection.
@@ -10,7 +10,7 @@ import com.gc.mimicry.engine.event.Event;
  * @author Marc-Christian Schulze
  * 
  */
-public interface ConnectionEstablishedEvent extends Event
+public interface ConnectionEstablishedEvent extends ApplicationEvent
 {
 
     /**

@@ -6,8 +6,6 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.gc.mimicry.engine.EngineInfo;
 import com.gc.mimicry.engine.local.LocalEngine;
@@ -17,33 +15,23 @@ public class EngineAdvertiser
     public static final long DEFAULT_ADVERTISMENT_DELAY = 500;
     private volatile long advertismentMillis;
     private final Thread thread;
-    private final List<LocalEngine> engines;
+    private final LocalEngine engine;
     private volatile boolean running;
     private final String multicastAddress = "239.1.2.3";
     private final int port = 18000;
 
-    public EngineAdvertiser()
+    public EngineAdvertiser(LocalEngine engine)
     {
-        this(DEFAULT_ADVERTISMENT_DELAY);
+        this(engine, DEFAULT_ADVERTISMENT_DELAY);
     }
 
-    public EngineAdvertiser(long advertismentMillis)
+    public EngineAdvertiser(LocalEngine engine, long advertismentMillis)
     {
         this.advertismentMillis = advertismentMillis;
         running = true;
-        engines = new CopyOnWriteArrayList<LocalEngine>();
+        this.engine = engine;
         thread = new Thread(new Advertiser(), "EngineAdvertiser");
         thread.setDaemon(true);
-    }
-
-    public void addEngine(LocalEngine engine)
-    {
-        engines.add(engine);
-    }
-
-    public void removeEngine(LocalEngine engine)
-    {
-        engines.remove(engine);
     }
 
     public void start()
@@ -88,20 +76,17 @@ public class EngineAdvertiser
 
         private void advertise()
         {
-            for (LocalEngine engine : engines)
+            try
             {
-                try
-                {
-                    byte[] info = serializeInfo(engine.getEngineInfo());
-                    DatagramPacket packet = new DatagramPacket(info, info.length);
-                    packet.setPort(port);
-                    packet.setAddress(InetAddress.getByName(multicastAddress));
-                    socket.send(packet);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+                byte[] info = serializeInfo(engine.getEngineInfo());
+                DatagramPacket packet = new DatagramPacket(info, info.length);
+                packet.setPort(port);
+                packet.setAddress(InetAddress.getByName(multicastAddress));
+                socket.send(packet);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
             }
         }
 

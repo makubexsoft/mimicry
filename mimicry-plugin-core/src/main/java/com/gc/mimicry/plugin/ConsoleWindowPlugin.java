@@ -15,7 +15,7 @@ import javax.swing.text.DefaultCaret;
 import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
 import com.gc.mimicry.engine.event.DefaultEventFactory;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.ext.stdio.events.ConsoleStdinEvent;
@@ -93,12 +93,12 @@ public class ConsoleWindowPlugin extends JFrame implements EventListener
 	}
 
 	@Override
-	public void handleEvent( Event evt )
+	public void handleEvent( ApplicationEvent evt )
 	{
 		if ( evt instanceof ConsoleStdoutEvent )
 		{
 			final ConsoleStdoutEvent out = (ConsoleStdoutEvent) evt;
-			if ( out.getSourceApplication().equals( appRef ) )
+			if ( out.getApplication().equals( appRef ) )
 			{
 				SwingUtilities.invokeLater( new Runnable()
 				{

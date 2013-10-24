@@ -34,7 +34,7 @@ public class ApplicationBridge
         {
             bridgeClass = classLoader.loadClass(BRIDGE_CLASS_NAME);
             setIdMethod = bridgeClass.getDeclaredMethod(SET_ID_METHOD_NAME, ThreadManager.class);
-            setClockMethod = bridgeClass.getDeclaredMethod(SET_CLOCK_METHOD_NAME, Timeline.class);
+            setTimelineMethod = bridgeClass.getDeclaredMethod(SET_TIMELINE_METHOD_NAME, Timeline.class);
             setEventBridgeMethod = bridgeClass.getDeclaredMethod(SET_EVENT_BRIDGE_METHOD_NAME, EventBridge.class);
         }
         catch (Exception e)
@@ -61,11 +61,11 @@ public class ApplicationBridge
         Preconditions.checkNotNull(c);
         try
         {
-            setClockMethod.invoke(null, c);
+            setTimelineMethod.invoke(null, c);
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Failed to set clock.", e);
+            throw new RuntimeException("Failed to set timeline.", e);
         }
     }
 
@@ -84,18 +84,18 @@ public class ApplicationBridge
 
     private static final String BRIDGE_CLASS_NAME;
     private static final String SET_ID_METHOD_NAME;
-    private static final String SET_CLOCK_METHOD_NAME;
+    private static final String SET_TIMELINE_METHOD_NAME;
     private static final String SET_EVENT_BRIDGE_METHOD_NAME;
     static
     {
         BRIDGE_CLASS_NAME = "com.gc.mimicry.bridge.SimulatorBridge";
         SET_ID_METHOD_NAME = "setThreadManager";
-        SET_CLOCK_METHOD_NAME = "setClock";
+        SET_TIMELINE_METHOD_NAME = "setTimeline";
         SET_EVENT_BRIDGE_METHOD_NAME = "setEventBridge";
     }
 
     private Class<?> bridgeClass;
     private Method setIdMethod;
-    private Method setClockMethod;
+    private Method setTimelineMethod;
     private Method setEventBridgeMethod;
 }

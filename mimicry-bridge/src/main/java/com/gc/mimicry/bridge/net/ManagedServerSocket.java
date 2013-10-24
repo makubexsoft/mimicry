@@ -14,7 +14,7 @@ import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.ext.net.events.SocketBoundEvent;
@@ -88,7 +88,7 @@ public class ManagedServerSocket extends ServerSocket
         {
 
             @Override
-            public void handleEvent(Event evt)
+            public void handleEvent(ApplicationEvent evt)
             {
                 cflowMgr.terminateAll(evt);
             }
@@ -142,7 +142,7 @@ public class ManagedServerSocket extends ServerSocket
         SocketAwaitingConnectionEvent event = createEvent(SocketAwaitingConnectionEvent.class, cflow);
         event.setLocalAddress(localAddress);
         emitEvent(event);
-        Event responseEvent = cflow.awaitTermination();
+        ApplicationEvent responseEvent = cflow.awaitTermination();
 
         if (responseEvent instanceof SocketClosedEvent)
         {
@@ -157,21 +157,21 @@ public class ManagedServerSocket extends ServerSocket
         return new ManagedSocket(sae);
     }
 
-    private void emitEvent(Event evt)
+    private void emitEvent(ApplicationEvent evt)
     {
         SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
     }
 
-    private <T extends Event> T createEvent(Class<T> eventClass, ControlFlow cflow)
+    private <T extends ApplicationEvent> T createEvent(Class<T> eventClass, ControlFlow cflow)
     {
         EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
         return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId(), cflow.getId());
     }
 
-    private <T extends Event> T createEvent(Class<T> eventClass)
+    private <T extends ApplicationEvent> T createEvent(Class<T> eventClass)
     {
         EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
-        return eventFactory.createEvent(eventClass);
+        return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId());
     }
 
     /**
@@ -222,7 +222,7 @@ public class ManagedServerSocket extends ServerSocket
         event.setSocketType(SocketType.TCP);
         event.setReusePort(reusePort);
         emitEvent(event);
-        Event responseEvent = cflow.awaitTermination();
+        ApplicationEvent responseEvent = cflow.awaitTermination();
 
         if (responseEvent instanceof SocketBoundEvent)
         {

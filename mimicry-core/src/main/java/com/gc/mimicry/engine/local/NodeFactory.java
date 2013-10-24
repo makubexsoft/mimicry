@@ -5,7 +5,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.EventEngine;
+import com.gc.mimicry.cep.CEPEngine;
 import com.gc.mimicry.engine.NodeParameters;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.stack.Configurable;
@@ -22,23 +22,28 @@ public class NodeFactory
     {
         logger = LoggerFactory.getLogger(NodeFactory.class);
     }
-    private final EventEngine eventBroker;
-    private final Timeline clock;
+    private final CEPEngine eventBroker;
+    private final Timeline timeline;
     private final ClassLoader eventHandlerLoader;
     private final ApplicationRepository appRepo;
 
-    public NodeFactory(EventEngine eventBroker, Timeline clock, ClassLoader eventHandlerLoader,
+    public NodeFactory(CEPEngine eventEngine, Timeline timeline, ClassLoader eventHandlerLoader,
             ApplicationRepository appRepo)
     {
-        Preconditions.checkNotNull(eventBroker);
-        Preconditions.checkNotNull(clock);
+        Preconditions.checkNotNull(eventEngine);
+        Preconditions.checkNotNull(timeline);
         Preconditions.checkNotNull(eventHandlerLoader);
         Preconditions.checkNotNull(appRepo);
 
-        this.eventBroker = eventBroker;
-        this.clock = clock;
+        this.eventBroker = eventEngine;
+        this.timeline = timeline;
         this.eventHandlerLoader = eventHandlerLoader;
         this.appRepo = appRepo;
+    }
+
+    public Timeline getTimeline()
+    {
+        return timeline;
     }
 
     public LocalNode createNode(NodeParameters descriptor, File sessionDir)
@@ -46,7 +51,7 @@ public class NodeFactory
         File nodeDir = new File(sessionDir, descriptor.getNodeName());
         nodeDir.mkdirs();
 
-        LocalNode node = new LocalNode(descriptor.getNodeName(), eventBroker, clock, appRepo, nodeDir);
+        LocalNode node = new LocalNode(descriptor.getNodeName(), eventBroker, timeline, appRepo, nodeDir);
         initEventStack(node, descriptor);
         return node;
     }
@@ -56,49 +61,47 @@ public class NodeFactory
         EventStack eventStack = node.getEventStack();
         for (EventHandlerParameters handlerParams : descriptor.getEventStack())
         {
-            loadHandler(eventStack, handlerParams);
-        }
-        eventStack.init(clock);
-    }
-
-    private void loadHandler(EventStack eventStack, EventHandlerParameters handlerParams)
-    {
-        EventHandler handler = createHandler(handlerParams.getClassName());
-        if (handler != null)
-        {
-            if (handler instanceof Configurable)
+            EventHandler handler = createHandler(eventStack, handlerParams);
+            if (handler != null)
             {
-                Configurable configurable = (Configurable) handler;
-                configurable.configure(handlerParams.getConfiguration());
+                eventStack.addHandler(handler);
             }
-            eventStack.addHandler(handler);
         }
+        eventStack.init(timeline);
     }
 
-    private EventHandler createHandler(String name)
+    private EventHandler createHandler(EventStack eventStack, EventHandlerParameters handlerParams)
     {
-        Class<EventHandler> handlerClass = loadHandlerClass(name);
+        EventHandler handler = newHandler(handlerParams.getClassName());
+        if (handler instanceof Configurable)
+        {
+            Configurable configurable = (Configurable) handler;
+            configurable.configure(handlerParams.getConfiguration());
+        }
+        return handler;
+    }
+
+    private EventHandler newHandler(String fullQualifiedClassName)
+    {
+        Class<EventHandler> handlerClass = findClass(fullQualifiedClassName);
         if (handlerClass == null)
         {
             return null;
         }
+
         try
         {
             return handlerClass.newInstance();
         }
-        catch (InstantiationException e)
+        catch (Exception e)
         {
-            logger.error("Failed to create event handler of type: " + name, e);
-        }
-        catch (IllegalAccessException e)
-        {
-            logger.error("Failed to create event handler of type: " + name, e);
+            logger.error("Failed to create event handler of type: " + fullQualifiedClassName, e);
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    private Class<EventHandler> loadHandlerClass(String name)
+    private Class<EventHandler> findClass(String name)
     {
         try
         {

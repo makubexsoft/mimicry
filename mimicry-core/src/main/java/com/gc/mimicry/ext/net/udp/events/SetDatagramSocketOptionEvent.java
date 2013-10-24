@@ -2,9 +2,9 @@ package com.gc.mimicry.ext.net.udp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface SetDatagramSocketOptionEvent extends Event
+public interface SetDatagramSocketOptionEvent extends ApplicationEvent
 {
     public InetSocketAddress getSocketAddres();
 

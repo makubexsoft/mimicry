@@ -9,8 +9,9 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 
+import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.threading.ManagedThread;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.net.udp.events.JoinMulticastGroupEvent;
 import com.gc.mimicry.ext.net.udp.events.LeaveMulticastGroupEvent;
@@ -66,10 +67,10 @@ public class ManagedMulticastSocket extends ManagedDatagramSocket
 
     private int ttl;
 
-    private <T extends Event> T createEvent(Class<T> eventClass)
+    private <T extends ApplicationEvent> T createEvent(Class<T> eventClass)
     {
         EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
-        return eventFactory.createEvent(eventClass);
+        return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId());
     }
 
     @Deprecated

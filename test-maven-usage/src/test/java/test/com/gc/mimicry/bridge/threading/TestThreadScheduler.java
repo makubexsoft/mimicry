@@ -10,31 +10,27 @@ import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.wso2.siddhi.core.SiddhiManager;
 
 import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.threading.CheckpointBasedScheduler;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.engine.EventEngine;
-import com.gc.mimicry.engine.NodeParameters;
-import com.gc.mimicry.engine.SimpleEventBroker;
-import com.gc.mimicry.engine.SimulationParameters;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
 import com.gc.mimicry.engine.local.Applications;
 import com.gc.mimicry.engine.local.LocalApplication;
-import com.gc.mimicry.engine.local.LocalEngine;
 import com.gc.mimicry.engine.local.LocalNode;
-import com.gc.mimicry.engine.local.LocalSession;
 import com.gc.mimicry.engine.timing.SystemClock;
-import com.gc.mimicry.engine.timing.TimelineType;
 import com.gc.mimicry.ext.stdio.ConsoleInputStream;
 
 //@RunWith(MimicryTestRunner.class)
 public class TestThreadScheduler implements Serializable
 {
 	private transient  ApplicationContext ctx;
-	private transient  EventEngine broker;
+	private transient CEPEngine eventEngine ;
 	private transient  BufferedReader errReader;
 	private transient  BufferedReader outReader;
 	
@@ -46,11 +42,10 @@ public class TestThreadScheduler implements Serializable
         File workspace = new File("C:/tmp/mimicry");
 
         // Infrastructure
-        broker = new SimpleEventBroker();
-        
+        CEPEngine eventEngine = new SiddhiCEPEngine();
 		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
         SystemClock clock = new SystemClock();
-        LocalNode node = new LocalNode("myNode", broker, new SystemClock(), appRepo, workspace );
+        LocalNode node = new LocalNode("myNode", eventEngine, new SystemClock(), appRepo, workspace );
 
         ClassLoader loader = ApplicationClassLoader.create(config, TestThreadScheduler.class.getClassLoader());
         ctx = new ApplicationContext();
@@ -160,7 +155,7 @@ public class TestThreadScheduler implements Serializable
 
                 System.err.println(target.getCounter());
             }
-        });
+        }, eventEngine);
 
         createStreams(app.getId());
         // TODO: this invocation of start should also be reported to the scheduler.
@@ -188,10 +183,10 @@ public class TestThreadScheduler implements Serializable
     
     private void createStreams(UUID appId)
 	{
-		ConsoleInputStream stderr = ConsoleInputStream.attachStderr(broker, appId);
+		ConsoleInputStream stderr = ConsoleInputStream.attachStderr(eventEngine, appId);
         errReader = new BufferedReader(new InputStreamReader(stderr));
         
-        ConsoleInputStream stdout = ConsoleInputStream.attachStdout(broker, appId);
+        ConsoleInputStream stdout = ConsoleInputStream.attachStdout(eventEngine, appId);
         outReader = new BufferedReader(new InputStreamReader(stdout));
 	}
 }

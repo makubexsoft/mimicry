@@ -1,8 +1,7 @@
 package com.gc.mimicry.engine.stack;
 
-import com.gc.mimicry.engine.EventEngine;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.event.DefaultEventFactory;
-import com.gc.mimicry.engine.event.Event;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.local.LocalNode;
@@ -20,7 +19,7 @@ public class EventHandlerBase implements EventHandler
 {
     protected EventHandlerBase()
     {
-        identity = Identity.create();
+        identity = Identity.create(getClass().getSimpleName());
         eventFactory = DefaultEventFactory.create(getIdentity());
     }
 
@@ -60,7 +59,7 @@ public class EventHandlerBase implements EventHandler
      * @param evt
      */
     @Override
-    public void handleDownstream(Event evt)
+    public void handleDownstream(ApplicationEvent evt)
     {
         context.sendDownstream(evt);
     }
@@ -71,7 +70,7 @@ public class EventHandlerBase implements EventHandler
      * @param evt
      */
     @Override
-    public void handleUpstream(Event evt)
+    public void handleUpstream(ApplicationEvent evt)
     {
         context.sendUpstream(evt);
     }
@@ -79,15 +78,15 @@ public class EventHandlerBase implements EventHandler
     /**
      * Send the given event to the next event handler upstream in the {@link EventStack}. Once the top of the
      * {@link EventStack} is reached the event is dispatched to the application identified by the id within the
-     * {@link Event#getTargetApplication()} attribute. If no such application exists the event is dropped. If you
-     * override this method make sure that you pass all events not of your interest upstream. Otherwise you would
+     * {@link ApplicationEvent#getTargetApplication()} attribute. If no such application exists the event is dropped. If
+     * you override this method make sure that you pass all events not of your interest upstream. Otherwise you would
      * suppress the event.
      * 
      * @param evt
      *            The event received either from an {@link EventHandler} higher in the {@link EventStack} or one of the
      *            {@link LocalJVMApplication} running this {@link LocalNode}.
      */
-    protected void sendUpstream(Event evt)
+    protected void sendUpstream(ApplicationEvent evt)
     {
         context.sendUpstream(evt);
     }
@@ -102,7 +101,7 @@ public class EventHandlerBase implements EventHandler
      *            The event received either from an {@link EventHandler} lower in the {@link EventStack} or the
      *            {@link EventEngine}.
      */
-    protected void sendDownstream(Event evt)
+    protected void sendDownstream(ApplicationEvent evt)
     {
         context.sendDownstream(evt);
     }

@@ -4,46 +4,44 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.EventEngine;
-import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
-import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
-import com.gc.mimicry.ext.stdio.events.ConsoleStderrEvent;
-import com.gc.mimicry.ext.stdio.events.ConsoleStdoutEvent;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.Event;
+import com.gc.mimicry.cep.Query;
+import com.gc.mimicry.cep.QueryListener;
 import com.gc.mimicry.util.ByteBuffer;
 import com.google.common.base.Preconditions;
 
 public class ConsoleInputStream extends InputStream
 {
-    private final EventEngine eventBroker;
-    private final UUID applicationId;
-    private final EventReceiver receiver;
     private final ByteBuffer buffer;
     private final InputStream bufferStream;
-    private final boolean stdout;
+    private Query query;
 
-    private ConsoleInputStream(EventEngine eventBroker, UUID applicationId, boolean stdout)
+    private ConsoleInputStream(CEPEngine eventBroker, UUID applicationId, boolean stdout)
     {
         Preconditions.checkNotNull(eventBroker);
         Preconditions.checkNotNull(applicationId);
 
-        this.eventBroker = eventBroker;
-        this.applicationId = applicationId;
-        this.stdout = stdout;
-
         buffer = new ByteBuffer();
         bufferStream = buffer.createStream();
 
-        receiver = new EventReceiver();
-        eventBroker.addEventListener(receiver);
+        if (stdout)
+        {
+            query = eventBroker.addQuery("from StdOut[appId = '" + applicationId.toString() + "']");
+        }
+        else
+        {
+            query = eventBroker.addQuery("from StdErr[appId = '" + applicationId.toString() + "']");
+        }
+        query.addQueryListener(new EventReceiver());
     }
 
-    public static ConsoleInputStream attachStdout(EventEngine eventBroker, UUID applicationId)
+    public static ConsoleInputStream attachStdout(CEPEngine eventBroker, UUID applicationId)
     {
         return new ConsoleInputStream(eventBroker, applicationId, true);
     }
 
-    public static ConsoleInputStream attachStderr(EventEngine eventBroker, UUID applicationId)
+    public static ConsoleInputStream attachStderr(CEPEngine eventBroker, UUID applicationId)
     {
         return new ConsoleInputStream(eventBroker, applicationId, false);
     }
@@ -75,32 +73,19 @@ public class ConsoleInputStream extends InputStream
     @Override
     public void close() throws IOException
     {
-        eventBroker.removeEventListener(receiver);
+        query.close();
         super.close();
     }
 
-    private class EventReceiver implements EventListener
+    private class EventReceiver implements QueryListener
     {
         @Override
-        public void handleEvent(Event evt)
+        public void receive(long timestamp, Event[] inEvents, Event[] outEvents)
         {
-            if (stdout && evt instanceof ConsoleStdoutEvent)
+            for (Event event : inEvents)
             {
-                ConsoleStdoutEvent e = (ConsoleStdoutEvent) evt;
-                handleConsoleOutput(e);
-            }
-            else if (!stdout && evt instanceof ConsoleStderrEvent)
-            {
-                ConsoleStderrEvent e = (ConsoleStderrEvent) evt;
-                handleConsoleOutput(e);
-            }
-        }
-
-        private void handleConsoleOutput(ConsoleOutputEvent e)
-        {
-            if (e.getSourceApplication().equals(applicationId))
-            {
-                buffer.write(e.getData());
+                String text = (String) event.getField(2);
+                buffer.write(text.getBytes());
             }
         }
     }

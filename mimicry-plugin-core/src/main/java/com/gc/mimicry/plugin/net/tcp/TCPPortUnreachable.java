@@ -2,9 +2,9 @@ package com.gc.mimicry.plugin.net.tcp;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface TCPPortUnreachable extends Event
+public interface TCPPortUnreachable extends ApplicationEvent
 {
 	public InetSocketAddress getSource();
 

@@ -1,6 +1,6 @@
 package com.gc.mimicry.engine.stack;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.google.common.base.Preconditions;
 
 /**
@@ -29,12 +29,12 @@ public class EventHandlerContext
         return stack.findHandler(handlerClass);
     }
 
-    public void sendDownstream(Event evt)
+    public void sendDownstream(ApplicationEvent evt)
     {
         stack.sendDownstream(handlerIndex, evt);
     }
 
-    public void sendUpstream(Event evt)
+    public void sendUpstream(ApplicationEvent evt)
     {
         stack.sendUpstream(handlerIndex, evt);
     }

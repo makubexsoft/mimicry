@@ -18,7 +18,7 @@ import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.cflow.CFlowManager;
 import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.ext.net.events.SocketBoundEvent;
@@ -146,7 +146,7 @@ public class ManagedDatagramSocket extends DatagramSocket
         evt.setSocketType(SocketType.UDP);
         evt.setReusePort(reuseAddress);
         emitEvent(evt);
-        Event responseEvent = cflow.awaitTermination();
+        ApplicationEvent responseEvent = cflow.awaitTermination();
 
         if (responseEvent instanceof SocketBoundEvent)
         {
@@ -160,16 +160,16 @@ public class ManagedDatagramSocket extends DatagramSocket
         }
     }
 
-    private <T extends Event> T createEvent(Class<T> eventClass, ControlFlow cflow)
+    private <T extends ApplicationEvent> T createEvent(Class<T> eventClass, ControlFlow cflow)
     {
         EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
         return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId(), cflow.getId());
     }
 
-    private <T extends Event> T createEvent(Class<T> eventClass)
+    private <T extends ApplicationEvent> T createEvent(Class<T> eventClass)
     {
         EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
-        return eventFactory.createEvent(eventClass);
+        return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId());
     }
 
     @Override
@@ -331,7 +331,7 @@ public class ManagedDatagramSocket extends DatagramSocket
                 {
                     try
                     {
-                        SimulatorBridge.getClock().waitOn(receiveBufferLock);
+                        SimulatorBridge.getTimeline().waitOn(receiveBufferLock);
                     }
                     catch (InterruptedException e)
                     {
@@ -586,7 +586,7 @@ public class ManagedDatagramSocket extends DatagramSocket
         return null;
     }
 
-    protected void emitEvent(Event evt)
+    protected void emitEvent(ApplicationEvent evt)
     {
         assureInit();
         SimulatorBridge.getEventBridge().dispatchEventToStack(evt);
@@ -628,7 +628,7 @@ public class ManagedDatagramSocket extends DatagramSocket
         {
 
             @Override
-            public void handleEvent(Event evt)
+            public void handleEvent(ApplicationEvent evt)
             {
                 UDPPacketEvent data = (UDPPacketEvent) evt;
 
@@ -643,7 +643,7 @@ public class ManagedDatagramSocket extends DatagramSocket
                     try
                     {
                         receiveBuffer.add(new DatagramPacket(data.getData(), data.getData().length, data.getSource()));
-                        SimulatorBridge.getClock().notifyAllOnTarget(receiveBufferLock);
+                        SimulatorBridge.getTimeline().notifyAllOnTarget(receiveBufferLock);
                     }
                     catch (SocketException e)
                     {

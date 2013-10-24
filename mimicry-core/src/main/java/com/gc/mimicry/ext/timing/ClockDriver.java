@@ -2,16 +2,14 @@ package com.gc.mimicry.ext.timing;
 
 import java.io.Closeable;
 
-import com.gc.mimicry.engine.EventEngine;
-import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
-import com.gc.mimicry.engine.timing.Timeline;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.Event;
+import com.gc.mimicry.cep.Stream;
+import com.gc.mimicry.cep.StreamListener;
+import com.gc.mimicry.engine.streams.TimelineStream;
 import com.gc.mimicry.engine.timing.DiscreteClock;
 import com.gc.mimicry.engine.timing.RealtimeClock;
-import com.gc.mimicry.ext.timing.events.ClockAdvanceEvent;
-import com.gc.mimicry.ext.timing.events.ClockEvent;
-import com.gc.mimicry.ext.timing.events.ClockStartEvent;
-import com.gc.mimicry.ext.timing.events.ClockStopEvent;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.google.common.base.Preconditions;
 
 /**
@@ -19,32 +17,29 @@ import com.google.common.base.Preconditions;
  * {@link ClockController}.
  * 
  * @author Marc-Christian Schulze
- * @see ClockStartEvent
- * @see ClockStopEvent
- * @see ClockAdvanceEvent
  */
-public class ClockDriver implements Closeable, EventListener
+public class ClockDriver implements Closeable, StreamListener
 {
-    private final EventEngine broker;
-    private final Timeline clock;
+    private final Timeline timeline;
+    private final Stream stream;
 
     /**
      * Registers a listener on the given event broker and adjusts the clock if necessary.
      * 
-     * @param broker
+     * @param eventEngine
      *            The broker to listen to
-     * @param clock
+     * @param timeline
      *            The clock to adjust
      */
-    public ClockDriver(EventEngine broker, Timeline clock)
+    public ClockDriver(CEPEngine eventEngine, Timeline timeline)
     {
-        Preconditions.checkNotNull(broker);
-        Preconditions.checkNotNull(clock);
+        Preconditions.checkNotNull(eventEngine);
+        Preconditions.checkNotNull(timeline);
 
-        this.broker = broker;
-        this.clock = clock;
+        this.timeline = timeline;
 
-        broker.addEventListener(this);
+        stream = TimelineStream.get(eventEngine);
+        stream.addStreamListener(this);
     }
 
     /**
@@ -53,55 +48,56 @@ public class ClockDriver implements Closeable, EventListener
     @Override
     public void close()
     {
-        broker.removeEventListener(this);
+        stream.removeStreamListener(this);
     }
 
     @Override
-    public void handleEvent(Event evt)
+    public void receive(Event[] events)
     {
-        if (evt instanceof ClockEvent)
+        for (Event event : events)
         {
-            handleClockEvent((ClockEvent) evt);
+            handleEvent(event);
         }
     }
 
-    private void handleClockEvent(ClockEvent evt)
+    private void handleEvent(Event evt)
     {
-        if (evt instanceof ClockStartEvent)
+        String command = TimelineStream.getCommand(evt);
+        if (command == TimelineStream.COMMAND_START)
         {
-            tryToStartClock(((ClockStartEvent) evt).getMultiplier());
+            tryToStartClock(TimelineStream.getMultiplier(evt));
         }
-        else if (evt instanceof ClockStopEvent)
+        else if (command == TimelineStream.COMMAND_STOP)
         {
             tryToStopClock();
         }
-        else if (evt instanceof ClockAdvanceEvent)
+        else if (command == TimelineStream.COMMAND_ADVANCE)
         {
-            tryToAdvanceClock(((ClockAdvanceEvent) evt).getDeltaMillis());
+            tryToAdvanceClock(TimelineStream.getDeltaT(evt));
         }
     }
 
     private void tryToStartClock(double multiplier)
     {
-        if (clock instanceof RealtimeClock)
+        if (timeline instanceof RealtimeClock)
         {
-            ((RealtimeClock) clock).start(multiplier);
+            ((RealtimeClock) timeline).start(multiplier);
         }
     }
 
     private void tryToStopClock()
     {
-        if (clock instanceof RealtimeClock)
+        if (timeline instanceof RealtimeClock)
         {
-            ((RealtimeClock) clock).stop();
+            ((RealtimeClock) timeline).stop();
         }
     }
 
     private void tryToAdvanceClock(long deltaMillis)
     {
-        if (clock instanceof DiscreteClock)
+        if (timeline instanceof DiscreteClock)
         {
-            ((DiscreteClock) clock).advance(deltaMillis);
+            ((DiscreteClock) timeline).advance(deltaMillis);
         }
     }
 }

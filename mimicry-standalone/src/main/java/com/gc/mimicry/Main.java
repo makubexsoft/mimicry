@@ -15,15 +15,14 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.gc.mimicry.engine.AlwaysFirstNodeStrategy;
-import com.gc.mimicry.engine.SimpleEventBroker;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.SimulationParameters;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
-import com.gc.mimicry.engine.event.DefaultEventFactory;
-import com.gc.mimicry.engine.event.EventFactory;
-import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.local.LocalEngine;
+import com.gc.mimicry.engine.local.LocalSession;
+import com.gc.mimicry.engine.remote.EngineAdvertiser;
+import com.gc.mimicry.engine.remote.EngineExporter;
 import com.gc.mimicry.engine.timing.TimelineType;
 import com.gc.mimicry.ext.timing.ClockController;
 import com.gc.mimicry.util.concurrent.Future;
@@ -54,19 +53,25 @@ public class Main
 		File workspace = new File( "C:/tmp/mimicry" );
 
 		// Infrastructure
-		SimpleEventBroker broker = new SimpleEventBroker();
-		LocalEngine engine = new LocalEngine( broker, appRepo, workspace );
+		LocalEngine engine = new LocalEngine( appRepo, workspace );
+
+		EngineAdvertiser advertiser = EngineExporter.exportEngine( engine );
+		advertiser.start();
 
 		// Simulation specific configuration
 		SimulationParameters simuParams = new SimulationParameters();
 		simuParams.setTimelineType( TimelineType.SYSTEM );
 
 		// Setup
+		UUID simulationId = UUID.randomUUID();
+
+		LocalSession localSession = engine.createSession( simulationId, simuParams );
+
 		Simulation.Builder builder = new Simulation.Builder();
 		builder.withNodeDistributionStrategy( new AlwaysFirstNodeStrategy() );
-		builder.withEventEngine( broker );
+		builder.withEventEngine( localSession.getEventEngine() );
 		builder.withSimulationParameters( simuParams );
-		builder.addSession( engine.createSession( UUID.randomUUID(), simuParams ) );
+		builder.addSession( localSession );
 		Simulation simu = builder.build();
 
 		runSimulationScript( args, appRepo, simu );
@@ -78,8 +83,7 @@ public class Main
 	private static void runSimulationScript( Arguments args, ApplicationRepository appRepo, Simulation network )
 			throws Exception
 	{
-		EventFactory eventFactory = DefaultEventFactory.create( Identity.create( "Simulation-Script" ) );
-		ClockController clockController = new ClockController( network.getEventEngine(), eventFactory );
+		ClockController clockController = new ClockController( network.getEventEngine() );
 
 		Binding binding = new Binding();
 		binding.setVariable( "simulation", network );

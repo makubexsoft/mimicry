@@ -2,9 +2,9 @@ package com.gc.mimicry.ext.net.tcp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface SocketAwaitingConnectionEvent extends Event
+public interface SocketAwaitingConnectionEvent extends ApplicationEvent
 {
     public InetSocketAddress getLocalAddress();
 

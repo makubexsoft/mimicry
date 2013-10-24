@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.gc.mimicry.bridge.threading.ThreadManager;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.ext.stdio.events.ConsoleStdinEvent;
@@ -21,7 +21,7 @@ import com.gc.mimicry.util.ByteBuffer;
 public final class SimulatorBridge
 {
     private static UUID applicationId;
-    private static Timeline clock;
+    private static Timeline timeline;
     private static EventBridge eventBridge;
     private static ThreadManager threadManager;
     private static ClassLoader systemClassLoader;
@@ -70,9 +70,9 @@ public final class SimulatorBridge
     /**
      * Gets invoked by the {@link ApplicationBridge}.
      */
-    public static void setClock(Timeline clock)
+    public static void setTimeline(Timeline timeline)
     {
-        SimulatorBridge.clock = clock;
+        SimulatorBridge.timeline = timeline;
     }
 
     /**
@@ -86,7 +86,7 @@ public final class SimulatorBridge
         {
 
             @Override
-            public void handleEvent(Event evt)
+            public void handleEvent(ApplicationEvent evt)
             {
                 if (evt instanceof ConsoleStdinEvent)
                 {
@@ -108,9 +108,9 @@ public final class SimulatorBridge
         return applicationId;
     }
 
-    public static Timeline getClock()
+    public static Timeline getTimeline()
     {
-        return clock;
+        return timeline;
     }
 
     public static EventBridge getEventBridge()

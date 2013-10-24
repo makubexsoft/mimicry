@@ -1,18 +1,16 @@
 package test;
 
-import java.net.Socket;
-
-import org.aspectj.weaver.loadtime.WeavingURLClassLoader;
-import org.aspectj.weaver.tools.Trace;
-import org.aspectj.weaver.tools.TraceFactory;
 import org.aspectj.weaver.tools.WeavingAdaptor;
+import org.wso2.siddhi.core.SiddhiManager;
 
 import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.local.Applications;
 import com.gc.mimicry.engine.local.LocalApplication;
 import com.gc.mimicry.engine.stack.EventBridge;
@@ -31,14 +29,14 @@ public class DeterministicSchedulingExample
         System.setProperty("org.aspectj.tracing.factory", "default");
         
 		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
-		
+		CEPEngine eventEngine = new SiddhiCEPEngine();
 		// per NODE
 		//
-		EventBridge eventBridge = new EventBridge();
+		EventBridge eventBridge = new EventBridge(eventEngine);
 		eventBridge.addDownstreamEventListener(new EventListener()
         {
             @Override
-            public void handleEvent(Event evt)
+            public void handleEvent(ApplicationEvent evt)
             {
                 System.out.println("[event] " + evt);
             }
@@ -117,7 +115,7 @@ public class DeterministicSchedulingExample
 					e.printStackTrace();
 				}
             }
-        });
+        }, eventEngine);
         
         // the SCRIPT
         //

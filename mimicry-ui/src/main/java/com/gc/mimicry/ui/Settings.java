@@ -10,7 +10,7 @@ public class Settings
 {
     private static final File SETTINGS_FILE = new File("settings.properties");
     public static String WORKSPACE_PATH = "workspace";
-    public static String REPO_PATH = "repository";
+    public static String REPOSITORY_PATH = "repository";
     private static Properties properties = new Properties();
 
     static

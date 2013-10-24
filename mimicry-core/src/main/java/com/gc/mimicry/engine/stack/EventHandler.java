@@ -1,6 +1,6 @@
 package com.gc.mimicry.engine.stack;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.local.LocalNode;
@@ -38,25 +38,25 @@ public interface EventHandler
      * Gets invoked when an event is passed down in the {@link EventStack} which means it's an outgoing event of the
      * application. This method must not block. If you need to delay the event forwarding use the {@link Scheduler}
      * passed in the constructor. To pass the given event further down or up you can use the
-     * {@link EventHandlerContext#sendDownstream(Event)} and {@link EventHandlerContext#sendUpstream(Event)} methods.
+     * {@link EventHandlerContext#sendDownstream(ApplicationEvent)} and {@link EventHandlerContext#sendUpstream(ApplicationEvent)} methods.
      * This method is only invoked from within the EHT.
      * 
      * @param evt
      *            The event passed downstream.
      */
-    public void handleDownstream(Event evt);
+    public void handleDownstream(ApplicationEvent evt);
 
     /**
      * Gets invoked when an event is passed up in the {@link EventStack} which means it's an incoming event to the
      * application. This method must not block. If you need to delay the event forwarding use the {@link Scheduler}
      * passed in the constructor. To pass the given event further up or down you can use the
-     * {@link EventHandlerContext#sendUpstream(Event)} and {@link EventHandlerContext#sendDownstream(Event)} methods.
+     * {@link EventHandlerContext#sendUpstream(ApplicationEvent)} and {@link EventHandlerContext#sendDownstream(ApplicationEvent)} methods.
      * This method is only invoked from within the EHT.
      * 
      * @param evt
      *            The event passed upstream.
      */
-    public void handleUpstream(Event evt);
+    public void handleUpstream(ApplicationEvent evt);
 
     public Identity getIdentity();
 

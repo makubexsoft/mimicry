@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
 
 import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.jidesoft.swing.Searchable;
 import com.jidesoft.swing.SearchableBar;
 import com.jidesoft.swing.SearchableUtils;
@@ -35,7 +35,7 @@ public class EventLogView extends JPanel
 		{
 			
 			@Override
-			public void handleEvent( final Event evt )
+			public void handleEvent( final ApplicationEvent evt )
 			{
 				SwingUtilities.invokeLater( new Runnable()
 				{

@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.events.SocketBindRequestEvent;
 import com.gc.mimicry.ext.net.events.SocketBoundEvent;
@@ -35,7 +35,7 @@ public class PortManager extends EventHandlerBase
 	}
 
 	@Override
-	public void handleDownstream( Event evt )
+	public void handleDownstream( ApplicationEvent evt )
 	{
 		if ( evt instanceof SocketBindRequestEvent )
 		{
@@ -52,8 +52,8 @@ public class PortManager extends EventHandlerBase
 	{
 		int port = bindRequest.getEndPoint().getPort();
 		boolean reusable = bindRequest.isReusePort();
-		UUID cflow = bindRequest.getAssociatedControlFlow();
-		UUID dest = bindRequest.getSourceApplication();
+		UUID cflow = bindRequest.getControlFlow();
+		UUID dest = bindRequest.getApplication();
 
 		if ( port == 0 )
 		{

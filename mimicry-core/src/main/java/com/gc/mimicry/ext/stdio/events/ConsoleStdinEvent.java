@@ -1,6 +1,6 @@
 package com.gc.mimicry.ext.stdio.events;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
 /**
  * This event represents input data to a application's stdin stream. Use this event to send input data to an
@@ -9,7 +9,7 @@ import com.gc.mimicry.engine.event.Event;
  * @author Marc-Christian Schulze
  * 
  */
-public interface ConsoleStdinEvent extends Event, ConsoleOutputEvent
+public interface ConsoleStdinEvent extends ApplicationEvent, ConsoleOutputEvent
 {
 
     public byte[] getData();

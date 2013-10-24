@@ -48,29 +48,13 @@ public class DefaultEventFactory implements EventFactory
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Event> T createEvent(Class<T> eventClass)
-    {
-        Class<?> impl = getImplementation(eventClass);
-        try
-        {
-            Constructor<?> ctor = impl.getConstructor(VectorClock.class);
-            return (T) ctor.newInstance(new Object[] { id.getClock() });
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Failed to create event.", e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Event> T createEvent(Class<T> eventClass, UUID destinationApp)
+    public <T extends ApplicationEvent> T createEvent(Class<T> eventClass, UUID applicationId)
     {
         Class<?> impl = getImplementation(eventClass);
         try
         {
             Constructor<?> ctor = impl.getConstructor(VectorClock.class, UUID.class);
-            return (T) ctor.newInstance(new Object[] { id.getClock(), destinationApp });
+            return (T) ctor.newInstance(new Object[] { id.getClock(), applicationId });
         }
         catch (Exception e)
         {
@@ -80,13 +64,13 @@ public class DefaultEventFactory implements EventFactory
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Event> T createEvent(Class<T> eventClass, UUID sourceApp, UUID controlFlow)
+    public <T extends ApplicationEvent> T createEvent(Class<T> eventClass, UUID applicationId, UUID controlFlow)
     {
         Class<?> impl = getImplementation(eventClass);
         try
         {
             Constructor<?> ctor = impl.getConstructor(VectorClock.class, UUID.class, UUID.class);
-            return (T) ctor.newInstance(new Object[] { id.getClock(), sourceApp, controlFlow });
+            return (T) ctor.newInstance(new Object[] { id.getClock(), applicationId, controlFlow });
         }
         catch (Exception e)
         {
@@ -94,23 +78,7 @@ public class DefaultEventFactory implements EventFactory
         }
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Event> T createEvent(Class<T> eventClass, UUID sourceApp, UUID controlFlow, UUID destinationApp)
-    {
-        Class<?> impl = getImplementation(eventClass);
-        try
-        {
-            Constructor<?> ctor = impl.getConstructor(VectorClock.class, UUID.class, UUID.class, UUID.class);
-            return (T) ctor.newInstance(new Object[] { id.getClock(), sourceApp, controlFlow, destinationApp });
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Failed to create event.", e);
-        }
-    }
-
-    private <T extends Event> Class<?> getImplementation(Class<T> eventClass)
+    private <T extends ApplicationEvent> Class<?> getImplementation(Class<T> eventClass)
     {
         synchronized (cachedImpls)
         {
@@ -125,7 +93,7 @@ public class DefaultEventFactory implements EventFactory
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Event> Class<T> createImplementation(Class<T> eventClass)
+    private <T extends ApplicationEvent> Class<T> createImplementation(Class<T> eventClass)
     {
         if (!eventClass.isInterface())
         {
@@ -136,14 +104,12 @@ public class DefaultEventFactory implements EventFactory
         try
         {
             implClass.addInterface(pool.get(eventClass.getName()));
-            implClass.setSuperclass(pool.get(EventBase.class.getName()));
+            implClass.setSuperclass(pool.get(ApplicationEventBase.class.getName()));
 
             createProperties(eventClass, implClass);
 
-            createCtor1Arg(implClass);
             createCtor2Args(implClass);
             createCtor3Args(implClass);
-            createCtor4Args(implClass);
 
             createToString(implClass, eventClass);
 
@@ -189,14 +155,6 @@ public class DefaultEventFactory implements EventFactory
         implClass.addMethod(method);
     }
 
-    private void createCtor4Args(CtClass implClass) throws NotFoundException, CannotCompileException
-    {
-        CtClass uuidClass = pool.get(UUID.class.getName());
-        CtConstructor ctor = CtNewConstructor.make(new CtClass[] { pool.get(VectorClock.class.getName()), uuidClass,
-                uuidClass, uuidClass }, new CtClass[] {}, implClass);
-        implClass.addConstructor(ctor);
-    }
-
     private void createCtor3Args(CtClass implClass) throws NotFoundException, CannotCompileException
     {
         CtClass uuidClass = pool.get(UUID.class.getName());
@@ -213,15 +171,8 @@ public class DefaultEventFactory implements EventFactory
         implClass.addConstructor(ctor);
     }
 
-    private void createCtor1Arg(CtClass implClass) throws CannotCompileException, NotFoundException
-    {
-        CtConstructor ctor = CtNewConstructor.make(new CtClass[] { pool.get(VectorClock.class.getName()) },
-                new CtClass[] {}, implClass);
-        implClass.addConstructor(ctor);
-    }
-
-    private <T extends Event> void createProperties(Class<T> eventClass, CtClass implClass) throws NotFoundException,
-            CannotCompileException
+    private <T extends ApplicationEvent> void createProperties(Class<T> eventClass, CtClass implClass)
+            throws NotFoundException, CannotCompileException
     {
         Method[] methods = eventClass.getDeclaredMethods();
         for (Method method : methods)

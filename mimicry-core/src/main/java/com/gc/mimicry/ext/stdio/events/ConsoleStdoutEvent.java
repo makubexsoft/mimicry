@@ -1,6 +1,6 @@
 package com.gc.mimicry.ext.stdio.events;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
 /**
  * This event represents data written to stdout of a certain application.
@@ -8,7 +8,7 @@ import com.gc.mimicry.engine.event.Event;
  * @author Marc-Christian Schulze
  * 
  */
-public interface ConsoleStdoutEvent extends Event, ConsoleOutputEvent
+public interface ConsoleStdoutEvent extends ApplicationEvent, ConsoleOutputEvent
 {
     @Override
     public byte[] getData();

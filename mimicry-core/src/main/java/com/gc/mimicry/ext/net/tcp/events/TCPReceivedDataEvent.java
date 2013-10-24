@@ -2,9 +2,9 @@ package com.gc.mimicry.ext.net.tcp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface TCPReceivedDataEvent extends Event
+public interface TCPReceivedDataEvent extends ApplicationEvent
 {
 
     public InetSocketAddress getSourceSocket();

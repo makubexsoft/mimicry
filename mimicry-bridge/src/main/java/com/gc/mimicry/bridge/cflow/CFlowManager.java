@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import com.gc.mimicry.bridge.ControlFlow;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.stack.EventBridge;
 
 public class CFlowManager implements EventListener
@@ -17,23 +17,23 @@ public class CFlowManager implements EventListener
     private final Map<UUID, ControlFlow> controlFlows;
     private final UUID appId;
     private final EventBridge bridge;
-    private final Map<Class<? extends Event>, List<EventListener>> listener;
+    private final Map<Class<? extends ApplicationEvent>, List<EventListener>> listener;
 
     public CFlowManager(UUID appId, EventBridge bridge)
     {
         this.appId = appId;
         this.bridge = bridge;
 
-        listener = new HashMap<Class<? extends Event>, List<EventListener>>();
+        listener = new HashMap<Class<? extends ApplicationEvent>, List<EventListener>>();
 
         controlFlows = new HashMap<UUID, ControlFlow>();
         bridge.addUpstreamEventListener(appId, this);
     }
 
     @Override
-    public void handleEvent(Event evt)
+    public void handleEvent(ApplicationEvent evt)
     {
-        UUID cflowId = evt.getAssociatedControlFlow();
+        UUID cflowId = evt.getControlFlow();
         if (cflowId != null)
         {
             ControlFlow controlFlow = controlFlows.remove(cflowId);
@@ -42,7 +42,7 @@ public class CFlowManager implements EventListener
                 controlFlow.terminate(evt);
             }
         }
-        for (Map.Entry<Class<? extends Event>, List<EventListener>> entry : listener.entrySet())
+        for (Map.Entry<Class<? extends ApplicationEvent>, List<EventListener>> entry : listener.entrySet())
         {
             if (entry.getKey().isAssignableFrom(evt.getClass()))
             {
@@ -58,7 +58,7 @@ public class CFlowManager implements EventListener
         }
     }
 
-    public void terminateAll(Event evt)
+    public void terminateAll(ApplicationEvent evt)
     {
         Collection<ControlFlow> values = controlFlows.values();
         for (ControlFlow cflow : values)
@@ -75,7 +75,7 @@ public class CFlowManager implements EventListener
         return cflow;
     }
 
-    public void addHandler(Class<? extends Event> eventClass, EventListener l)
+    public void addHandler(Class<? extends ApplicationEvent> eventClass, EventListener l)
     {
         List<EventListener> eventListener = listener.get(eventClass);
         if (eventListener == null)

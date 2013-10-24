@@ -3,7 +3,7 @@ package com.gc.mimicry.plugin.net.tcp;
 import java.util.Set;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.tcp.events.TCPReceivedDataEvent;
 import com.gc.mimicry.ext.net.tcp.events.TCPSendDataEvent;
@@ -31,7 +31,7 @@ public class SimpleTCPDataTransport extends EventHandlerBase
 	}
 
 	@Override
-	public void handleUpstream( Event evt )
+	public void handleUpstream( ApplicationEvent evt )
 	{
 		if ( evt instanceof TCPSendDataEvent )
 		{

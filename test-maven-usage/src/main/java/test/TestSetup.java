@@ -3,24 +3,23 @@ package test;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.UUID;
 
+import org.wso2.siddhi.core.SiddhiManager;
+
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
 import com.gc.mimicry.engine.AlwaysFirstNodeStrategy;
-import com.gc.mimicry.engine.EventListener;
+import com.gc.mimicry.engine.Application;
 import com.gc.mimicry.engine.Node;
 import com.gc.mimicry.engine.NodeParameters;
-import com.gc.mimicry.engine.Session;
-import com.gc.mimicry.engine.SimpleEventBroker;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.SimulationParameters;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
-import com.gc.mimicry.engine.event.Event;
-import com.gc.mimicry.engine.local.LocalApplication;
 import com.gc.mimicry.engine.local.LocalEngine;
+import com.gc.mimicry.engine.local.LocalSession;
 import com.gc.mimicry.engine.stack.EventHandlerParameters;
 import com.gc.mimicry.engine.timing.TimelineType;
-import com.gc.mimicry.ext.stdio.events.ConsoleOutputEvent;
 import com.gc.mimicry.util.IOUtils;
 
 public class TestSetup {
@@ -38,34 +37,20 @@ public class TestSetup {
 		appRepo.storeBundle("ping-client", new ByteArrayInputStream(bundleContent));
 		
 		// Infrastructure
-		SimpleEventBroker broker = new SimpleEventBroker();
-		broker.addEventListener(new EventListener() {
-			
-			@Override
-			public void handleEvent(Event evt) {
-				if(evt instanceof ConsoleOutputEvent)
-				{
-					ConsoleOutputEvent e = (ConsoleOutputEvent)evt;
-					System.out.print("[console] " + new String(e.getData()));
-				}
-				else
-				{
-					//System.out.println("[event] " + evt);
-				}
-			}
-		});
-		LocalEngine engine = new LocalEngine(broker, appRepo, workspace);
+		LocalEngine engine = new LocalEngine( appRepo, workspace);
 
 		// Simulation specific configuration
 		SimulationParameters simuParams = new SimulationParameters();
 		simuParams.setTimelineType(TimelineType.SYSTEM);
 		
+		LocalSession localSession = engine.createSession(UUID.randomUUID(), simuParams);
+
 		// Setup
 		Simulation.Builder builder = new Simulation.Builder();
         builder.withNodeDistributionStrategy(new AlwaysFirstNodeStrategy());
-        builder.withEventEngine(broker);
+        builder.withEventEngine(localSession.getEventEngine());
         builder.withSimulationParameters(simuParams);
-        builder.addSession(engine.createSession(UUID.randomUUID(), simuParams));
+		builder.addSession(localSession);
         Simulation simu = builder.build();
 
 		// Simulation
@@ -75,11 +60,11 @@ public class TestSetup {
 		params.getEventStack().add(new EventHandlerParameters("com.gc.mimicry.plugin.net.tcp.TCPConnectionManager"));
 		
 		Node node1 = simu.createNode(params);
-		LocalApplication server = node1.installApplication("ping-server", "/apps/server");
+		Application server = node1.installApplication("ping-server", "/apps/server");
 		
 		params.setNodeName("MyNode-2");
 		Node node2 = simu.createNode(params);
-		LocalApplication client = node2.installApplication("ping-client", "/apps/client");
+		Application client = node2.installApplication("ping-client", "/apps/client");
 		
 		server.start("8000");
 		client.start("127.0.0.1", "8000");

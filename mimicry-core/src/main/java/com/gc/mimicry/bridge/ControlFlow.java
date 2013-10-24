@@ -2,21 +2,21 @@ package com.gc.mimicry.bridge;
 
 import java.util.UUID;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.util.concurrent.DefaultValueFuture;
 
 public class ControlFlow
 {
-    private final DefaultValueFuture<Event> future;
+    private final DefaultValueFuture<ApplicationEvent> future;
     private final UUID id;
 
     public ControlFlow()
     {
-        future = new DefaultValueFuture<Event>();
+        future = new DefaultValueFuture<ApplicationEvent>();
         id = UUID.randomUUID();
     }
 
-    public Event awaitTermination()
+    public ApplicationEvent awaitTermination()
     {
         future.awaitUninterruptibly(Long.MAX_VALUE);
         return getTerminationCause();
@@ -32,12 +32,12 @@ public class ControlFlow
      * 
      * @param event
      */
-    public void terminate(Event event)
+    public void terminate(ApplicationEvent event)
     {
         future.setValue(event);
     }
 
-    public Event getTerminationCause()
+    public ApplicationEvent getTerminationCause()
     {
         return future.getValue();
     }

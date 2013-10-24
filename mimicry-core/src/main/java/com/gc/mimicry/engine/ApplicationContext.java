@@ -7,7 +7,7 @@ public class ApplicationContext
 {
     private ClassLoader classLoader;
     private EventBridge eventBridge;
-    private Timeline clock;
+    private Timeline timeline;
 
     public EventBridge getEventBridge()
     {
@@ -19,14 +19,14 @@ public class ApplicationContext
         this.eventBridge = eventBridge;
     }
 
-    public Timeline getClock()
+    public Timeline getTimeline()
     {
-        return clock;
+        return timeline;
     }
 
-    public void setClock(Timeline clock)
+    public void setClock(Timeline timeline)
     {
-        this.clock = clock;
+        this.timeline = timeline;
     }
 
     public ClassLoader getClassLoader()

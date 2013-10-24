@@ -5,31 +5,29 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.UUID;
 
-import com.gc.mimicry.engine.EventEngine;
-import com.gc.mimicry.engine.event.EventFactory;
-import com.gc.mimicry.ext.stdio.events.ConsoleStdinEvent;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.Stream;
+import com.gc.mimicry.engine.streams.StdInStream;
 import com.google.common.base.Preconditions;
 
 public class ConsoleOutputStream extends OutputStream
 {
-    private final EventFactory eventFactory;
-    private final EventEngine eventBroker;
     private final UUID applicationId;
+    private final Stream stream;
 
-    private ConsoleOutputStream(EventFactory eventFactory, EventEngine eventBroker, UUID applicationId)
+    private ConsoleOutputStream(CEPEngine eventEngine, UUID applicationId)
     {
-        Preconditions.checkNotNull(eventFactory);
-        Preconditions.checkNotNull(eventBroker);
+        Preconditions.checkNotNull(eventEngine);
         Preconditions.checkNotNull(applicationId);
 
-        this.eventFactory = eventFactory;
-        this.eventBroker = eventBroker;
         this.applicationId = applicationId;
+
+        stream = StdInStream.get(eventEngine);
     }
 
-    public static ConsoleOutputStream attachStdin(EventFactory eventFactory, EventEngine eventBroker, UUID applicationId)
+    public static ConsoleOutputStream attachStdin(CEPEngine eventEngine, UUID applicationId)
     {
-        return new ConsoleOutputStream(eventFactory, eventBroker, applicationId);
+        return new ConsoleOutputStream(eventEngine, applicationId);
     }
 
     @Override
@@ -52,8 +50,7 @@ public class ConsoleOutputStream extends OutputStream
 
     private void send(byte[] data)
     {
-        ConsoleStdinEvent event = eventFactory.createEvent(ConsoleStdinEvent.class, applicationId);
-        event.setData(data);
-        eventBroker.fireEvent(event);
+        // TODO: do we need a concrete time stamp at this point?
+        stream.send(0, applicationId, data);
     }
 }

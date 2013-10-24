@@ -50,6 +50,7 @@ public class ThreadManager
      * Invoked if a thread terminates normally.
      * 
      * @param thread
+     *            The thread which terminated.
      */
     public void threadTerminated(IManagedThread thread)
     {
@@ -65,7 +66,9 @@ public class ThreadManager
      * Invoked if a thread terminates due to an exception.
      * 
      * @param thread
+     *            The thread which terminated.
      * @param th
+     *            The reason for thread termination.
      */
     public void threadTerminated(IManagedThread thread, Throwable th)
     {
@@ -84,7 +87,7 @@ public class ThreadManager
     /**
      * Returns the id of the application this thread belongs to.
      * 
-     * @return
+     * @return The application's id this manager belongs to.
      */
     public UUID getApplicationId()
     {

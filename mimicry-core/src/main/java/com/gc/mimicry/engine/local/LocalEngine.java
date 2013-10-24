@@ -9,33 +9,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
 import com.gc.mimicry.engine.Engine;
 import com.gc.mimicry.engine.EngineInfo;
-import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.SessionInfo;
 import com.gc.mimicry.engine.SimulationParameters;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
-import com.gc.mimicry.engine.event.DefaultEventFactory;
-import com.gc.mimicry.engine.event.Identity;
 import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.engine.timing.TimelineFactory;
+import com.gc.mimicry.ext.timing.ClockDriver;
 import com.gc.mimicry.util.IOUtils;
 import com.google.common.base.Preconditions;
 
+/**
+ * An engine hosted within the local JVM.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class LocalEngine implements Engine
 {
     private final Map<UUID, LocalSession> sessions;
-    private final EventEngine broker;
     private final ApplicationRepository appRepo;
     private final File workspace;
 
-    public LocalEngine(EventEngine broker, ApplicationRepository appRepo, File workspace)
+    public LocalEngine(ApplicationRepository appRepo, File workspace)
     {
-        Preconditions.checkNotNull(broker);
         Preconditions.checkNotNull(appRepo);
         Preconditions.checkNotNull(workspace);
 
-        this.broker = broker;
         this.appRepo = appRepo;
         this.workspace = workspace;
 
@@ -49,21 +52,25 @@ public class LocalEngine implements Engine
     }
 
     @Override
-    public LocalSession createSession(UUID sessionId, SimulationParameters params)
+    public LocalSession createSession(UUID simulationId, SimulationParameters params)
     {
-        File sessionDir = new File(workspace, sessionId.toString());
+        File sessionDir = new File(workspace, simulationId.toString());
         sessionDir.mkdirs();
 
-        Timeline timeline = TimelineFactory.getDefault().createTimeline(params.getTimelineType(),
-                params.getInitialTimeMillis());
+        TimelineFactory factory = TimelineFactory.getDefault();
         // TODO: select a more appropriate class loader
         ClassLoader ehLoader = ClassLoader.getSystemClassLoader();
 
-        NodeFactory nodeFactory = new NodeFactory(broker, timeline, ehLoader, appRepo);
+        CEPEngine eventEngine = new SiddhiCEPEngine(simulationId.toString());
 
-        LocalSession session = new LocalSession(nodeFactory, sessionDir, broker, DefaultEventFactory.create(Identity
-                .create("Session " + sessionId)));
-        sessions.put(sessionId, session);
+        Timeline timeline = factory.createTimeline(params.getTimelineType(), params.getInitialTimeMillis());
+
+        NodeFactory nodeFactory = new NodeFactory(eventEngine, timeline, ehLoader, appRepo);
+        LocalSession session = new LocalSession(nodeFactory, sessionDir, eventEngine);
+
+        session.attachResource(new ClockDriver(eventEngine, timeline));
+
+        sessions.put(simulationId, session);
         return session;
     }
 

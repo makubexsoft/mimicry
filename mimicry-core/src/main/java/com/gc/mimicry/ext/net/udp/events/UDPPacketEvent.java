@@ -2,9 +2,9 @@ package com.gc.mimicry.ext.net.udp.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface UDPPacketEvent extends Event
+public interface UDPPacketEvent extends ApplicationEvent
 {
     public int getTimeToLive();
 

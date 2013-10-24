@@ -1,6 +1,6 @@
 package com.gc.mimicry.engine;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
 
 /**
@@ -16,5 +16,5 @@ public interface EventListener
      * 
      * @param evt
      */
-    public void handleEvent(Event evt);
+    public void handleEvent(ApplicationEvent evt);
 }

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -43,7 +44,22 @@ public class MainFrame extends DefaultDockableHolder
         setJMenuBar(createMenuBar());
 
         setSize(800, 600);
+        UIUtils.centerOnScreen(this);
         setVisible(true);
+
+        // askForNewSimulation();
+    }
+
+    private void askForNewSimulation()
+    {
+        JDialog dialog = new JDialog();
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.add(new NewSimulationView());
+        dialog.pack();
+        dialog.setModal(true);
+        dialog.setResizable(false);
+        UIUtils.centerOnScreen(dialog);
+        dialog.setVisible(true);
     }
 
     private void configureDockingManager()
@@ -62,7 +78,7 @@ public class MainFrame extends DefaultDockableHolder
         {
             // Global configuration
             String defaultPath = LocalApplicationRepository.getDefaultPath().getAbsolutePath();
-            File repoPath = new File(Settings.getValue(Settings.REPO_PATH, defaultPath));
+            File repoPath = new File(Settings.getValue(Settings.REPOSITORY_PATH, defaultPath));
             LocalApplicationRepository appRepo = new LocalApplicationRepository(repoPath);
             File workspace = new File(Settings.getValue(Settings.WORKSPACE_PATH));
 
@@ -71,15 +87,16 @@ public class MainFrame extends DefaultDockableHolder
             LocalEngine engine = new LocalEngine(broker, appRepo, workspace);
 
             // Simulation specific configuration
-            SimulationParameters simuParams = new SimulationParameters();
-            simuParams.setTimelineType(TimelineType.SYSTEM);
+            SimulationParameters simulationParams = new SimulationParameters();
+            simulationParams.setTimelineType(TimelineType.SYSTEM);
 
             // Setup
             Simulation.Builder builder = new Simulation.Builder();
             builder.withNodeDistributionStrategy(new AlwaysFirstNodeStrategy());
             builder.withEventEngine(broker);
-            builder.withSimulationParameters(simuParams);
-            builder.addSession(engine.createSession(UUID.randomUUID(), simuParams));
+            builder.withSimulationParameters(simulationParams);
+            UUID sessionId = UUID.randomUUID();
+            builder.addSession(engine.createSession(sessionId, simulationParams));
             Simulation simu = builder.build();
 
             createFrames(simu, appRepo);

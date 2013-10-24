@@ -2,9 +2,9 @@ package com.gc.mimicry.ext.net.events;
 
 import java.net.InetSocketAddress;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface SocketBindRequestEvent extends Event
+public interface SocketBindRequestEvent extends ApplicationEvent
 {
     public InetSocketAddress getEndPoint();
 

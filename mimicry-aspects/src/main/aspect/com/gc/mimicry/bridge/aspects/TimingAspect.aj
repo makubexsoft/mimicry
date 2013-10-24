@@ -53,30 +53,30 @@ public aspect TimingAspect
 	// ------------------------------------------------------------------------------------------
 	Object around() : currentMillis()  
 	{
-		return SimulatorBridge.getClock().currentMillis();
+		return SimulatorBridge.getTimeline().currentMillis();
 	}
 
 	Object around() : nanoTime()  
 	{
-		return SimulatorBridge.getClock().currentMillis() * E6;
+		return SimulatorBridge.getTimeline().currentMillis() * E6;
 	}
 
 	void around( long millis ) throws InterruptedException : sleep(millis)  
 	{
-		SimulatorBridge.getClock().sleepFor( millis );
+		SimulatorBridge.getTimeline().sleepFor( millis );
 	}
 
 	after( Calendar cal ) : newCalendar(cal) {
-		cal.setTimeInMillis( SimulatorBridge.getClock().currentMillis() );
+		cal.setTimeInMillis( SimulatorBridge.getTimeline().currentMillis() );
 	}
 
 	after() returning (Object o ): calendargetInstance() 
 	{
-		((Calendar) o).setTimeInMillis( SimulatorBridge.getClock().currentMillis() );
+		((Calendar) o).setTimeInMillis( SimulatorBridge.getTimeline().currentMillis() );
 	}
 
 	Object around() : newDate() 
 	{
-		return new Date( SimulatorBridge.getClock().currentMillis() );
+		return new Date( SimulatorBridge.getTimeline().currentMillis() );
 	}
 }

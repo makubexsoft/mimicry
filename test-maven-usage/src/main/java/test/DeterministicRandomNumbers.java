@@ -7,10 +7,12 @@ import java.util.Random;
 
 import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.local.Applications;
 import com.gc.mimicry.engine.local.LocalApplication;
 import com.gc.mimicry.engine.stack.EventBridge;
@@ -21,14 +23,15 @@ public class DeterministicRandomNumbers
 {
 	public static void main( String[] args ) throws Exception
 	{       
+		CEPEngine eventEngine = new SiddhiCEPEngine();
 		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
 		ClassLoader loader = ApplicationClassLoader.create(config,  ClassLoader.getSystemClassLoader());
-		EventBridge eventBridge = new EventBridge();
+		EventBridge eventBridge = new EventBridge(eventEngine);
 		
 		eventBridge.addDownstreamEventListener(new EventListener()
         {
             @Override
-            public void handleEvent(Event evt)
+            public void handleEvent(ApplicationEvent evt)
             {
             	if(evt instanceof ConsoleOutputEvent)
             	{
@@ -43,7 +46,7 @@ public class DeterministicRandomNumbers
         ctx.setClock(new SystemClock());
         ctx.setEventBridge(eventBridge);
         Thread.currentThread().setContextClassLoader( loader );
-        LocalApplication app = Applications.create(ctx, new RandomNumberTest());
+        LocalApplication app = Applications.create(ctx, new RandomNumberTest(), eventEngine);
         
         app.start();
         app.getTerminationFuture().awaitUninterruptibly(5000);

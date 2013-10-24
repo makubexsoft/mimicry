@@ -2,6 +2,12 @@ package com.gc.mimicry.engine;
 
 import java.io.Serializable;
 
+/**
+ * This data structure contains information about an engine such as Architecture, CPU-Cores, Java-Version, etc.
+ * 
+ * @author Marc-Christian Schulze
+ * 
+ */
 public class EngineInfo implements Serializable
 {
     private static final long serialVersionUID = 2959345922566697210L;

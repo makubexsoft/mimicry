@@ -7,9 +7,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.local.LocalNode;
 import com.gc.mimicry.engine.timing.ClockBasedScheduler;
 import com.gc.mimicry.engine.timing.Scheduler;
@@ -20,13 +19,13 @@ import com.google.common.base.Preconditions;
 
 /**
  * This is a stack of {@link EventHandler} which define the actual behaviour of the simulated infrastructure.
- * Information is passing the {@link EventStack} as so-called {@link Event}s. When events are passed down in the stack,
- * e.g. from the application to the {@link EventEngine}, they are called downstream events. {@link Event}s that are
- * passed up in the stack, e.g. from the {@link EventEngine} to the {@link LocalJVMApplication}, are called upstream
- * events. Each handler within the stack is able to forward, suppress, multiple or demultiplex events. On top of each
- * {@link EventStack} a so-called {@link EventBridge} is located which filters and dispatches events for the
- * {@link LocalJVMApplication}s running on the {@link LocalNode}. Events that are not targeted for an application are
- * discarded by the event bridge.
+ * Information is passing the {@link EventStack} as so-called {@link ApplicationEvent}s. When events are passed down in
+ * the stack, e.g. from the application to the {@link EventEngine}, they are called downstream events.
+ * {@link ApplicationEvent}s that are passed up in the stack, e.g. from the {@link EventEngine} to the
+ * {@link LocalJVMApplication}, are called upstream events. Each handler within the stack is able to forward, suppress,
+ * multiple or demultiplex events. On top of each {@link EventStack} a so-called {@link EventBridge} is located which
+ * filters and dispatches events for the {@link LocalJVMApplication}s running on the {@link LocalNode}. Events that are
+ * not targeted for an application are discarded by the event bridge.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -35,9 +34,7 @@ public class EventStack implements EventListener
 {
     private final LocalNode node;
     private final List<EventHandler> handlerList;
-    private final EventEngine eventBroker;
     private final EventBridge eventBridge;
-    private final EventListener brokerListener;
 
     /**
      * Constructs an empty event stack associated to the given {@link LocalNode} and {@link EventBridge}. This instance
@@ -50,26 +47,13 @@ public class EventStack implements EventListener
      * @param eventBridge
      *            The event bridge to use for dispatching upstream events towards the applications.
      */
-    public EventStack(LocalNode node, EventEngine eventBroker, EventBridge eventBridge)
+    public EventStack(LocalNode node, EventBridge eventBridge)
     {
         Preconditions.checkNotNull(node);
-        Preconditions.checkNotNull(eventBroker);
         Preconditions.checkNotNull(eventBridge);
 
         this.node = node;
-        this.eventBroker = eventBroker;
         this.eventBridge = eventBridge;
-
-        brokerListener = new EventListener()
-        {
-
-            @Override
-            public void handleEvent(Event evt)
-            {
-                sendUpstream(handlerList.size(), evt);
-            }
-        };
-        eventBroker.addEventListener(brokerListener);
 
         eventBridge.addDownstreamEventListener(this);
         handlerList = new CopyOnWriteArrayList<EventHandler>();
@@ -85,7 +69,7 @@ public class EventStack implements EventListener
         return node;
     }
 
-    void sendDownstream(int index, final Event evt)
+    void sendDownstream(int index, final ApplicationEvent evt)
     {
         if (handlerList.size() > index + 1)
         {
@@ -97,18 +81,19 @@ public class EventStack implements EventListener
                 @Override
                 public void run()
                 {
+                    // TODO: merge VectorClock of handler's identity/eventFactory and incoming event
+                    // then increase clock of handler
                     handler.handleDownstream(evt);
                 }
             }, 0, TimeUnit.MILLISECONDS);
         }
         else
         {
-            // reached bottom
-            eventBroker.fireEvent(evt, brokerListener);
+            // reached bottom - discard event
         }
     }
 
-    void sendUpstream(int index, final Event evt)
+    void sendUpstream(int index, final ApplicationEvent evt)
     {
         if (index > 0)
         {
@@ -120,6 +105,8 @@ public class EventStack implements EventListener
                 @Override
                 public void run()
                 {
+                    // TODO: merge VectorClock of handler's identity/eventFactory and incoming event
+                    // then increase clock of handler
                     handler.handleUpstream(evt);
                 }
             }, 0, TimeUnit.MILLISECONDS);
@@ -195,7 +182,7 @@ public class EventStack implements EventListener
     }
 
     @Override
-    public void handleEvent(Event evt)
+    public void handleEvent(ApplicationEvent evt)
     {
         sendDownstream(-1, evt);
     }

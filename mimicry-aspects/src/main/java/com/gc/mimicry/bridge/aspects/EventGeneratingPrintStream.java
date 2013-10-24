@@ -8,7 +8,7 @@ import java.util.Locale;
 
 import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.threading.ManagedThread;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.ext.stdio.events.ConsoleStderrEvent;
 import com.gc.mimicry.ext.stdio.events.ConsoleStdoutEvent;
@@ -44,7 +44,7 @@ public class EventGeneratingPrintStream extends PrintStream
 		}
 	}
 	 
-	private <T extends Event> T createEvent(Class<T> eventClass)
+	private <T extends ApplicationEvent> T createEvent(Class<T> eventClass)
 	{
 		EventFactory eventFactory = ManagedThread.currentThread().getEventFactory();
 		return eventFactory.createEvent(eventClass, SimulatorBridge.getApplicationId(), null);

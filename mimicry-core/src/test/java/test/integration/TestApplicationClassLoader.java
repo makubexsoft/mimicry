@@ -10,29 +10,34 @@ import org.junit.Test;
 
 import com.gc.mimicry.bridge.EntryPoint;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.local.Applications;
 import com.gc.mimicry.engine.local.LocalApplication;
 import com.gc.mimicry.engine.stack.EventBridge;
-import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.engine.timing.SystemClock;
+import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.util.concurrent.Future;
 
 public class TestApplicationClassLoader
 {
     private ApplicationContext ctx;
+    private CEPEngine eventEngine;
 
     @Before
     public void setUp() throws Exception
     {
+        eventEngine = new SiddhiCEPEngine();
+
         ClassPathConfiguration classpath = createConfig();
         ApplicationClassLoader loader = ApplicationClassLoader.create(classpath, ClassLoader.getSystemClassLoader());
 
         ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(new SystemClock());
-        ctx.setEventBridge(new EventBridge());
+        ctx.setEventBridge(new EventBridge(eventEngine));
     }
 
     @Test
@@ -44,7 +49,7 @@ public class TestApplicationClassLoader
             public void main(String[] args)
             {
             }
-        });
+        }, eventEngine);
         app.start();
     }
 
@@ -62,7 +67,7 @@ public class TestApplicationClassLoader
                     System.out.print("");
                 }
             }
-        });
+        }, eventEngine);
 
         app.start();
         Future<?> future = app.stop();

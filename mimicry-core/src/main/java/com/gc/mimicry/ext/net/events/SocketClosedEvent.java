@@ -1,8 +1,8 @@
 package com.gc.mimicry.ext.net.events;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface SocketClosedEvent extends Event
+public interface SocketClosedEvent extends ApplicationEvent
 {
 
 }

@@ -10,7 +10,7 @@ import javax.swing.ListModel;
 
 import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
 import com.google.common.base.Preconditions;
 import com.jgoodies.binding.adapter.AbstractTableAdapter;
@@ -38,7 +38,7 @@ public class TCPConnectionMonitor extends JDialog
 		{
 
 			@Override
-			public void handleEvent( Event evt )
+			public void handleEvent( ApplicationEvent evt )
 			{
 				if ( evt instanceof ConnectionEstablishedEvent )
 				{

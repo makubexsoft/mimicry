@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.stack.EventHandlerBase;
 import com.gc.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
 import com.gc.mimicry.ext.net.tcp.events.SocketAwaitingConnectionEvent;
@@ -29,7 +29,7 @@ public class TCPConnectionManager extends EventHandlerBase
 	}
 
 	@Override
-	public void handleDownstream( Event evt )
+	public void handleDownstream( ApplicationEvent evt )
 	{
 		if ( evt instanceof SocketAwaitingConnectionEvent )
 		{
@@ -46,7 +46,7 @@ public class TCPConnectionManager extends EventHandlerBase
 	}
 
 	@Override
-	public void handleUpstream( final Event evt )
+	public void handleUpstream( final ApplicationEvent evt )
 	{
 		if ( evt instanceof SocketConnectionRequest )
 		{
@@ -62,7 +62,7 @@ public class TCPConnectionManager extends EventHandlerBase
 				public void run()
 				{
 					SocketConnectionRequest event = getEventFactory().createEvent( SocketConnectionRequest.class,
-							evt.getTargetApplication(), evt.getAssociatedControlFlow(), evt.getSourceApplication() );
+							evt.getTargetApplication(), evt.getControlFlow(), evt.getApplication() );
 					event.setDestination( ((TCPPortUnreachable) evt).getSource() );
 					event.setSource( ((TCPPortUnreachable) evt).getDestination() );
 					sendDownstream( event );
@@ -90,7 +90,7 @@ public class TCPConnectionManager extends EventHandlerBase
 		{
 			// sorry - nobody here to pick up the connection
 			TCPPortUnreachable event = getEventFactory().createEvent( TCPPortUnreachable.class,
-					request.getTargetApplication(), request.getAssociatedControlFlow(), request.getSourceApplication() );
+					request.getTargetApplication(), request.getControlFlow(), request.getApplication() );
 			event.setSource( request.getDestination() );
 			event.setDestination( request.getSource() );
 			sendDownstream( event );
@@ -100,8 +100,8 @@ public class TCPConnectionManager extends EventHandlerBase
 	private void storeSocketInformation( SocketAwaitingConnectionEvent waitEvent )
 	{
 		CFlowRef ref = new CFlowRef();
-		ref.appId = waitEvent.getSourceApplication();
-		ref.cflow = waitEvent.getAssociatedControlFlow();
+		ref.appId = waitEvent.getApplication();
+		ref.cflow = waitEvent.getControlFlow();
 
 		int port = waitEvent.getLocalAddress().getPort();
 		serverSocketsWaiting.put( port, ref );
@@ -109,7 +109,7 @@ public class TCPConnectionManager extends EventHandlerBase
 
 	private void informApplication( SocketConnectionRequest request, int port, CFlowRef ref )
 	{
-		UUID source = request.getSourceApplication();
+		UUID source = request.getApplication();
 		ConnectionEstablishedEvent event;
 		event = getEventFactory().createEvent( ConnectionEstablishedEvent.class, source, ref.cflow, ref.appId );
 		event.setClientAddress( request.getSource() );
@@ -119,8 +119,8 @@ public class TCPConnectionManager extends EventHandlerBase
 
 	private void informCaller( SocketConnectionRequest request, int port )
 	{
-		UUID cflow = request.getAssociatedControlFlow();
-		UUID dest = request.getSourceApplication();
+		UUID cflow = request.getControlFlow();
+		UUID dest = request.getApplication();
 		ConnectionEstablishedEvent event;
 		event = getEventFactory().createEvent( ConnectionEstablishedEvent.class, null, cflow, dest );
 		sendDownstream( event );

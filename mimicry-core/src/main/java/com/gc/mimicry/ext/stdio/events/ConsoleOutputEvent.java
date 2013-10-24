@@ -1,8 +1,8 @@
 package com.gc.mimicry.ext.stdio.events;
 
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 
-public interface ConsoleOutputEvent extends Event
+public interface ConsoleOutputEvent extends ApplicationEvent
 {
     public byte[] getData();
 }

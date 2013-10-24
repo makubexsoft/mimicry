@@ -1,22 +1,28 @@
 package com.gc.mimicry.engine.local;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.gc.mimicry.bridge.EntryPoint;
+import com.gc.mimicry.bridge.threading.CheckpointBasedScheduler;
 import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
+import com.gc.mimicry.cep.CEPEngine;
 import com.gc.mimicry.engine.ApplicationContext;
 import com.gc.mimicry.engine.ClassPathConfiguration;
 import com.gc.mimicry.engine.EngineInfo;
-import com.gc.mimicry.engine.EventEngine;
 import com.gc.mimicry.engine.Node;
 import com.gc.mimicry.engine.deployment.ApplicationBundle;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.stack.EventBridge;
 import com.gc.mimicry.engine.stack.EventStack;
+import com.gc.mimicry.engine.streams.ApplicationHasBeenInstalledStream;
+import com.gc.mimicry.engine.streams.NodeRemovedStream;
 import com.gc.mimicry.engine.timing.Timeline;
 import com.gc.mimicry.util.BaseResourceManager;
 import com.gc.mimicry.util.IOUtils;
@@ -24,8 +30,7 @@ import com.gc.mimicry.util.ZipFileExtractor;
 import com.google.common.base.Preconditions;
 
 /**
- * A node represents a logical machine on which simulated applications can be run. An instance of a node only exists
- * within a certain simulation session.
+ * A simulated node that is hosted on a {@link LocalSession} within the local JVM.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -40,12 +45,13 @@ public class LocalNode extends BaseResourceManager implements Node
     private final Timeline timeline;
     private final ApplicationRepository appRepo;
     private final File fileSystemRoot;
+    private final CEPEngine eventEngine;
 
-    public LocalNode(String name, EventEngine eventBroker, Timeline timeline, ApplicationRepository appRepo,
+    public LocalNode(String name, CEPEngine eventEngine, Timeline timeline, ApplicationRepository appRepo,
             File fileSystemRoot)
     {
         Preconditions.checkNotNull(name);
-        Preconditions.checkNotNull(eventBroker);
+        Preconditions.checkNotNull(eventEngine);
         Preconditions.checkNotNull(appRepo);
         Preconditions.checkNotNull(fileSystemRoot);
 
@@ -53,10 +59,11 @@ public class LocalNode extends BaseResourceManager implements Node
         this.timeline = timeline;
         this.appRepo = appRepo;
         this.fileSystemRoot = fileSystemRoot;
+        this.eventEngine = eventEngine;
 
         applications = new HashSet<LocalApplication>();
-        eventBridge = new EventBridge();
-        eventStack = new EventStack(this, eventBroker, eventBridge);
+        eventBridge = new EventBridge(eventEngine);
+        eventStack = new EventStack(this, eventBridge);
         id = UUID.randomUUID();
     }
 
@@ -102,6 +109,13 @@ public class LocalNode extends BaseResourceManager implements Node
         return applications;
     }
 
+    @Override
+    public void close()
+    {
+        NodeRemovedStream.get(eventEngine).send(timeline.currentMillis(), getId());
+        super.close();
+    }
+
     /**
      * Returns the application identified by the given id if it is managed by this instance; otherwise null.
      * 
@@ -140,7 +154,12 @@ public class LocalNode extends BaseResourceManager implements Node
                 config.addAppClassPath(url);
             }
 
-            return createApplication(bundle.getMainClass(), config);
+            LocalApplication application = createApplication(bundle.getMainClass(), config);
+
+            ApplicationHasBeenInstalledStream.get(eventEngine).send(timeline.currentMillis(), getId(),
+                    application.getId(), bundleName, path);
+
+            return application;
         }
         catch (MalformedURLException e)
         {
@@ -165,7 +184,7 @@ public class LocalNode extends BaseResourceManager implements Node
         ctx.setClock(getTimeline());
         ctx.setEventBridge(getEventBridge());
 
-        LocalApplication application = Applications.create(ctx, mainClass);
+        LocalApplication application = create(ctx, mainClass);
 
         applications.add(application);
         attachResource(application);
@@ -176,5 +195,41 @@ public class LocalNode extends BaseResourceManager implements Node
     public EngineInfo getEngineInfo()
     {
         return EngineInfo.fromLocalJVM();
+    }
+
+    private LocalApplication create(final ApplicationContext ctx, String mainClassName) throws NoSuchMethodException,
+            SecurityException, ClassNotFoundException
+    {
+        Class<?> mainClass = ctx.getClassLoader().loadClass(mainClassName);
+        final Method mainMethod = mainClass.getMethod("main", String[].class);
+
+        Class<?> threadClass = ctx.getClassLoader().loadClass("com.gc.mimicry.bridge.threading.ManagedThread");
+        final Constructor<?> constructor = threadClass.getConstructor(Runnable.class);
+
+        EntryPoint r = new EntryPoint()
+        {
+            @Override
+            public void main(final String[] args) throws Throwable
+            {
+                Thread thread = (Thread) constructor.newInstance(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            mainMethod.invoke(null, new Object[] { args });
+                        }
+                        catch (Throwable e)
+                        {
+                            throw new RuntimeException("Thread terminated due to uncaught exception.", e);
+                        }
+                    }
+                });
+                thread.setContextClassLoader(ctx.getClassLoader());
+                thread.start();
+            }
+        };
+        return new LocalApplication(ctx, r, new CheckpointBasedScheduler(ctx.getTimeline()), eventEngine);
     }
 }

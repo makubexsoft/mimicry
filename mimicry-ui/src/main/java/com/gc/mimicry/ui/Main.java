@@ -37,6 +37,13 @@ public class Main
                         }
                     }
                 }
+
+                // JFrame frame = new JFrame();
+                // frame.add(new NewSimulationView());
+                // frame.pack();
+                // frame.setResizable(false);
+                // frame.setVisible(true);
+
                 // LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
                 new MainFrame();
             }

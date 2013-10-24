@@ -7,9 +7,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.Stream;
 import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.Event;
+import com.gc.mimicry.engine.event.ApplicationEvent;
 import com.gc.mimicry.engine.stack.events.SetApplicationActiveEvent;
+import com.gc.mimicry.engine.streams.ApplicationEventStream;
+import com.google.common.base.Preconditions;
 
 /**
  * This bridge is placed on top of the {@link EventStack} and below all applications. It basically routes and filters
@@ -23,9 +29,14 @@ public class EventBridge
     private final Map<UUID, Boolean> applicationActiveState;
     private final CopyOnWriteArrayList<EventListener> downstreamListener;
     private final Map<UUID, CopyOnWriteArrayList<WeakReference<EventListener>>> upstreamListener;
+    private final ObjectMapper jsonMapper = new ObjectMapper();
+    private final CEPEngine eventEngine;
 
-    public EventBridge()
+    public EventBridge(CEPEngine eventEngine)
     {
+        Preconditions.checkNotNull(eventEngine);
+        this.eventEngine = eventEngine;
+
         applicationActiveState = new HashMap<UUID, Boolean>();
         downstreamListener = new CopyOnWriteArrayList<EventListener>();
         upstreamListener = new HashMap<UUID, CopyOnWriteArrayList<WeakReference<EventListener>>>();
@@ -36,11 +47,13 @@ public class EventBridge
      * 
      * @param evt
      */
-    public void dispatchEventToApplication(Event evt)
+    public void dispatchEventToApplication(ApplicationEvent evt)
     {
+        recordEvent(Direction.UPSTREAM, evt);
+
         if (evt instanceof SetApplicationActiveEvent)
         {
-            setApplicationActive(evt.getSourceApplication(), ((SetApplicationActiveEvent) evt).isActive());
+            setApplicationActive(evt.getApplication(), ((SetApplicationActiveEvent) evt).isActive());
         }
         else
         {
@@ -48,8 +61,10 @@ public class EventBridge
         }
     }
 
-    public void dispatchEventToStack(Event evt)
+    public void dispatchEventToStack(ApplicationEvent evt)
     {
+        recordEvent(Direction.DOWNSTREAM, evt);
+
         if (downstreamListener.size() == 0)
         {
             System.out.println("WARNING: no receiver for " + evt);
@@ -57,6 +72,26 @@ public class EventBridge
         for (EventListener l : downstreamListener)
         {
             l.handleEvent(evt);
+        }
+    }
+
+    private void recordEvent(Direction direction, ApplicationEvent event)
+    {
+        try
+        {
+            String eventAsJson = jsonMapper.writeValueAsString(event);
+            Stream stream = ApplicationEventStream.get(eventEngine);
+            String cflowId = "";
+            if (event.getControlFlow() != null)
+            {
+                cflowId = event.getControlFlow().toString();
+            }
+            stream.send(event.getApplication().toString(), cflowId, direction.toString(), eventAsJson);
+        }
+        catch (JsonProcessingException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -90,14 +125,9 @@ public class EventBridge
         }
     }
 
-    private void handleEvent(Event evt)
+    private void handleEvent(ApplicationEvent evt)
     {
-        UUID targetApplication = evt.getTargetApplication();
-
-        if (targetApplication == null)
-        {
-            return;
-        }
+        UUID targetApplication = evt.getApplication();
         if (!isApplicationActive(targetApplication))
         {
             return;
@@ -137,4 +167,9 @@ public class EventBridge
     {
         applicationActiveState.put(appId, active);
     }
+}
+
+enum Direction
+{
+    UPSTREAM, DOWNSTREAM
 }
