@@ -11,7 +11,7 @@ import com.gc.mimicry.util.ClassPathUtil;
 
 public class ClassPathConfiguration
 {
-    public static ClassPathConfiguration deriveFromClassPath() throws MalformedURLException
+    public static ClassPathConfiguration deriveFromSystemClassLoader() throws MalformedURLException
     {
         ClassLoader loader = ClassLoader.getSystemClassLoader();
 
@@ -19,12 +19,14 @@ public class ClassPathConfiguration
                 "com/gc/mimicry/bridge/SimulatorBridge.class"));
         File aspectJar = new File(ClassPathUtil.getResourceLocation(loader,
                 "com/gc/mimicry/bridge/aspects/ConsoleAspect.class"));
-        File coreJar = new File(ClassPathUtil.getResourceLocation(loader, "com/gc/mimicry/engine/Application.class"));
 
         ClassPathConfiguration ctx = new ClassPathConfiguration(loader);
         ctx.addAspectClassPath(aspectJar.toURI().toURL());
-        ctx.addBridgeClassPath(bridgeJar.toURI().toURL());
-        ctx.addCoreClassPath(coreJar.toURI().toURL());
+        ctx.addToStage1ClassPath(bridgeJar.toURI().toURL());
+        for (URL url : ClassPathUtil.getSystemClassPath())
+        {
+            ctx.addToStage2ClassPath(url);
+        }
 
         return ctx;
     }
@@ -34,18 +36,17 @@ public class ClassPathConfiguration
         return new ClassPathConfiguration(ClassLoader.getSystemClassLoader());
     }
 
-    ClassPathConfiguration(ClassLoader loader)
+    ClassPathConfiguration(ClassLoader stage0ClassLoader)
     {
-        this.eventHandlerClassLoader = loader;
+        this.stage0ClassLoader = stage0ClassLoader;
         aspectClassPath = new ArrayList<URL>();
-        bridgeClassPath = new ArrayList<URL>();
-        appClassPath = new ArrayList<URL>();
-        coreClassPath = new ArrayList<URL>();
+        stage1ClassPath = new ArrayList<URL>();
+        stage2ClassPath = new ArrayList<URL>();
     }
 
-    public ClassLoader getEventHandlerClassLoader()
+    public ClassLoader getStage0ClassLoader()
     {
-        return eventHandlerClassLoader;
+        return stage0ClassLoader;
     }
 
     public List<URL> getAspectClassPath()
@@ -53,19 +54,14 @@ public class ClassPathConfiguration
         return Collections.unmodifiableList(aspectClassPath);
     }
 
-    public List<URL> getCoreClassPath()
+    public List<URL> getStage1ClassPath()
     {
-        return Collections.unmodifiableList(coreClassPath);
+        return Collections.unmodifiableList(stage1ClassPath);
     }
 
-    public List<URL> getBridgeClassPath()
+    public List<URL> getStage2ClassPath()
     {
-        return Collections.unmodifiableList(bridgeClassPath);
-    }
-
-    public List<URL> getAppClassPath()
-    {
-        return Collections.unmodifiableList(appClassPath);
+        return Collections.unmodifiableList(stage2ClassPath);
     }
 
     public void addAspectClassPath(URL p)
@@ -73,24 +69,18 @@ public class ClassPathConfiguration
         aspectClassPath.add(p);
     }
 
-    public void addCoreClassPath(URL p)
+    public void addToStage1ClassPath(URL p)
     {
-        coreClassPath.add(p);
+        stage1ClassPath.add(p);
     }
 
-    public void addBridgeClassPath(URL p)
+    public void addToStage2ClassPath(URL p)
     {
-        bridgeClassPath.add(p);
+        stage2ClassPath.add(p);
     }
 
-    public void addAppClassPath(URL p)
-    {
-        appClassPath.add(p);
-    }
-
-    private final ClassLoader eventHandlerClassLoader;
+    private final ClassLoader stage0ClassLoader;
     private final List<URL> aspectClassPath;
-    private final List<URL> bridgeClassPath;
-    private final List<URL> coreClassPath;
-    private final List<URL> appClassPath;
+    private final List<URL> stage1ClassPath;
+    private final List<URL> stage2ClassPath;
 }

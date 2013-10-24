@@ -72,7 +72,11 @@ public class ThreadManager
      */
     public void threadTerminated(IManagedThread thread, Throwable th)
     {
-        if (!(th instanceof ThreadDeath))
+        if (th instanceof ThreadDeath || th.getCause() instanceof ThreadDeath)
+        {
+            logger.info("Thread has been stopped by Mimicry.");
+        }
+        else
         {
             logger.info("Thread terminated due to exception.", th);
         }

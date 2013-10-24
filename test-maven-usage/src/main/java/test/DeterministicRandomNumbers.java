@@ -24,8 +24,8 @@ public class DeterministicRandomNumbers
 	public static void main( String[] args ) throws Exception
 	{       
 		CEPEngine eventEngine = new SiddhiCEPEngine();
-		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
-		ClassLoader loader = ApplicationClassLoader.create(config,  ClassLoader.getSystemClassLoader());
+		ClassPathConfiguration config = ClassPathConfiguration.deriveFromSystemClassLoader();
+		ClassLoader loader = ApplicationClassLoader.create(config);
 		EventBridge eventBridge = new EventBridge(eventEngine);
 		
 		eventBridge.addDownstreamEventListener(new EventListener()

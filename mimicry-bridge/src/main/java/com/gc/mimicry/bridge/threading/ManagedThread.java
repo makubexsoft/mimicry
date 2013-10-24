@@ -147,7 +147,7 @@ public class ManagedThread extends Thread implements IManagedThread
     public void shutdownGracefully()
     {
         shuttingDown = true;
-        interrupt();
+        // interrupt();
         fireThreadShouldTerminate();
         // suspend();
         stop();

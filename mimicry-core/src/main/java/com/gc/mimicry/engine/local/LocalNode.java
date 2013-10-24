@@ -147,11 +147,11 @@ public class LocalNode extends BaseResourceManager implements Node
             extractor = new ZipFileExtractor(bundle.getLocalLocation());
             extractor.extractAll(installDir);
 
-            ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
+            ClassPathConfiguration config = ClassPathConfiguration.deriveFromSystemClassLoader();
             for (String classPath : bundle.getClassPath())
             {
                 URL url = new File(installDir, classPath).toURI().toURL();
-                config.addAppClassPath(url);
+                config.addToStage2ClassPath(url);
             }
 
             LocalApplication application = createApplication(bundle.getMainClass(), config);
@@ -178,7 +178,7 @@ public class LocalNode extends BaseResourceManager implements Node
     private LocalApplication createApplication(String mainClass, ClassPathConfiguration config)
             throws MalformedURLException, NoSuchMethodException, SecurityException, ClassNotFoundException
     {
-        ClassLoader loader = ApplicationClassLoader.create(config, ClassLoader.getSystemClassLoader());
+        ClassLoader loader = ApplicationClassLoader.create(config);
         ApplicationContext ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(getTimeline());

@@ -32,7 +32,7 @@ public class TestApplicationClassLoader
         eventEngine = new SiddhiCEPEngine();
 
         ClassPathConfiguration classpath = createConfig();
-        ApplicationClassLoader loader = ApplicationClassLoader.create(classpath, ClassLoader.getSystemClassLoader());
+        ApplicationClassLoader loader = ApplicationClassLoader.create(classpath);
 
         ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
@@ -94,8 +94,7 @@ public class TestApplicationClassLoader
 
         ClassPathConfiguration ctx = ClassPathConfiguration.createEmpty();
         ctx.addAspectClassPath(aspectJar.toURI().toURL());
-        ctx.addBridgeClassPath(aspectJar.toURI().toURL());
-        ctx.addBridgeClassPath(bridgeJar.toURI().toURL());
+        ctx.addToStage1ClassPath(bridgeJar.toURI().toURL());
 
         return ctx;
     }

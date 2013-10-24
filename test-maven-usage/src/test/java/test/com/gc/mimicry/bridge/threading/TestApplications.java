@@ -42,11 +42,11 @@ public class TestApplications {
         LocalSession session = engine.createSession(UUID.randomUUID(), simuParams);
         
         
-		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
+		ClassPathConfiguration config = ClassPathConfiguration.deriveFromSystemClassLoader();
         SystemClock clock = new SystemClock();
         LocalNode node = session.createNode(new NodeParameters("myNode"));
 
-        ClassLoader loader = ApplicationClassLoader.create(config, TestThreadScheduler.class.getClassLoader());
+        ClassLoader loader = ApplicationClassLoader.create(config);
         ApplicationContext ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(clock);

@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.gc.mimicry.bridge.threading.IManagedThread;
-import com.gc.mimicry.bridge.threading.ThreadShouldTerminateException;
 import com.gc.mimicry.bridge.threading.ThreadShutdownListener;
 
 /**
@@ -60,7 +59,7 @@ public abstract class AbstractClock implements Timeline, ThreadShutdownListener
                 {
                     if (((IManagedThread) thread).isShuttingDown())
                     {
-                        throw new ThreadShouldTerminateException();
+                        throw new ThreadDeath();
                     }
                 }
             }
@@ -92,7 +91,7 @@ public abstract class AbstractClock implements Timeline, ThreadShutdownListener
                 IManagedThread managedThread = (IManagedThread) thread;
                 if (managedThread.isShuttingDown())
                 {
-                    throw new ThreadShouldTerminateException();
+                    throw new ThreadDeath();
                 }
             }
         }
@@ -138,7 +137,7 @@ public abstract class AbstractClock implements Timeline, ThreadShutdownListener
                     {
                         if (((IManagedThread) thread).isShuttingDown())
                         {
-                            throw new ThreadShouldTerminateException();
+                            throw new ThreadDeath();
                         }
                     }
                 }

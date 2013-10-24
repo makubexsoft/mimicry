@@ -28,7 +28,7 @@ public class DeterministicSchedulingExample
         System.setProperty(WeavingAdaptor.TRACE_MESSAGES_PROPERTY, "true");
         System.setProperty("org.aspectj.tracing.factory", "default");
         
-		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
+		ClassPathConfiguration config = ClassPathConfiguration.deriveFromSystemClassLoader();
 		CEPEngine eventEngine = new SiddhiCEPEngine();
 		// per NODE
 		//
@@ -44,7 +44,7 @@ public class DeterministicSchedulingExample
 
 		// per APPLICATION
 		//
-		final ClassLoader loader = ApplicationClassLoader.create(config,  ClassLoader.getSystemClassLoader());
+		final ClassLoader loader = ApplicationClassLoader.create(config);
         ApplicationContext ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(new SystemClock());

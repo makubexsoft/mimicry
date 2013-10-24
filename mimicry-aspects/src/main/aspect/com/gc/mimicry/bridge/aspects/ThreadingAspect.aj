@@ -6,7 +6,6 @@ import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.bridge.net.ManagedSocket;
 import com.gc.mimicry.bridge.threading.ManagedThread;
 import com.gc.mimicry.bridge.threading.MonitorInterceptor;
-import com.gc.mimicry.bridge.threading.ThreadShouldTerminateException;
 
 /**
  * This aspect is part of the life cycle management of the simulated application.
@@ -72,9 +71,9 @@ public pointcut notifyAllP( Object target ) :
 	 */
 	before( Throwable t ): handler(Exception+) && args(t) && !within(com.gc.mimicry..*)
 	{
-		if ( t instanceof ThreadShouldTerminateException )
+		if ( t instanceof ThreadDeath )
 		{
-			throw (ThreadShouldTerminateException) t;
+			throw (ThreadDeath) t;
 		}
 	}
 

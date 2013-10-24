@@ -2,30 +2,27 @@ package com.gc.mimicry.bridge.weaving;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.aspectj.weaver.loadtime.WeavingURLClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.util.ClassPathUtil;
-import com.gc.mimicry.util.Collections;
 
 /**
  * Specialized class loader for simulated applications. It applies the given aspects to the loaded classes. Internally
  * the class loader manages the classes at three stages which contain different classes.
  * <ul>
- * <li><b>Stage-2</b><br/>
- * Contains the JRE and Mimicry Core classes. There is only a single stage-2. Classes loaded in this stage are not
+ * <li><b>Stage-0</b><br/>
+ * Contains the JRE and Mimicry Core classes. There is only a single stage-0. Classes loaded in this stage are not
  * considered in the weaving process.</li>
  * <li><b>Stage-1</b><br/>
  * Contains the Mimicry Bridge and Aspects. This stage gets instantiated per simulated application. Classes of this
  * stage are woven using the given aspects.</li>
- * <li><b>Stage-0</b><br/>
+ * <li><b>Stage-2</b><br/>
  * Contains the classes of the simulated application. This stage gets instantiated for each stage-1. Classes of this
  * stage are woven using the given aspects.</li>
  * </ul>
@@ -42,38 +39,26 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
     }
     private final ByteCodeEnhancer enhancer;
 
-    ApplicationClassLoader(Collection<URL> appCP, Collection<URL> classPath, Collection<URL> aspects,
-            ClassLoader topLevelClassLoader)
+    ApplicationClassLoader(Collection<URL> stage2ClassPath, Collection<URL> stage1ClassPath,
+            Collection<URL> aspectPath, ClassLoader stage0ClassLoader)
     {
-        /* ClassPathUtil.getSystemClassPath() */
-        super(Collections.merge(new ArrayList<URL>(ClassPathUtil.getSystemClassPath()), new ArrayList<URL>(appCP))
-                .toArray(new URL[0]), aspects.toArray(new URL[0]), new MyParentLoader(classPath, aspects,
-                topLevelClassLoader));
-        ((MyParentLoader) getParent()).setChild(this);
+        super(stage2ClassPath.toArray(new URL[0]), aspectPath.toArray(new URL[0]), new Stage1ClassLoader(
+                stage1ClassPath, stage0ClassLoader));
+
+        ((Stage1ClassLoader) getParent()).setChild(this);
 
         enhancer = new DefaultByteCodeEnhancer();
     }
 
-    public static ApplicationClassLoader create(ClassPathConfiguration config, ClassLoader topLevelClassLoader)
-            throws MalformedURLException
+    public static ApplicationClassLoader create(ClassPathConfiguration config) throws MalformedURLException
     {
-        Set<URL> classPath = new HashSet<URL>();
-        classPath.addAll(config.getAspectClassPath());
-        classPath.addAll(config.getBridgeClassPath());
+        // Aspects must also be available at [Stage-1]
+        Set<URL> stage1ClassPath = new HashSet<URL>();
+        stage1ClassPath.addAll(config.getAspectClassPath());
+        stage1ClassPath.addAll(config.getStage1ClassPath());
 
-        return new ApplicationClassLoader(config.getAppClassPath(), classPath, config.getAspectClassPath(),
-                topLevelClassLoader);
-    }
-
-    public static ApplicationClassLoader create(ClassPathConfiguration config, Collection<URL> applicationClassPath,
-            ClassLoader topLevelClassLoader) throws MalformedURLException
-    {
-        Set<URL> classPath = new HashSet<URL>(applicationClassPath);
-        classPath.addAll(config.getAspectClassPath());
-        classPath.addAll(config.getBridgeClassPath());
-
-        return new ApplicationClassLoader(config.getAppClassPath(), classPath, config.getAspectClassPath(),
-                topLevelClassLoader);
+        return new ApplicationClassLoader(config.getStage2ClassPath(), stage1ClassPath, config.getAspectClassPath(),
+                config.getStage0ClassLoader());
     }
 
     @Override
@@ -95,20 +80,21 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException
     {
-        if (name.startsWith("com.gc.mimicry.") || name.startsWith("javassist") || name.startsWith("org.aspectj"))
+        // At [Stage-2] it's not allowed to load any code of Mimicry itself
+        if (name.startsWith("com.gc.mimicry."))
         {
             throw new ClassNotFoundException(name);
         }
         Class<?> c = super.findClass(name);
         if (logger.isDebugEnabled())
         {
-            logger.debug("[STAGE-0] " + name);
+            logger.debug("[STAGE-2] " + name);
         }
         return c;
     }
 
     /**
-     * Important override otherwise would the [STAGE-1] directly ask [STAGE-2] instead of first asking [STAGE-0].
+     * Important override otherwise would the [STAGE-1] directly ask [STAGE-0] instead of first asking [STAGE-2].
      */
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException
@@ -116,13 +102,13 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
         return getParent().loadClass(name);
     }
 
-    private static class MyParentLoader extends WeavingURLClassLoader
+    private static class Stage1ClassLoader extends URLClassLoader
     {
         private ApplicationClassLoader child;
 
-        public MyParentLoader(Collection<URL> classpath, Collection<URL> aspects, ClassLoader topLevelClassLoader)
+        public Stage1ClassLoader(Collection<URL> stage1ClassPath, ClassLoader stage0ClassLoader)
         {
-            super(classpath.toArray(new URL[0]), aspects.toArray(new URL[0]), topLevelClassLoader);
+            super(stage1ClassPath.toArray(new URL[0]), stage0ClassLoader);
         }
 
         public void setChild(ApplicationClassLoader child)
@@ -134,7 +120,7 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
         public Class<?> loadClass(String name) throws ClassNotFoundException
         {
             //
-            // STAGE-0
+            // STAGE-2
             //
             Class<?> clazz0 = child.findLoadedClass(name);
             if (clazz0 != null)
@@ -147,7 +133,7 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
             }
             catch (ClassNotFoundException e)
             {
-                // ignore - [STAGE-1] and [STAGE-2] (parent) still there
+                // ignore - [STAGE-1] and [STAGE-0] (parent) still there
             }
 
             //
@@ -169,16 +155,16 @@ public class ApplicationClassLoader extends PostProcessingEnabledWeavingURLClass
             }
             catch (ClassNotFoundException e)
             {
-                // ignore - [STAGE-2] (parent - System Class Loader) will pick it up
+                // ignore - [STAGE-0] (parent - System Class Loader) will pick it up
             }
 
             //
-            // STAGE-2
+            // STAGE-0
             //
             Class<?> c = getParent().loadClass(name);
             if (c != null && logger.isDebugEnabled())
             {
-                logger.debug("[STAGE-2] " + name);
+                logger.debug("[STAGE-0] " + name);
             }
             return c;
         }

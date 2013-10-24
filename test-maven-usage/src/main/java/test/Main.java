@@ -21,7 +21,7 @@ public class Main
 {
 	public static void main( String[] args ) throws Exception
 	{
-		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
+		ClassPathConfiguration config = ClassPathConfiguration.deriveFromSystemClassLoader();
 		CEPEngine eventEngine = new SiddhiCEPEngine();
 		
 		// per NODE
@@ -40,7 +40,7 @@ public class Main
 
 		// per APPLICATION
 		//
-        ClassLoader loader = ApplicationClassLoader.create(config, ClassLoader.getSystemClassLoader());
+        ClassLoader loader = ApplicationClassLoader.create(config);
         ApplicationContext ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(new SystemClock());

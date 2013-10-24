@@ -43,11 +43,11 @@ public class TestThreadScheduler implements Serializable
 
         // Infrastructure
         CEPEngine eventEngine = new SiddhiCEPEngine();
-		ClassPathConfiguration config = ClassPathConfiguration.deriveFromClassPath();
+		ClassPathConfiguration config = ClassPathConfiguration.deriveFromSystemClassLoader();
         SystemClock clock = new SystemClock();
         LocalNode node = new LocalNode("myNode", eventEngine, new SystemClock(), appRepo, workspace );
 
-        ClassLoader loader = ApplicationClassLoader.create(config, TestThreadScheduler.class.getClassLoader());
+        ClassLoader loader = ApplicationClassLoader.create(config);
         ctx = new ApplicationContext();
         ctx.setClassLoader(loader);
         ctx.setClock(clock);
