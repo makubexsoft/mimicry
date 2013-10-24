@@ -2,16 +2,16 @@ package com.gc.mimicry.engine.remote;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.gc.mimicry.cep.CEPEngine;
+import com.gc.mimicry.cep.CEPEngineFactory;
 import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
 import com.gc.mimicry.engine.Engine;
 import com.gc.mimicry.engine.EngineInfo;
 import com.gc.mimicry.engine.Session;
-import com.gc.mimicry.engine.SessionInfo;
 import com.gc.mimicry.engine.SimulationParameters;
 import com.google.common.base.Preconditions;
 
@@ -19,11 +19,15 @@ public class ImportedEngine implements Engine
 {
     private final RemoteEngine remote;
     private final Map<UUID, Session> sessions;
+    private final CEPEngineFactory engineFactory;
 
-    public ImportedEngine(RemoteEngine remote)
+    public ImportedEngine(RemoteEngine remote, CEPEngineFactory engineFactory)
     {
         Preconditions.checkNotNull(remote);
+        Preconditions.checkNotNull(engineFactory);
         this.remote = remote;
+        this.engineFactory = engineFactory;
+
         sessions = new HashMap<UUID, Session>();
     }
 
@@ -43,7 +47,7 @@ public class ImportedEngine implements Engine
     @Override
     public Session createSession(UUID sessionId, SimulationParameters params)
     {
-        CEPEngine eventEngine = new SiddhiCEPEngine(sessionId.toString());
+        CEPEngine eventEngine = engineFactory.create(sessionId.toString());
         try
         {
             ImportedSession session = new ImportedSession(remote.createSession(sessionId, params), eventEngine);
@@ -57,7 +61,7 @@ public class ImportedEngine implements Engine
     }
 
     @Override
-    public List<SessionInfo> listSessions()
+    public Set<UUID> listSessions()
     {
         try
         {

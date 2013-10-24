@@ -2,12 +2,11 @@ package com.gc.mimicry.engine.remote;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.gc.mimicry.engine.Engine;
 import com.gc.mimicry.engine.EngineInfo;
-import com.gc.mimicry.engine.SessionInfo;
 import com.gc.mimicry.engine.SimulationParameters;
 import com.google.common.base.Preconditions;
 
@@ -36,7 +35,7 @@ public class ExportedEngine extends UnicastRemoteObject implements RemoteEngine
     }
 
     @Override
-    public List<SessionInfo> listSessions() throws RemoteException
+    public Set<UUID> listSessions() throws RemoteException
     {
         return delegate.listSessions();
     }

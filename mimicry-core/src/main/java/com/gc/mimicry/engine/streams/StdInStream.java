@@ -2,20 +2,27 @@ package com.gc.mimicry.engine.streams;
 
 import com.gc.mimicry.cep.CEPEngine;
 import com.gc.mimicry.cep.Stream;
+import com.gc.mimicry.cep.StreamDescription;
+import com.gc.mimicry.cep.Type;
 
 public class StdInStream
 {
-    public static final String NAME = "StdIn";
-    private static final String STREAM_FORMAT = "define stream " + NAME
-            + " ( timestamp long, appId string, base64Input string )";
+    public static StreamDescription DESCRIPTION;
+    static
+    {
+        DESCRIPTION = new StreamDescription("StdIn");
+        DESCRIPTION.addField("timestamp", Type.LONG);
+        DESCRIPTION.addField("appId", Type.STRING);
+        DESCRIPTION.addField("base64Input", Type.STRING);
+    }
 
     public static Stream get(CEPEngine eventEngine)
     {
-        Stream stream = eventEngine.getStream(NAME);
+        Stream stream = eventEngine.getStream(DESCRIPTION.getName());
         if (stream != null)
         {
             return stream;
         }
-        return eventEngine.defineStream(STREAM_FORMAT);
+        return eventEngine.defineStream(DESCRIPTION);
     }
 }

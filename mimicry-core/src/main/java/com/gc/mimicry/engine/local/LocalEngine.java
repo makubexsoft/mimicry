@@ -3,17 +3,16 @@ package com.gc.mimicry.engine.local;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.gc.mimicry.cep.CEPEngine;
-import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
+import com.gc.mimicry.cep.CEPEngineFactory;
 import com.gc.mimicry.engine.Engine;
 import com.gc.mimicry.engine.EngineInfo;
-import com.gc.mimicry.engine.SessionInfo;
 import com.gc.mimicry.engine.SimulationParameters;
 import com.gc.mimicry.engine.deployment.ApplicationRepository;
 import com.gc.mimicry.engine.timing.Timeline;
@@ -33,14 +32,17 @@ public class LocalEngine implements Engine
     private final Map<UUID, LocalSession> sessions;
     private final ApplicationRepository appRepo;
     private final File workspace;
+    private final CEPEngineFactory engineFactory;
 
-    public LocalEngine(ApplicationRepository appRepo, File workspace)
+    public LocalEngine(ApplicationRepository appRepo, File workspace, CEPEngineFactory engineFactory)
     {
         Preconditions.checkNotNull(appRepo);
         Preconditions.checkNotNull(workspace);
+        Preconditions.checkNotNull(engineFactory);
 
         this.appRepo = appRepo;
         this.workspace = workspace;
+        this.engineFactory = engineFactory;
 
         sessions = new HashMap<UUID, LocalSession>();
     }
@@ -58,12 +60,12 @@ public class LocalEngine implements Engine
         sessionDir.mkdirs();
 
         TimelineFactory factory = TimelineFactory.getDefault();
+        Timeline timeline = factory.createTimeline(params.getTimelineType(), params.getInitialTimeMillis());
+
         // TODO: select a more appropriate class loader
         ClassLoader ehLoader = ClassLoader.getSystemClassLoader();
 
-        CEPEngine eventEngine = new SiddhiCEPEngine(simulationId.toString());
-
-        Timeline timeline = factory.createTimeline(params.getTimelineType(), params.getInitialTimeMillis());
+        CEPEngine eventEngine = engineFactory.create(simulationId.toString());
 
         NodeFactory nodeFactory = new NodeFactory(eventEngine, timeline, ehLoader, appRepo);
         LocalSession session = new LocalSession(nodeFactory, sessionDir, eventEngine);
@@ -75,10 +77,9 @@ public class LocalEngine implements Engine
     }
 
     @Override
-    public List<SessionInfo> listSessions()
+    public Set<UUID> listSessions()
     {
-        // TODO Auto-generated method stub
-        return new ArrayList<SessionInfo>();
+        return new HashSet<UUID>(sessions.keySet());
     }
 
     @Override

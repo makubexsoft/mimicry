@@ -1,9 +1,12 @@
 package com.gc.mimicry.engine;
 
+import java.io.Serializable;
+
 import com.gc.mimicry.engine.timing.TimelineType;
 
-public class SimulationParameters
+public class SimulationParameters implements Serializable
 {
+    private static final long serialVersionUID = 5041761374652137059L;
     private TimelineType timelineType = TimelineType.REALTIME;
     private long initialTimeMillis = 0;
 

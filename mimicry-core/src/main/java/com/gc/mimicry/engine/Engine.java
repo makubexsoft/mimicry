@@ -1,6 +1,6 @@
 package com.gc.mimicry.engine;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface Engine
@@ -9,7 +9,7 @@ public interface Engine
 
     public Session createSession(UUID sessionId, SimulationParameters params);
 
-    public List<SessionInfo> listSessions();
+    public Set<UUID> listSessions();
 
     public void destroySession(UUID sessionId);
 

@@ -2,19 +2,26 @@ package com.gc.mimicry.engine.streams;
 
 import com.gc.mimicry.cep.CEPEngine;
 import com.gc.mimicry.cep.Stream;
+import com.gc.mimicry.cep.StreamDescription;
+import com.gc.mimicry.cep.Type;
 
 public class ApplicationHasBeenStartedStream
 {
-    public static final String NAME = "ApplicationHasBeenStarted";
-    private static final String STREAM_FORMAT = "define stream " + NAME + " ( timestamp long, applicationId string )";
+    public static StreamDescription DESCRIPTION;
+    static
+    {
+        DESCRIPTION = new StreamDescription("ApplicationHasBeenStarted");
+        DESCRIPTION.addField("timestamp", Type.LONG);
+        DESCRIPTION.addField("applicationId", Type.STRING);
+    }
 
     public static Stream get(CEPEngine eventEngine)
     {
-        Stream stream = eventEngine.getStream(NAME);
+        Stream stream = eventEngine.getStream(DESCRIPTION.getName());
         if (stream != null)
         {
             return stream;
         }
-        return eventEngine.defineStream(STREAM_FORMAT);
+        return eventEngine.defineStream(DESCRIPTION);
     }
 }

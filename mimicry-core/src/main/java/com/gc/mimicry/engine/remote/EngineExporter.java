@@ -18,7 +18,7 @@ public class EngineExporter
         {
             ExportedEngine remoteEngine = new ExportedEngine(engine);
             Registry registry = getOrCreateRegistry();
-            registry.bind("mimicryEngine", remoteEngine);
+            registry.rebind("mimicryEngine", remoteEngine);
             return new EngineAdvertiser(engine);
         }
         catch (Exception e)
@@ -32,11 +32,11 @@ public class EngineExporter
         Registry registry;
         try
         {
-            registry = LocateRegistry.getRegistry();
+            registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
         }
         catch (RemoteException e)
         {
-            registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+            registry = LocateRegistry.getRegistry();
         }
         return registry;
     }

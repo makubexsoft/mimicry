@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.gc.mimicry.cep.CEPEngineFactory;
+import com.gc.mimicry.cep.siddhi.SiddhiCEPEngineFactory;
 import com.gc.mimicry.engine.AlwaysFirstNodeStrategy;
 import com.gc.mimicry.engine.Simulation;
 import com.gc.mimicry.engine.SimulationParameters;
@@ -51,18 +53,19 @@ public class Main
 		// Global configuration
 		LocalApplicationRepository appRepo = new LocalApplicationRepository();
 		File workspace = new File( "C:/tmp/mimicry" );
+		CEPEngineFactory engineFactory = new SiddhiCEPEngineFactory();
 
-		// Infrastructure
-		LocalEngine engine = new LocalEngine( appRepo, workspace );
+		// Bootstrap Engine
+		LocalEngine engine = new LocalEngine( appRepo, workspace, engineFactory );
 
 		EngineAdvertiser advertiser = EngineExporter.exportEngine( engine );
 		advertiser.start();
 
-		// Simulation specific configuration
+		// Configure Simulation
 		SimulationParameters simuParams = new SimulationParameters();
 		simuParams.setTimelineType( TimelineType.SYSTEM );
 
-		// Setup
+		// Start Simulation
 		UUID simulationId = UUID.randomUUID();
 
 		LocalSession localSession = engine.createSession( simulationId, simuParams );
@@ -74,8 +77,10 @@ public class Main
 		builder.addSession( localSession );
 		Simulation simu = builder.build();
 
+		// Run User-Script
 		runSimulationScript( args, appRepo, simu );
 
+		// Wait for end of Simulation
 		Future<?> endFuture = simu.getSimulationEndFuture();
 		endFuture.awaitUninterruptibly( Long.MAX_VALUE );
 	}
