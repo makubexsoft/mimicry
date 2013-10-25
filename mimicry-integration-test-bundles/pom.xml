@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>mimicry-integration-test-bundles</artifactId>
+
+	<parent>
+		<groupId>com.gc.mimicry</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../parent</relativePath>
+	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>mimicry-maven-plugin</artifactId>
+				<version>${project.version}</version>
+				<executions>
+					<execution>
+						<id>createBundle1</id>
+						<goals>
+							<goal>createBundle</goal>
+						</goals>
+						<configuration>
+							<bundleName>bundle1</bundleName>
+							<mainClassFile>tests.bundle1.InfiniteLoop</mainClassFile>
+							<deployToLocalRepository>true</deployToLocalRepository>
+							<classPath>
+								<entry>bin/*</entry>
+							</classPath>
+							<content>
+								<fileSet>
+									<source>${project.build.outputDirectory}</source>
+									<target>/bin</target>
+								</fileSet>
+							</content>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

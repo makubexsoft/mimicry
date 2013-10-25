@@ -48,4 +48,6 @@ public interface IManagedThread
     public Identity getIdentity();
 
     public EventFactory getEventFactory();
+
+    public String getName();
 }

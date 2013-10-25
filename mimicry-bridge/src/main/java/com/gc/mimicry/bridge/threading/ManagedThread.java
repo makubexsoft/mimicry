@@ -6,6 +6,7 @@ import com.gc.mimicry.bridge.SimulatorBridge;
 import com.gc.mimicry.engine.event.DefaultEventFactory;
 import com.gc.mimicry.engine.event.EventFactory;
 import com.gc.mimicry.engine.event.Identity;
+import com.gc.mimicry.util.ExceptionUtil;
 import com.gc.mimicry.util.StructuredId;
 
 /**
@@ -128,6 +129,7 @@ public class ManagedThread extends Thread implements IManagedThread
         catch (Throwable th)
         {
             SimulatorBridge.getThreadManager().threadTerminated(this, th);
+            ExceptionUtil.throwUnchecked(th);
         }
     }
 

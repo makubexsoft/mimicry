@@ -74,11 +74,11 @@ public class ThreadManager
     {
         if (th instanceof ThreadDeath || th.getCause() instanceof ThreadDeath)
         {
-            logger.info("Thread has been stopped by Mimicry.");
+            logger.info("Thread " + thread.getName() + " has been stopped by Mimicry.");
         }
         else
         {
-            logger.info("Thread terminated due to exception.", th);
+            logger.info("Thread " + thread.getName() + " terminated due to exception.", th);
         }
         threads.remove(thread);
         scheduler.threadTerminated(thread);

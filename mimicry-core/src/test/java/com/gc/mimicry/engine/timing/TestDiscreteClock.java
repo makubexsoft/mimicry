@@ -8,8 +8,6 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.gc.mimicry.engine.timing.DiscreteClock;
-
 public class TestDiscreteClock
 {
     private DiscreteClock clock;

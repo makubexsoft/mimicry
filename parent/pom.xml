@@ -22,12 +22,15 @@
 		<module>../mimicry-core</module>
 		<module>../mimicry-dedicated-engine</module>
 		<module>../mimicry-junit</module>
-		<module>../mimicry-plugin-core</module>
-		<module>../mimicry-ui</module>
+<!-- 		<module>../mimicry-plugin-core</module> -->
+<!-- 		<module>../mimicry-ui</module> -->
 		<module>../mimicry-standalone</module>
 		<module>../sample-simu-app</module>
-		<module>../mimicry-distribution</module>
-		<module>../test-maven-usage</module>
+<!-- 		<module>../mimicry-distribution</module> -->
+<!-- 		<module>../test-maven-usage</module> -->
+		<module>../mimicry-maven-plugin</module>
+		<module>../mimicry-integration-test-bundles</module>
+		<module>../mimicry-integration-tests</module>
 	</modules>
 
 	<properties>

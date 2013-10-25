@@ -52,7 +52,6 @@ public class TestDiscreteClock
     @Test
     public void testSleepTimeout() throws InterruptedException
     {
-
         final AtomicInteger counter = new AtomicInteger();
 
         ManagedThread thread = new ManagedThread(new Runnable()
@@ -87,7 +86,6 @@ public class TestDiscreteClock
     @Test
     public void testSleepTimeoutWithException() throws InterruptedException
     {
-
         final AtomicInteger counter = new AtomicInteger();
 
         ManagedThread thread = new ManagedThread(new Runnable()
@@ -125,7 +123,6 @@ public class TestDiscreteClock
     @Test
     public void testWaitTimeoutWithoutNotify() throws InterruptedException
     {
-
         final AtomicInteger counter = new AtomicInteger();
         final Object lock = new Object();
 
@@ -164,7 +161,6 @@ public class TestDiscreteClock
     @Test
     public void testWaitTimeoutWithNotify() throws InterruptedException
     {
-
         final AtomicInteger counter = new AtomicInteger();
         final Object lock = new Object();
 
@@ -216,7 +212,6 @@ public class TestDiscreteClock
     @Test
     public void testWaitInfiniteWithNotify() throws InterruptedException
     {
-
         final AtomicInteger counter = new AtomicInteger();
         final Object lock = new Object();
 
@@ -266,7 +261,6 @@ public class TestDiscreteClock
     @Test(timeout = TEN_SECONDS)
     public void testWaitTimeoutWithException() throws InterruptedException
     {
-
         final AtomicInteger counter = new AtomicInteger();
         final Object lock = new Object();
 
@@ -276,19 +270,23 @@ public class TestDiscreteClock
             @Override
             public void run()
             {
+                System.out.println("Thread is " + Thread.currentThread().getName());
                 try
                 {
                     synchronized (lock)
                     {
                         clock.waitOnFor(lock, Long.MAX_VALUE);
                     }
+                    System.out.println("time has passed " + Thread.currentThread().getName());
                 }
                 catch (InterruptedException e)
                 {
+                    System.out.println("interrupted. " + Thread.currentThread().getName());
                 }
                 catch (ThreadDeath e)
                 {
                     counter.incrementAndGet();
+                    System.out.println("exception. " + Thread.currentThread().getName());
                 }
             }
         });
@@ -296,8 +294,10 @@ public class TestDiscreteClock
 
         Thread.sleep(500);
 
+        System.out.println("throwing exception");
         thread.shutdownGracefully();
 
+        System.out.println("joining...");
         thread.join();
         assertEquals(1, counter.get());
     }
@@ -305,7 +305,6 @@ public class TestDiscreteClock
     @Test(timeout = TEN_SECONDS)
     public void testWaitInfiniteWithException() throws InterruptedException
     {
-
         final AtomicInteger counter = new AtomicInteger();
         final Object lock = new Object();
 
