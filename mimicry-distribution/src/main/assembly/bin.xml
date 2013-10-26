@@ -55,11 +55,11 @@
 			<outputDirectory>/lib</outputDirectory>
 			<unpack>false</unpack>
 			<includes>
-				<include>com.gc.mimicry:core</include>
-				<include>com.gc.mimicry:bridge</include>
-				<include>com.gc.mimicry:aspects</include>
-				<include>com.gc.mimicry:mimicry-standalone</include>
-				<include>com.gc.mimicry:mimicry-ui</include>
+				<include>org.mimicry:core</include>
+				<include>org.mimicry:bridge</include>
+				<include>org.mimicry:aspects</include>
+				<include>org.mimicry:mimicry-standalone</include>
+				<include>org.mimicry:mimicry-ui</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>
@@ -67,14 +67,14 @@
 			<unpack>false</unpack>
 			<scope>runtime</scope>
 			<excludes>
-				<exclude>com.gc.mimicry</exclude>
+				<exclude>org.mimicry</exclude>
 			</excludes>
 		</dependencySet>
 		<dependencySet>
 			<outputDirectory>/plugins</outputDirectory>
 			<unpack>false</unpack>
 			<includes>
-				<include>com.gc.mimicry:plugin-core</include>
+				<include>org.mimicry:plugin-core</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>

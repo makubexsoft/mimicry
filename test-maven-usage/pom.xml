@@ -52,7 +52,7 @@
 		</plugins>
 	</build>
 	<parent>
-		<groupId>com.gc.mimicry</groupId>
+		<groupId>org.mimicry</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent</relativePath>

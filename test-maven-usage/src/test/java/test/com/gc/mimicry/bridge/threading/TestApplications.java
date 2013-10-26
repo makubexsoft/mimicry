@@ -4,24 +4,24 @@ import java.io.File;
 import java.util.UUID;
 
 import org.junit.Test;
+import org.mimicry.bridge.EntryPoint;
+import org.mimicry.bridge.weaving.ApplicationClassLoader;
+import org.mimicry.cep.CEPEngine;
+import org.mimicry.cep.siddhi.SiddhiCEPEngine;
+import org.mimicry.engine.ApplicationContext;
+import org.mimicry.engine.ClassPathConfiguration;
+import org.mimicry.engine.NodeParameters;
+import org.mimicry.engine.SimulationParameters;
+import org.mimicry.engine.deployment.LocalApplicationRepository;
+import org.mimicry.engine.local.Applications;
+import org.mimicry.engine.local.LocalApplication;
+import org.mimicry.engine.local.LocalEngine;
+import org.mimicry.engine.local.LocalNode;
+import org.mimicry.engine.local.LocalSession;
+import org.mimicry.engine.timing.SystemClock;
+import org.mimicry.engine.timing.TimelineType;
 import org.wso2.siddhi.core.SiddhiManager;
 
-import com.gc.mimicry.bridge.EntryPoint;
-import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
-import com.gc.mimicry.cep.CEPEngine;
-import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
-import com.gc.mimicry.engine.ApplicationContext;
-import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.engine.NodeParameters;
-import com.gc.mimicry.engine.SimulationParameters;
-import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
-import com.gc.mimicry.engine.local.Applications;
-import com.gc.mimicry.engine.local.LocalApplication;
-import com.gc.mimicry.engine.local.LocalEngine;
-import com.gc.mimicry.engine.local.LocalNode;
-import com.gc.mimicry.engine.local.LocalSession;
-import com.gc.mimicry.engine.timing.SystemClock;
-import com.gc.mimicry.engine.timing.TimelineType;
 
 public class TestApplications {
 

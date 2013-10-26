@@ -14,7 +14,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.gc.mimicry</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -48,7 +48,7 @@
 		</plugins>
 	</build>
 	<parent>
-		<groupId>com.gc.mimicry</groupId>
+		<groupId>org.mimicry</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>

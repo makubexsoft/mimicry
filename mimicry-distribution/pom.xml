@@ -13,7 +13,7 @@
 	</licenses>
 
 	<parent>
-		<groupId>com.gc.mimicry</groupId>
+		<groupId>org.mimicry</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent</relativePath>
@@ -114,32 +114,32 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.gc.mimicry</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.gc.mimicry</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>aspects</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.gc.mimicry</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>bridge</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.gc.mimicry</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>mimicry-standalone</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.gc.mimicry</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>plugin-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.gc.mimicry</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>mimicry-ui</artifactId>
 			<version>${project.version}</version>
 		</dependency>

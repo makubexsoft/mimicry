@@ -13,11 +13,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.mimicry.engine.deployment.BundleCreator;
+import org.mimicry.engine.deployment.LocalApplicationRepository;
+import org.mimicry.util.AntPathMatcher;
 import org.slf4j.impl.StaticLoggerBinder;
 
-import com.gc.mimicry.engine.deployment.BundleCreator;
-import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
-import com.gc.mimicry.util.AntPathMatcher;
 
 /**
  * Creates an application bundle for the Mimicry Framework.

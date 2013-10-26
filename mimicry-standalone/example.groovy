@@ -13,16 +13,16 @@
 EventHandlerConfiguration[] commonStack = 
 [
 	[
-		className: "com.gc.mimicry.plugin.tcp.PortManager"
+		className: "org.mimicry.plugin.tcp.PortManager"
 	],
 	[
-		className: "com.gc.mimicry.plugin.tcp.SimpleTCPDataTransport"
+		className: "org.mimicry.plugin.tcp.SimpleTCPDataTransport"
 	],
 	[
-		className: "com.gc.mimicry.plugin.tcp.TCPConnectionManager"	
+		className: "org.mimicry.plugin.tcp.TCPConnectionManager"	
 	],
 	[
-		className: "com.gc.mimicry.plugin.tcp.EventLogger"
+		className: "org.mimicry.plugin.tcp.EventLogger"
 	]
 ]
 

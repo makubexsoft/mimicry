@@ -2,20 +2,20 @@ package test;
 
 import java.net.Socket;
 
+import org.mimicry.bridge.EntryPoint;
+import org.mimicry.bridge.weaving.ApplicationClassLoader;
+import org.mimicry.cep.CEPEngine;
+import org.mimicry.cep.siddhi.SiddhiCEPEngine;
+import org.mimicry.engine.ApplicationContext;
+import org.mimicry.engine.ClassPathConfiguration;
+import org.mimicry.engine.EventListener;
+import org.mimicry.engine.event.ApplicationEvent;
+import org.mimicry.engine.local.Applications;
+import org.mimicry.engine.local.LocalApplication;
+import org.mimicry.engine.stack.EventBridge;
+import org.mimicry.engine.timing.SystemClock;
 import org.wso2.siddhi.core.SiddhiManager;
 
-import com.gc.mimicry.bridge.EntryPoint;
-import com.gc.mimicry.bridge.weaving.ApplicationClassLoader;
-import com.gc.mimicry.cep.CEPEngine;
-import com.gc.mimicry.cep.siddhi.SiddhiCEPEngine;
-import com.gc.mimicry.engine.ApplicationContext;
-import com.gc.mimicry.engine.ClassPathConfiguration;
-import com.gc.mimicry.engine.EventListener;
-import com.gc.mimicry.engine.event.ApplicationEvent;
-import com.gc.mimicry.engine.local.Applications;
-import com.gc.mimicry.engine.local.LocalApplication;
-import com.gc.mimicry.engine.stack.EventBridge;
-import com.gc.mimicry.engine.timing.SystemClock;
 
 public class Main
 {

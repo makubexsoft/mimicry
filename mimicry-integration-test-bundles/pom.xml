@@ -4,7 +4,7 @@
 	<artifactId>mimicry-integration-test-bundles</artifactId>
 
 	<parent>
-		<groupId>com.gc.mimicry</groupId>
+		<groupId>org.mimicry</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent</relativePath>
@@ -17,6 +17,7 @@
 				<artifactId>mimicry-maven-plugin</artifactId>
 				<version>${project.version}</version>
 				<executions>
+					<!-- Bundle 1 -->
 					<execution>
 						<id>createBundle1</id>
 						<goals>
@@ -27,7 +28,7 @@
 							<mainClassFile>tests.bundle1.InfiniteLoop</mainClassFile>
 							<deployToLocalRepository>true</deployToLocalRepository>
 							<classPath>
-								<entry>bin/*</entry>
+								<entry>bin/</entry>
 							</classPath>
 							<content>
 								<fileSet>
@@ -35,6 +36,30 @@
 									<target>/bin</target>
 									<includes>
 										<include>tests/bundle1/**/*.class</include>
+									</includes>
+								</fileSet>
+							</content>
+						</configuration>
+					</execution>
+					<!-- Bundle 2 -->
+					<execution>
+						<id>createBundle2</id>
+						<goals>
+							<goal>createBundle</goal>
+						</goals>
+						<configuration>
+							<bundleName>bundle2</bundleName>
+							<mainClassFile>tests.bundle2.WaitAMonth</mainClassFile>
+							<deployToLocalRepository>true</deployToLocalRepository>
+							<classPath>
+								<entry>bin/</entry>
+							</classPath>
+							<content>
+								<fileSet>
+									<source>${project.build.outputDirectory}</source>
+									<target>/bin</target>
+									<includes>
+										<include>tests/bundle2/**/*.class</include>
 									</includes>
 								</fileSet>
 							</content>
