@@ -13,6 +13,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.slf4j.impl.StaticLoggerBinder;
 
 import com.gc.mimicry.engine.deployment.BundleCreator;
 import com.gc.mimicry.engine.deployment.LocalApplicationRepository;
@@ -23,6 +24,7 @@ import com.gc.mimicry.util.AntPathMatcher;
  * 
  * @goal createBundle
  * @phase package
+ * @author Marc-Christian Schulze
  */
 @Mojo(name = "createBundle", defaultPhase = LifecyclePhase.PACKAGE)
 public class CreateBundleMojo extends AbstractMojo
@@ -76,6 +78,7 @@ public class CreateBundleMojo extends AbstractMojo
 	private File			targetDirectory;
 
 	/**
+	 * Whether the bundle should be deployed to the local Mimicry repository.
 	 * 
 	 * @parameter
 	 */
@@ -83,11 +86,16 @@ public class CreateBundleMojo extends AbstractMojo
 	private boolean			deployToLocalRepository;
 
 	private BundleCreator	bundleCreator;
-
+	private File			bundle;
 	private AntPathMatcher	matcher		= new AntPathMatcher();
 
+	/**
+	 * The entry point of the maven plugin.
+	 */
 	public void execute() throws MojoExecutionException, MojoFailureException
 	{
+		StaticLoggerBinder.getSingleton().setMavenLog(getLog());
+		
 		getLog().info( "Creating bundle '" + bundleName + "'..." );
 		bundleCreator = new BundleCreator( bundleName );
 		bundleCreator.setMainClass( mainClassFile );
@@ -102,6 +110,15 @@ public class CreateBundleMojo extends AbstractMojo
 
 		getLog().info( "Writing bundle to " + targetDirectory );
 
+		addContentToBundle();
+
+		writeBundle();
+
+		deployBundleIfConfigured();
+	}
+
+	private void addContentToBundle()
+	{
 		for ( FileSet fileSet : content )
 		{
 			if ( fileSet.getIncludes().size() == 0 && fileSet.getExcludes().size() == 0 )
@@ -113,8 +130,34 @@ public class CreateBundleMojo extends AbstractMojo
 				addDirectoryContentConsideringPatterns( fileSet );
 			}
 		}
+	}
 
-		File bundle;
+	private void deployBundleIfConfigured() throws MojoExecutionException
+	{
+		if ( deployToLocalRepository )
+		{
+			deployBundle();
+		}
+	}
+
+	private void deployBundle() throws MojoExecutionException
+	{
+		getLog().info( "Deploying bundle to local repository " + LocalApplicationRepository.getDefaultPath() );
+		try
+		{
+			LocalApplicationRepository appRepo = new LocalApplicationRepository();
+			BufferedInputStream in = new BufferedInputStream( new FileInputStream( bundle ) );
+			appRepo.storeBundle( bundleName, in );
+		}
+		catch ( IOException e )
+		{
+			throw new MojoExecutionException( "Failed to deploy bundle " + bundleName + " to local repository at "
+					+ LocalApplicationRepository.getDefaultPath() );
+		}
+	}
+
+	private void writeBundle() throws MojoExecutionException
+	{
 		try
 		{
 			bundle = bundleCreator.createBundle( targetDirectory );
@@ -125,22 +168,6 @@ public class CreateBundleMojo extends AbstractMojo
 		{
 			getLog().error( "Failed to write bundle to " + targetDirectory, e );
 			throw new MojoExecutionException( "Failed to write bundle to " + targetDirectory, e );
-		}
-
-		if ( deployToLocalRepository )
-		{
-			getLog().info( "Deploying bundle to local repository " + LocalApplicationRepository.getDefaultPath() );
-			try
-			{
-				LocalApplicationRepository appRepo = new LocalApplicationRepository();
-				BufferedInputStream in = new BufferedInputStream( new FileInputStream( bundle ) );
-				appRepo.storeBundle( bundleName, in );
-			}
-			catch ( IOException e )
-			{
-				throw new MojoExecutionException( "Failed to deploy bundle " + bundleName + " to local repository at "
-						+ LocalApplicationRepository.getDefaultPath() );
-			}
 		}
 	}
 
@@ -156,32 +183,34 @@ public class CreateBundleMojo extends AbstractMojo
 		File[] subFiles = fileSet.getSource().listFiles();
 		for ( File file : subFiles )
 		{
-			addIfMatching( file, fileSet.getTarget() + File.separator + file.getName(), fileSet.getIncludes(),
-					fileSet.getExcludes() );
+			addIfMatching( fileSet.getSource(), file, fileSet.getTarget() + File.separator + file.getName(),
+					fileSet.getIncludes(), fileSet.getExcludes() );
 		}
 	}
 
-	private void addIfMatching( File file, String path, List<String> includes, List<String> excludes )
+	private void addIfMatching( File baseDirectory, File file, String path, List<String> includes, List<String> excludes )
 	{
 		if ( file.isDirectory() )
 		{
 			File[] subFiles = file.listFiles();
 			for ( File f : subFiles )
 			{
-				addIfMatching( f, path + File.separator + f.getName(), includes, excludes );
+				addIfMatching( baseDirectory, f, path + File.separator + f.getName(), includes, excludes );
 			}
 		}
 		else
 		{
-			addFileIfMatching( file, path + File.separator + file.getName(), includes, excludes );
+			addFileIfMatching( baseDirectory, file, path, includes, excludes );
 		}
 	}
 
-	private void addFileIfMatching( File file, String path, List<String> includes, List<String> excludes )
+	private void addFileIfMatching( File baseDirectory, File file, String path, List<String> includes,
+			List<String> excludes )
 	{
+		String relativePath = getSubPath( baseDirectory, file );
 		for ( String pattern : includes )
 		{
-			if ( !matcher.matches( pattern, file.toString() ) )
+			if ( !matcher.matches( pattern, relativePath ) )
 			{
 				return;
 			}
@@ -189,13 +218,23 @@ public class CreateBundleMojo extends AbstractMojo
 
 		for ( String pattern : excludes )
 		{
-			if ( matcher.matches( pattern, file.toString() ) )
+			if ( matcher.matches( pattern, relativePath ) )
 			{
 				return;
 			}
 		}
 
 		addFile( file, path );
+	}
+
+	private String getSubPath( File baseDirectory, File fullPath )
+	{
+		String subPath = fullPath.toString().substring( baseDirectory.toString().length() );
+		if ( subPath.startsWith( File.separator ) )
+		{
+			subPath = subPath.substring( 1 );
+		}
+		return subPath;
 	}
 
 	private void addFile( File file, String path )

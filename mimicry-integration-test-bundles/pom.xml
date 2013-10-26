@@ -33,6 +33,9 @@
 								<fileSet>
 									<source>${project.build.outputDirectory}</source>
 									<target>/bin</target>
+									<includes>
+										<include>tests/bundle1/**/*.class</include>
+									</includes>
 								</fileSet>
 							</content>
 						</configuration>

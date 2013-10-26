@@ -4,12 +4,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A set of files that shall be copied into the bundle.
+ * 
+ * @author Marc-Christian Schulze
+ */
 public class FileSet
 {
-	private File	source;
-	private String	target;
-	private List<String> includes;
-	private List<String> excludes;
+	private File			source;
+	private String			target;
+	private List<String>	includes;
+	private List<String>	excludes;
 
 	public FileSet()
 	{
@@ -25,6 +30,13 @@ public class FileSet
 		excludes = new ArrayList<String>();
 	}
 
+	/**
+	 * Returns the source file which should be copied. If the returned file
+	 * represents a directory the includes and excludes are applied for
+	 * filtering.
+	 * 
+	 * @return
+	 */
 	public File getSource()
 	{
 		return source;
@@ -35,6 +47,12 @@ public class FileSet
 		this.source = source;
 	}
 
+	/**
+	 * Returns a relative target path under which the copied files should be
+	 * stored within the bundle.
+	 * 
+	 * @return
+	 */
 	public String getTarget()
 	{
 		return target;
@@ -45,6 +63,13 @@ public class FileSet
 		this.target = target;
 	}
 
+	/**
+	 * Returns a list of ant-style include patterns that iff specified must be
+	 * matched. The patterns are applied to the file's path relative to the
+	 * source directory.
+	 * 
+	 * @return
+	 */
 	public List<String> getIncludes()
 	{
 		return includes;
@@ -55,6 +80,13 @@ public class FileSet
 		this.includes = includes;
 	}
 
+	/**
+	 * Returns a list of ant-style include patterns that iff specified must NOT
+	 * be matched. The patterns are applied to the file's path relative to the
+	 * source directory.
+	 * 
+	 * @return
+	 */
 	public List<String> getExcludes()
 	{
 		return excludes;
