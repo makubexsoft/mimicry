@@ -3,10 +3,10 @@ package org.mimicry.plugin.net.tcp;
 import java.util.Set;
 import java.util.UUID;
 
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventHandlerBase;
-import org.mimicry.ext.net.tcp.events.TCPReceivedDataEvent;
-import org.mimicry.ext.net.tcp.events.TCPSendDataEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventHandlerBase;
+import org.mimicry.events.net.tcp.TCPReceivedDataEvent;
+import org.mimicry.events.net.tcp.TCPSendDataEvent;
 import org.mimicry.plugin.net.PortManager;
 
 

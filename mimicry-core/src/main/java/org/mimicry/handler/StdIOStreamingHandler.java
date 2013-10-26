@@ -6,14 +6,14 @@ import org.apache.commons.codec.binary.Base64;
 import org.mimicry.cep.Event;
 import org.mimicry.cep.Stream;
 import org.mimicry.cep.StreamListener;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventHandlerBase;
-import org.mimicry.engine.streams.StdErrStream;
-import org.mimicry.engine.streams.StdInStream;
-import org.mimicry.engine.streams.StdOutStream;
-import org.mimicry.ext.stdio.events.ConsoleStderrEvent;
-import org.mimicry.ext.stdio.events.ConsoleStdinEvent;
-import org.mimicry.ext.stdio.events.ConsoleStdoutEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventHandlerBase;
+import org.mimicry.events.stdio.ConsoleStderrEvent;
+import org.mimicry.events.stdio.ConsoleStdinEvent;
+import org.mimicry.events.stdio.ConsoleStdoutEvent;
+import org.mimicry.streams.StdErrStream;
+import org.mimicry.streams.StdInStream;
+import org.mimicry.streams.StdOutStream;
 
 public class StdIOStreamingHandler extends EventHandlerBase implements StreamListener
 {

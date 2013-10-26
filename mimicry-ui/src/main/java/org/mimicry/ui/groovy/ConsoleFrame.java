@@ -27,11 +27,11 @@ import javax.swing.text.DefaultCaret;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
-import org.mimicry.engine.Simulation;
-import org.mimicry.engine.event.DefaultEventFactory;
-import org.mimicry.engine.event.EventFactory;
-import org.mimicry.engine.event.Identity;
-import org.mimicry.ext.timing.ClockController;
+import org.mimicry.Simulation;
+import org.mimicry.engine.DefaultEventFactory;
+import org.mimicry.engine.EventFactory;
+import org.mimicry.engine.Identity;
+import org.mimicry.timing.ClockController;
 import org.mimicry.ui.model.FileSystemTreeCellRenderer;
 import org.mimicry.ui.model.FileSystemTreeModel;
 import org.mimicry.util.FileNameExtensionFilter;

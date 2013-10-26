@@ -1,16 +1,16 @@
 package org.mimicry.tests;
 
 import org.junit.Test;
+import org.mimicry.Application;
+import org.mimicry.Node;
+import org.mimicry.NodeParameters;
 import org.mimicry.cep.Event;
 import org.mimicry.cep.StreamListener;
-import org.mimicry.engine.Application;
-import org.mimicry.engine.Node;
-import org.mimicry.engine.NodeParameters;
-import org.mimicry.engine.stack.EventHandlerParameters;
-import org.mimicry.engine.streams.StdOutStream;
-import org.mimicry.engine.timing.TimelineType;
+import org.mimicry.engine.EventHandlerParameters;
 import org.mimicry.junit.MimicryTestCase;
 import org.mimicry.junit.SimulationConfiguration;
+import org.mimicry.streams.StdOutStream;
+import org.mimicry.timing.TimelineType;
 
 public class TestBundle3 extends MimicryTestCase
 {

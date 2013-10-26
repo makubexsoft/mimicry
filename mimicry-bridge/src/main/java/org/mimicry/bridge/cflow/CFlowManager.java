@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.mimicry.EventListener;
 import org.mimicry.bridge.ControlFlow;
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventBridge;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventBridge;
 
 
 public class CFlowManager implements EventListener

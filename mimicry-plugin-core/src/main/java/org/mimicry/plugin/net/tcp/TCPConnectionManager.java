@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventHandlerBase;
-import org.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
-import org.mimicry.ext.net.tcp.events.SocketAwaitingConnectionEvent;
-import org.mimicry.ext.net.tcp.events.SocketConnectionRequest;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventHandlerBase;
+import org.mimicry.events.net.tcp.ConnectionEstablishedEvent;
+import org.mimicry.events.net.tcp.SocketAwaitingConnectionEvent;
+import org.mimicry.events.net.tcp.SocketConnectionRequest;
 
 
 /**

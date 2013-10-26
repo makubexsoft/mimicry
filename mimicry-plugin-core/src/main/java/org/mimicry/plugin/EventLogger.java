@@ -1,7 +1,7 @@
 package org.mimicry.plugin;
 
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventHandlerBase;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventHandlerBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

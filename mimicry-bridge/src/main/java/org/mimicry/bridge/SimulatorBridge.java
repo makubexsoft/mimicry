@@ -3,13 +3,13 @@ package org.mimicry.bridge;
 import java.io.InputStream;
 import java.util.UUID;
 
+import org.mimicry.EventListener;
 import org.mimicry.bridge.ApplicationBridge;
 import org.mimicry.bridge.threading.ThreadManager;
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventBridge;
-import org.mimicry.engine.timing.Timeline;
-import org.mimicry.ext.stdio.events.ConsoleStdinEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventBridge;
+import org.mimicry.events.stdio.ConsoleStdinEvent;
+import org.mimicry.timing.Timeline;
 import org.mimicry.util.ByteBuffer;
 
 

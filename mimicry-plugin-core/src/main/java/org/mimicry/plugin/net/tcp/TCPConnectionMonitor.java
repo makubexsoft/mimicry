@@ -8,10 +8,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListModel;
 
+import org.mimicry.EventListener;
+import org.mimicry.engine.ApplicationEvent;
 import org.mimicry.engine.EventEngine;
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
+import org.mimicry.events.net.tcp.ConnectionEstablishedEvent;
 
 import com.google.common.base.Preconditions;
 import com.jgoodies.binding.adapter.AbstractTableAdapter;

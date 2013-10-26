@@ -2,7 +2,7 @@ package org.mimicry.ui;
 
 import java.awt.BorderLayout;
 
-import org.mimicry.engine.Simulation;
+import org.mimicry.Simulation;
 
 import com.jidesoft.docking.DockableFrame;
 

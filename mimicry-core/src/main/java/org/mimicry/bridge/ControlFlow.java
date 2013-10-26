@@ -2,7 +2,7 @@ package org.mimicry.bridge;
 
 import java.util.UUID;
 
-import org.mimicry.engine.event.ApplicationEvent;
+import org.mimicry.engine.ApplicationEvent;
 import org.mimicry.util.concurrent.DefaultValueFuture;
 
 

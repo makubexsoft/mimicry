@@ -2,7 +2,7 @@ package org.mimicry.plugin.net.tcp;
 
 import java.net.InetSocketAddress;
 
-import org.mimicry.engine.event.ApplicationEvent;
+import org.mimicry.engine.ApplicationEvent;
 
 
 public interface TCPPortUnreachable extends ApplicationEvent

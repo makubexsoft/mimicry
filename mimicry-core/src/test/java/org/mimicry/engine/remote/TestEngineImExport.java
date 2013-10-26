@@ -10,15 +10,15 @@ import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mimicry.SimulationParameters;
+import org.mimicry.bundle.ApplicationRepository;
+import org.mimicry.bundle.LocalApplicationRepository;
 import org.mimicry.cep.CEPEngineFactory;
 import org.mimicry.cep.siddhi.SiddhiCEPEngineFactory;
-import org.mimicry.engine.SimulationParameters;
-import org.mimicry.engine.deployment.ApplicationRepository;
-import org.mimicry.engine.deployment.LocalApplicationRepository;
-import org.mimicry.engine.local.LocalEngine;
-import org.mimicry.engine.remote.EngineExporter;
-import org.mimicry.engine.remote.EngineImporter;
-import org.mimicry.engine.remote.ImportedEngine;
+import org.mimicry.engine.LocalEngine;
+import org.mimicry.remote.EngineExporter;
+import org.mimicry.remote.EngineImporter;
+import org.mimicry.remote.ImportedEngine;
 
 
 public class TestEngineImExport

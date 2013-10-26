@@ -1,6 +1,6 @@
 package org.mimicry.junit;
 
-import org.mimicry.engine.timing.TimelineType;
+import org.mimicry.timing.TimelineType;
 
 public @interface SimulationConfiguration
 {

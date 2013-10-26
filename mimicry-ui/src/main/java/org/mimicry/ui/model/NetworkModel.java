@@ -4,10 +4,10 @@ import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.Node;
-import org.mimicry.engine.Simulation;
-import org.mimicry.engine.event.ApplicationEvent;
+import org.mimicry.EventListener;
+import org.mimicry.Node;
+import org.mimicry.Simulation;
+import org.mimicry.engine.ApplicationEvent;
 import org.mimicry.engine.nodes.events.ApplicationInstalledEvent;
 import org.mimicry.engine.nodes.events.ApplicationStartedEvent;
 import org.mimicry.engine.nodes.events.NodeCreatedEvent;

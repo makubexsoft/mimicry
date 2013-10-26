@@ -3,9 +3,9 @@ package org.mimicry.plugin.net.udp;
 import java.util.Set;
 import java.util.UUID;
 
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventHandlerBase;
-import org.mimicry.ext.net.udp.events.UDPPacketEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventHandlerBase;
+import org.mimicry.events.net.udp.UDPPacketEvent;
 import org.mimicry.plugin.net.PortManager;
 
 

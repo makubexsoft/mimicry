@@ -12,14 +12,14 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;
 
+import org.mimicry.EventListener;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.DefaultEventFactory;
 import org.mimicry.engine.EventEngine;
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.event.DefaultEventFactory;
-import org.mimicry.engine.event.EventFactory;
-import org.mimicry.engine.event.Identity;
-import org.mimicry.ext.stdio.events.ConsoleStdinEvent;
-import org.mimicry.ext.stdio.events.ConsoleStdoutEvent;
+import org.mimicry.engine.EventFactory;
+import org.mimicry.engine.Identity;
+import org.mimicry.events.stdio.ConsoleStdinEvent;
+import org.mimicry.events.stdio.ConsoleStdoutEvent;
 
 
 /**

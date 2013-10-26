@@ -14,24 +14,24 @@ import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 
+import org.mimicry.EventListener;
 import org.mimicry.bridge.ControlFlow;
 import org.mimicry.bridge.SimulatorBridge;
 import org.mimicry.bridge.cflow.CFlowManager;
 import org.mimicry.bridge.threading.ManagedThread;
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.event.EventFactory;
-import org.mimicry.ext.net.events.SocketBindRequestEvent;
-import org.mimicry.ext.net.events.SocketBoundEvent;
-import org.mimicry.ext.net.events.SocketErrorEvent;
-import org.mimicry.ext.net.events.SocketType;
-import org.mimicry.ext.net.tcp.events.ConnectionEstablishedEvent;
-import org.mimicry.ext.net.tcp.events.SetPerformancePreferencesEvent;
-import org.mimicry.ext.net.tcp.events.SetSocketOptionEvent;
-import org.mimicry.ext.net.tcp.events.SocketConnectionRequest;
-import org.mimicry.ext.net.tcp.events.SocketOption;
-import org.mimicry.ext.net.tcp.events.TCPReceivedDataEvent;
-import org.mimicry.ext.net.tcp.events.TCPSendDataEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventFactory;
+import org.mimicry.events.net.SocketBindRequestEvent;
+import org.mimicry.events.net.SocketBoundEvent;
+import org.mimicry.events.net.SocketErrorEvent;
+import org.mimicry.events.net.SocketType;
+import org.mimicry.events.net.tcp.ConnectionEstablishedEvent;
+import org.mimicry.events.net.tcp.SetPerformancePreferencesEvent;
+import org.mimicry.events.net.tcp.SetSocketOptionEvent;
+import org.mimicry.events.net.tcp.SocketConnectionRequest;
+import org.mimicry.events.net.tcp.SocketOption;
+import org.mimicry.events.net.tcp.TCPReceivedDataEvent;
+import org.mimicry.events.net.tcp.TCPSendDataEvent;
 import org.mimicry.util.ByteBuffer;
 
 

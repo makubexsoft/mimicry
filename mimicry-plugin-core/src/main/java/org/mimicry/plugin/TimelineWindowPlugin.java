@@ -15,17 +15,17 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import org.mimicry.engine.Simulation;
-import org.mimicry.engine.timing.DiscreteClock;
-import org.mimicry.engine.timing.RealtimeClock;
-import org.mimicry.engine.timing.Timeline;
-import org.mimicry.engine.timing.TimelineType;
-import org.mimicry.ext.timing.ClockController;
-import org.mimicry.ext.timing.ClockDriver;
+import org.mimicry.Simulation;
 import org.mimicry.ext.timing.events.ClockAdvanceEvent;
 import org.mimicry.ext.timing.events.ClockEvent;
 import org.mimicry.ext.timing.events.ClockStartEvent;
 import org.mimicry.ext.timing.events.ClockStopEvent;
+import org.mimicry.timing.ClockController;
+import org.mimicry.timing.ClockDriver;
+import org.mimicry.timing.DiscreteClock;
+import org.mimicry.timing.RealtimeClock;
+import org.mimicry.timing.Timeline;
+import org.mimicry.timing.TimelineType;
 
 
 /**

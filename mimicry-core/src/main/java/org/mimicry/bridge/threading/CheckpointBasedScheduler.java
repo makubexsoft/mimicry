@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.mimicry.engine.timing.Timeline;
+import org.mimicry.timing.Timeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

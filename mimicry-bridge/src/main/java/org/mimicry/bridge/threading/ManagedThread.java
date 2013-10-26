@@ -5,9 +5,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mimicry.bridge.SimulatorBridge;
 import org.mimicry.bridge.threading.IManagedThread;
 import org.mimicry.bridge.threading.ThreadShutdownListener;
-import org.mimicry.engine.event.DefaultEventFactory;
-import org.mimicry.engine.event.EventFactory;
-import org.mimicry.engine.event.Identity;
+import org.mimicry.engine.DefaultEventFactory;
+import org.mimicry.engine.EventFactory;
+import org.mimicry.engine.Identity;
 import org.mimicry.util.ExceptionUtil;
 import org.mimicry.util.StructuredId;
 

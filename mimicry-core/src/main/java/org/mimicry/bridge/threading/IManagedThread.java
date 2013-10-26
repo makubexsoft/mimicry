@@ -1,7 +1,7 @@
 package org.mimicry.bridge.threading;
 
-import org.mimicry.engine.event.EventFactory;
-import org.mimicry.engine.event.Identity;
+import org.mimicry.engine.EventFactory;
+import org.mimicry.engine.Identity;
 import org.mimicry.util.StructuredId;
 
 

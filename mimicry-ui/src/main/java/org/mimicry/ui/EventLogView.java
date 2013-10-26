@@ -11,9 +11,9 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+import org.mimicry.EventListener;
+import org.mimicry.engine.ApplicationEvent;
 import org.mimicry.engine.EventEngine;
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.event.ApplicationEvent;
 
 import com.jidesoft.swing.Searchable;
 import com.jidesoft.swing.SearchableBar;

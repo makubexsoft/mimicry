@@ -8,10 +8,10 @@ import java.util.Locale;
 
 import org.mimicry.bridge.SimulatorBridge;
 import org.mimicry.bridge.threading.ManagedThread;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.event.EventFactory;
-import org.mimicry.ext.stdio.events.ConsoleStderrEvent;
-import org.mimicry.ext.stdio.events.ConsoleStdoutEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventFactory;
+import org.mimicry.events.stdio.ConsoleStderrEvent;
+import org.mimicry.events.stdio.ConsoleStdoutEvent;
 
 
 public class EventGeneratingPrintStream extends PrintStream

@@ -16,13 +16,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
 
-import org.mimicry.engine.AlwaysFirstNodeStrategy;
+import org.mimicry.AlwaysFirstNodeStrategy;
+import org.mimicry.Simulation;
+import org.mimicry.SimulationParameters;
+import org.mimicry.bundle.LocalApplicationRepository;
+import org.mimicry.engine.LocalEngine;
 import org.mimicry.engine.SimpleEventBroker;
-import org.mimicry.engine.Simulation;
-import org.mimicry.engine.SimulationParameters;
-import org.mimicry.engine.deployment.LocalApplicationRepository;
-import org.mimicry.engine.local.LocalEngine;
-import org.mimicry.engine.timing.TimelineType;
+import org.mimicry.timing.TimelineType;
 import org.mimicry.ui.groovy.ConsoleFrame;
 
 import com.jidesoft.docking.DefaultDockableHolder;

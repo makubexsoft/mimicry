@@ -1,18 +1,18 @@
 package test;
 
 import org.aspectj.weaver.tools.WeavingAdaptor;
+import org.mimicry.ApplicationContext;
+import org.mimicry.ClassPathConfiguration;
+import org.mimicry.EventListener;
 import org.mimicry.bridge.EntryPoint;
 import org.mimicry.bridge.weaving.ApplicationClassLoader;
 import org.mimicry.cep.CEPEngine;
 import org.mimicry.cep.siddhi.SiddhiCEPEngine;
-import org.mimicry.engine.ApplicationContext;
-import org.mimicry.engine.ClassPathConfiguration;
-import org.mimicry.engine.EventListener;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.local.Applications;
-import org.mimicry.engine.local.LocalApplication;
-import org.mimicry.engine.stack.EventBridge;
-import org.mimicry.engine.timing.SystemClock;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.Applications;
+import org.mimicry.engine.EventBridge;
+import org.mimicry.engine.LocalApplication;
+import org.mimicry.timing.SystemClock;
 import org.wso2.siddhi.core.SiddhiManager;
 
 

@@ -1,6 +1,6 @@
 package org.mimicry.plugin.net.ip;
 
-import org.mimicry.engine.stack.EventHandlerBase;
+import org.mimicry.engine.EventHandlerBase;
 
 /**
  * This class realizes basic IP routing functionality.

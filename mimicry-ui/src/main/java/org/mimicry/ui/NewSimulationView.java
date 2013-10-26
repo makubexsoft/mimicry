@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 
-import org.mimicry.engine.timing.TimelineType;
+import org.mimicry.timing.TimelineType;
 
 
 public class NewSimulationView extends JPanel

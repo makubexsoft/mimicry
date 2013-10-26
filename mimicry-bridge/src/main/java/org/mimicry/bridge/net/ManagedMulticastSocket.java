@@ -11,13 +11,13 @@ import java.net.SocketException;
 
 import org.mimicry.bridge.SimulatorBridge;
 import org.mimicry.bridge.threading.ManagedThread;
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.event.EventFactory;
-import org.mimicry.ext.net.udp.events.JoinMulticastGroupEvent;
-import org.mimicry.ext.net.udp.events.LeaveMulticastGroupEvent;
-import org.mimicry.ext.net.udp.events.MulticastSocketOption;
-import org.mimicry.ext.net.udp.events.SetMulticastSocketOptionEvent;
-import org.mimicry.ext.net.udp.events.UDPPacketEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventFactory;
+import org.mimicry.events.net.udp.JoinMulticastGroupEvent;
+import org.mimicry.events.net.udp.LeaveMulticastGroupEvent;
+import org.mimicry.events.net.udp.MulticastSocketOption;
+import org.mimicry.events.net.udp.SetMulticastSocketOptionEvent;
+import org.mimicry.events.net.udp.UDPPacketEvent;
 
 
 /**

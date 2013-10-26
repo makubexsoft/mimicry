@@ -5,13 +5,13 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.mimicry.Simulation;
+import org.mimicry.bundle.ApplicationRepository;
+import org.mimicry.bundle.LocalApplicationRepository;
 import org.mimicry.cep.CEPEngine;
 import org.mimicry.cep.CEPEngineFactory;
 import org.mimicry.cep.siddhi.SiddhiCEPEngineFactory;
-import org.mimicry.engine.Simulation;
-import org.mimicry.engine.deployment.ApplicationRepository;
-import org.mimicry.engine.deployment.LocalApplicationRepository;
-import org.mimicry.engine.local.LocalEngine;
+import org.mimicry.engine.LocalEngine;
 
 @RunWith(MimicryTestRunner.class)
 public class MimicryTestCase

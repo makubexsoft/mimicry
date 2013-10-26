@@ -3,8 +3,8 @@ package org.mimicry.bridge;
 import java.lang.reflect.Method;
 
 import org.mimicry.bridge.threading.ThreadManager;
-import org.mimicry.engine.stack.EventBridge;
-import org.mimicry.engine.timing.Timeline;
+import org.mimicry.engine.EventBridge;
+import org.mimicry.timing.Timeline;
 
 import com.google.common.base.Preconditions;
 

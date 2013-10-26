@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.mimicry.engine.event.ApplicationEvent;
-import org.mimicry.engine.stack.EventHandlerBase;
-import org.mimicry.ext.net.events.SocketBindRequestEvent;
-import org.mimicry.ext.net.events.SocketBoundEvent;
-import org.mimicry.ext.net.events.SocketErrorEvent;
+import org.mimicry.engine.ApplicationEvent;
+import org.mimicry.engine.EventHandlerBase;
+import org.mimicry.events.net.SocketBindRequestEvent;
+import org.mimicry.events.net.SocketBoundEvent;
+import org.mimicry.events.net.SocketErrorEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

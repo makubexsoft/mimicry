@@ -1,0 +1,6 @@
+package org.mimicry.events.net.tcp;
+
+public enum SocketOption
+{
+	OOB_INLINE, RECEIVE_BUFFER_SIZE, REUSE_ADDRESS, SEND_BUFFER_SIZE, SO_LINGER, SO_TIMEOUT, TCP_NO_DELAY, TRAFFIC_CLASS, KEEP_ALIVE
+}

@@ -9,8 +9,8 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mimicry.engine.deployment.ApplicationBundle;
-import org.mimicry.engine.deployment.LocalApplicationRepository;
+import org.mimicry.bundle.ApplicationBundle;
+import org.mimicry.bundle.LocalApplicationRepository;
 
 
 public class TestLocalApplicationRepository

@@ -11,7 +11,7 @@ import org.mimicry.bridge.SimulatorBridge;
 import org.mimicry.bridge.threading.BasicScheduler;
 import org.mimicry.bridge.threading.ManagedThread;
 import org.mimicry.bridge.threading.ThreadManager;
-import org.mimicry.engine.timing.SystemClock;
+import org.mimicry.timing.SystemClock;
 
 
 public class TestThreadManager

@@ -4,9 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mimicry.engine.timing.ClockBasedScheduler;
-import org.mimicry.engine.timing.DiscreteClock;
-import org.mimicry.engine.timing.SystemClock;
+import org.mimicry.timing.ClockBasedScheduler;
+import org.mimicry.timing.DiscreteClock;
+import org.mimicry.timing.SystemClock;
 import org.mockito.Mockito;
 
 public class TestClockBasedScheduler

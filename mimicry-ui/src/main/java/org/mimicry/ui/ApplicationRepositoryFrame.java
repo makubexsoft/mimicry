@@ -6,7 +6,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-import org.mimicry.engine.deployment.ApplicationRepository;
+import org.mimicry.bundle.ApplicationRepository;
 
 import com.jidesoft.docking.DockableFrame;
 

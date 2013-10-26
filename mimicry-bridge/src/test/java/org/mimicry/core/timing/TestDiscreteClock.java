@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mimicry.bridge.threading.ManagedThread;
-import org.mimicry.engine.timing.DiscreteClock;
+import org.mimicry.timing.DiscreteClock;
 
 public class TestDiscreteClock
 {

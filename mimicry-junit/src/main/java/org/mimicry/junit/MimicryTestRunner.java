@@ -6,10 +6,10 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
-import org.mimicry.engine.AlwaysFirstNodeStrategy;
-import org.mimicry.engine.Simulation;
-import org.mimicry.engine.SimulationParameters;
-import org.mimicry.engine.local.LocalSession;
+import org.mimicry.AlwaysFirstNodeStrategy;
+import org.mimicry.Simulation;
+import org.mimicry.SimulationParameters;
+import org.mimicry.engine.LocalSession;
 
 
 public class MimicryTestRunner extends BlockJUnit4ClassRunner

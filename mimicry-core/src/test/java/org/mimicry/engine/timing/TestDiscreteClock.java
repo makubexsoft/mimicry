@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mimicry.engine.timing.DiscreteClock;
+import org.mimicry.timing.DiscreteClock;
 
 public class TestDiscreteClock
 {
