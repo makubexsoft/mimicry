@@ -14,6 +14,8 @@ import org.mimicry.engine.event.ApplicationEvent;
 import org.mimicry.engine.stack.events.SetApplicationActiveEvent;
 import org.mimicry.engine.streams.ApplicationEventStream;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -37,6 +39,8 @@ public class EventBridge
     {
         Preconditions.checkNotNull(eventEngine);
         this.eventEngine = eventEngine;
+
+        jsonMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 
         applicationActiveState = new HashMap<UUID, Boolean>();
         downstreamListener = new CopyOnWriteArrayList<EventListener>();

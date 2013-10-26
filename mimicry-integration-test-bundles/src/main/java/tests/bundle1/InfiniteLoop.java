@@ -6,7 +6,7 @@ public class InfiniteLoop
 	{
 		for(;;)
 		{
-			System.out.println("looping...");
+			System.out.print("looping...");
 		}
 	}
 }

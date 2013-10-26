@@ -1,7 +1,8 @@
 package org.mimicry.bridge.threading;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mimicry.util.ExceptionUtil;
 import org.mimicry.util.concurrent.DefaultFuture;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
- * This class is used as registry for all managed threads created.
+ * This class manages all threads created within a single simulated application.
  * 
  * @author Marc-Christian Schulze
  * 
@@ -32,7 +33,7 @@ public class ThreadManager
         this.appId = appId;
         this.scheduler = scheduler;
 
-        threads = new CopyOnWriteArrayList<IManagedThread>();
+        threads = new ArrayList<IManagedThread>();
         shutdownFuture = new DefaultFuture();
     }
 
@@ -43,8 +44,11 @@ public class ThreadManager
      */
     public void threadCreated(IManagedThread thread)
     {
-        threads.add(thread);
-        scheduler.threadCreated(thread);
+        synchronized (threads)
+        {
+            threads.add(thread);
+            scheduler.threadCreated(thread);
+        }
     }
 
     /**
@@ -55,11 +59,14 @@ public class ThreadManager
      */
     public void threadTerminated(IManagedThread thread)
     {
-        threads.remove(thread);
-        scheduler.threadTerminated(thread);
-        if (threads.size() == 0)
+        synchronized (threads)
         {
-            shutdownFuture.setSuccess();
+            threads.remove(thread);
+            scheduler.threadTerminated(thread);
+            if (threads.size() == 0)
+            {
+                shutdownFuture.setSuccess();
+            }
         }
     }
 
@@ -81,11 +88,14 @@ public class ThreadManager
         {
             logger.info("Thread '" + thread.getName() + "' terminated due to exception.", th);
         }
-        threads.remove(thread);
-        scheduler.threadTerminated(thread);
-        if (threads.size() == 0)
+        synchronized (threads)
         {
-            shutdownFuture.setSuccess();
+            threads.remove(thread);
+            scheduler.threadTerminated(thread);
+            if (threads.size() == 0)
+            {
+                shutdownFuture.setSuccess();
+            }
         }
     }
 
@@ -117,11 +127,14 @@ public class ThreadManager
      */
     public Future<?> shutdownAllThreads()
     {
-        for (IManagedThread thread : threads)
+        synchronized (threads)
         {
-            if (thread != null)
+            for (IManagedThread thread : threads)
             {
-                thread.shutdownGracefully();
+                if (thread != null)
+                {
+                    thread.shutdownGracefully();
+                }
             }
         }
         return shutdownFuture;
@@ -133,7 +146,7 @@ public class ThreadManager
     }
 
     private final ThreadScheduler scheduler;
-    private final CopyOnWriteArrayList<IManagedThread> threads;
+    private final List<IManagedThread> threads;
     private final UUID appId;
     private final Future<?> shutdownFuture;
     private static final Logger logger;
