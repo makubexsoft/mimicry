@@ -72,7 +72,7 @@ public class LocalNode extends BaseResourceManager implements Node
 
         applications = new HashSet<LocalApplication>();
         eventBridge = new EventBridge(eventEngine);
-        eventStack = new EventStack(this, eventBridge);
+        eventStack = new EventStack(this, eventBridge, eventEngine);
         id = UUID.randomUUID();
     }
 

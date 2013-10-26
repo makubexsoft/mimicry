@@ -7,6 +7,7 @@ import org.mimicry.bridge.threading.CheckpointBasedScheduler;
 import org.mimicry.cep.CEPEngine;
 import org.mimicry.engine.Application;
 import org.mimicry.engine.ApplicationContext;
+import org.mimicry.util.ExceptionUtil;
 
 import com.googlecode.transloader.DefaultTransloader;
 import com.googlecode.transloader.ObjectWrapper;
@@ -50,7 +51,10 @@ public class Applications
                         }
                         catch (Throwable e)
                         {
-                            throw new RuntimeException("Thread terminated due to uncaught exception.", e);
+                            if (!ExceptionUtil.exceptionWasCausedByThreadDeath(e))
+                            {
+                                throw new RuntimeException("Thread terminated due to uncaught exception.", e);
+                            }
                         }
                     }
                 });

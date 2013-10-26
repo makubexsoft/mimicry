@@ -21,7 +21,7 @@ public class TestBundle1 extends MimicryTestCase
 {
 	@Test
 	@SimulationConfiguration(timeline = TimelineType.DISCRETE)
-	public void test() throws InterruptedException
+	public void testCanStopInfiniteLoop() throws InterruptedException
 	{
 		Node node = getSimulation().createNode( new NodeParameters( "myNode" ) );
 		Application application = node.installApplication( "bundle1", "/apps/bundle1" );
@@ -32,6 +32,7 @@ public class TestBundle1 extends MimicryTestCase
 		EventFuture eventFuture = new EventFuture( query );
 		application.start();
 		eventFuture.await( 5,  TimeUnit.SECONDS );
+		assertTrue(eventFuture.isSuccess());
 		
 		// Force termination
 		Future<?> future = application.stop();

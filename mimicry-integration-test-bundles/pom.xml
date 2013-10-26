@@ -17,7 +17,7 @@
 				<artifactId>mimicry-maven-plugin</artifactId>
 				<version>${project.version}</version>
 				<executions>
-					<!-- Bundle 1 -->
+					<!-- Bundle 1 - InfiniteLoop -->
 					<execution>
 						<id>createBundle1</id>
 						<goals>
@@ -41,7 +41,7 @@
 							</content>
 						</configuration>
 					</execution>
-					<!-- Bundle 2 -->
+					<!-- Bundle 2 - WaitAMonth -->
 					<execution>
 						<id>createBundle2</id>
 						<goals>
@@ -60,6 +60,30 @@
 									<target>/bin</target>
 									<includes>
 										<include>tests/bundle2/**/*.class</include>
+									</includes>
+								</fileSet>
+							</content>
+						</configuration>
+					</execution>
+					<!-- Bundle 3 - DeterministaticRandomNumbers -->
+					<execution>
+						<id>createBundle3</id>
+						<goals>
+							<goal>createBundle</goal>
+						</goals>
+						<configuration>
+							<bundleName>bundle3</bundleName>
+							<mainClassFile>tests.bundle3.DeterministaticRandomNumbers</mainClassFile>
+							<deployToLocalRepository>true</deployToLocalRepository>
+							<classPath>
+								<entry>bin/</entry>
+							</classPath>
+							<content>
+								<fileSet>
+									<source>${project.build.outputDirectory}</source>
+									<target>/bin</target>
+									<includes>
+										<include>tests/bundle3/**/*.class</include>
 									</includes>
 								</fileSet>
 							</content>

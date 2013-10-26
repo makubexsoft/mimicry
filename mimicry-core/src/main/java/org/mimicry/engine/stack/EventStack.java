@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.mimicry.cep.CEPEngine;
 import org.mimicry.engine.EventListener;
 import org.mimicry.engine.event.ApplicationEvent;
 import org.mimicry.engine.local.LocalNode;
@@ -36,6 +37,7 @@ public class EventStack implements EventListener
     private final LocalNode node;
     private final List<EventHandler> handlerList;
     private final EventBridge eventBridge;
+    private final CEPEngine eventEngine;
 
     /**
      * Constructs an empty event stack associated to the given {@link LocalNode} and {@link EventBridge}. This instance
@@ -48,13 +50,15 @@ public class EventStack implements EventListener
      * @param eventBridge
      *            The event bridge to use for dispatching upstream events towards the applications.
      */
-    public EventStack(LocalNode node, EventBridge eventBridge)
+    public EventStack(LocalNode node, EventBridge eventBridge, CEPEngine eventEngine)
     {
         Preconditions.checkNotNull(node);
         Preconditions.checkNotNull(eventBridge);
+        Preconditions.checkNotNull(eventEngine);
 
         this.node = node;
         this.eventBridge = eventBridge;
+        this.eventEngine = eventEngine;
 
         eventBridge.addDownstreamEventListener(this);
         handlerList = new CopyOnWriteArrayList<EventHandler>();
@@ -201,7 +205,7 @@ public class EventStack implements EventListener
             // Jobs of a single event handler are executed in a single thread.
             // Event passing to the handler should be done through the scheduler
             // by doing so the event handler is not forced to be concerned about multi-threading issues.
-            handler.init(new EventHandlerContext(this, index), new ClockBasedScheduler(clock), clock);
+            handler.init(new EventHandlerContext(this, index), new ClockBasedScheduler(clock), clock, eventEngine);
 
             index++;
         }

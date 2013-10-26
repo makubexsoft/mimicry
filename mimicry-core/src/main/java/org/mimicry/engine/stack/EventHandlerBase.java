@@ -1,5 +1,6 @@
 package org.mimicry.engine.stack;
 
+import org.mimicry.cep.CEPEngine;
 import org.mimicry.engine.event.ApplicationEvent;
 import org.mimicry.engine.event.DefaultEventFactory;
 import org.mimicry.engine.event.EventFactory;
@@ -25,15 +26,17 @@ public class EventHandlerBase implements EventHandler
     }
 
     @Override
-    final public void init(EventHandlerContext ctx, Scheduler scheduler, Timeline clock)
+    final public void init(EventHandlerContext ctx, Scheduler scheduler, Timeline clock, CEPEngine eventEngine)
     {
         Preconditions.checkNotNull(ctx);
         Preconditions.checkNotNull(scheduler);
         Preconditions.checkNotNull(clock);
+        Preconditions.checkNotNull(eventEngine);
 
         context = ctx;
         this.scheduler = scheduler;
         this.clock = clock;
+        this.eventEngine = eventEngine;
 
         initHandler();
     }
@@ -52,6 +55,11 @@ public class EventHandlerBase implements EventHandler
     final public EventHandlerContext getContext()
     {
         return context;
+    }
+
+    final public CEPEngine getEventEngine()
+    {
+        return eventEngine;
     }
 
     /**
@@ -132,4 +140,5 @@ public class EventHandlerBase implements EventHandler
     private Scheduler scheduler;
     private Timeline clock;
     private EventHandlerContext context;
+    private CEPEngine eventEngine;
 }

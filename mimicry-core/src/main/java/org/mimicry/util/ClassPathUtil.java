@@ -25,7 +25,12 @@ public class ClassPathUtil
         }
         else if (resource.getProtocol().equalsIgnoreCase("file"))
         {
-            return resource.getPath().substring(0, resource.getPath().length() - resourceName.length());
+            String location = resource.getPath().substring(0, resource.getPath().length() - resourceName.length());
+            if (!location.startsWith("file:"))
+            {
+                location = "file:" + location;
+            }
+            return location;
         }
         return null;
     }

@@ -34,8 +34,10 @@
 	</modules>
 
 	<properties>
-		<java.version>1.6</java.version>
+		<java.version>1.7</java.version>
 		<aspectj.version>1.7.3</aspectj.version>
+		<!-- AspectJ Maven Plugin 1.5 is based on AspectJ 1.7.3 -->
+		<aspectj.plugin.version>1.5</aspectj.plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
